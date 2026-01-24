@@ -44,7 +44,7 @@ const CallToAction = () => {
               viewport={{ once: true }}
               className="absolute -bottom-6 -right-6 bg-card shadow-elevated rounded-2xl p-5"
             >
-              <p className="font-display text-2xl font-bold text-foreground">CHF 400+</p>
+              <p className="font-display text-2xl font-bold text-accent">CHF 400+</p>
               <p className="text-muted-foreground">durchschnittlich gespart</p>
             </motion.div>
           </motion.div>
@@ -57,7 +57,7 @@ const CallToAction = () => {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+            <span className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium">
               Starte jetzt
             </span>
             
@@ -80,7 +80,7 @@ const CallToAction = () => {
                   className="flex items-center gap-3"
                 >
                   <div className="w-6 h-6 rounded-full gradient-primary flex items-center justify-center flex-shrink-0">
-                    <Check className="w-4 h-4 text-primary-foreground" />
+                    <Check className="w-4 h-4 text-accent-foreground" />
                   </div>
                   <span className="text-foreground">{feature}</span>
                 </motion.li>

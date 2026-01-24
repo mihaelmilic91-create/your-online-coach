@@ -30,12 +30,33 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const withTimeout = async <T,>(promise: Promise<T>, ms: number) => {
+    let timeoutId: number | undefined;
+    const timeoutPromise = new Promise<T>((_, reject) => {
+      timeoutId = window.setTimeout(() => {
+        reject(new Error("Zeitüberschreitung beim Laden der Zahlungsoptionen. Bitte erneut versuchen."));
+      }, ms);
+    });
+
+    try {
+      return await Promise.race([promise, timeoutPromise]);
+    } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    }
+  };
+
   const initializePayment = async () => {
     setIsLoading(true);
     setError(null);
 
+    console.debug("[CheckoutPaymentSection] initializePayment()", {
+      email: formData.email,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+    });
+
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('create-payment-intent', {
+      const invokePromise = supabase.functions.invoke("create-payment-intent", {
         body: {
           email: formData.email.trim(),
           firstName: formData.firstName.trim(),
@@ -48,6 +69,14 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
           },
           password: formData.password,
         },
+      });
+
+      const { data, error: fnError } = await withTimeout(invokePromise, 20000);
+
+      console.debug("[CheckoutPaymentSection] create-payment-intent response", {
+        hasData: Boolean(data),
+        hasClientSecret: Boolean((data as any)?.clientSecret),
+        fnError: fnError ? { message: fnError.message, name: fnError.name } : null,
       });
 
       if (fnError) {
@@ -65,6 +94,7 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       }
     } catch (err: any) {
       const message = err?.message || "Ein Fehler ist aufgetreten";
+      console.error("[CheckoutPaymentSection] initializePayment error", err);
       setError(message);
       toast({
         variant: "destructive",
@@ -80,10 +110,11 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
 
   useEffect(() => {
     // Only initialize when we have required data
-    if (formData.email && formData.password && formData.firstName && formData.lastName) {
+    if (!clientSecret && !isLoading && formData.email && formData.password && formData.firstName && formData.lastName) {
       initializePayment();
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.email, formData.password, formData.firstName, formData.lastName]);
 
   const handlePaymentError = (errorMessage: string) => {
     setError(errorMessage);

@@ -49,7 +49,7 @@ const Hero = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Button variant="hero" size="xl" asChild>
-                <Link to="/register">Jetzt Registrieren</Link>
+                <Link to="/zugang">Jetzt Registrieren</Link>
               </Button>
               <Button variant="hero-outline" size="xl" className="gap-3">
                 <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">

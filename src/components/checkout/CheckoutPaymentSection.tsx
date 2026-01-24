@@ -30,6 +30,43 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
   const [isLoading, setIsLoading] = useState(true); // Start with loading true
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [debugNote, setDebugNote] = useState<string | null>(null);
+
+  const directFetchClientSecret = async (): Promise<string> => {
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    if (!baseUrl || !anonKey) throw new Error("Backend-Konfiguration fehlt (URL/Key)");
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+
+    const res = await fetch(`${baseUrl}/functions/v1/create-payment-intent`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: anonKey,
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      body: JSON.stringify({
+        email: formData.email.trim(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        billingAddress: {
+          street: formData.address.trim(),
+          city: formData.city.trim(),
+          postalCode: formData.postalCode.trim(),
+          canton: formData.canton,
+        },
+        password: formData.password,
+      }),
+    });
+
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
+    if (json?.error) throw new Error(json.error);
+    if (!json?.clientSecret) throw new Error("Keine Zahlungsinformationen erhalten");
+    return json.clientSecret as string;
+  };
 
   const initializePayment = async () => {
     console.log("[CheckoutPaymentSection] initializePayment started", {
@@ -41,11 +78,9 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
 
     setIsLoading(true);
     setError(null);
+    setDebugNote(null);
 
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 25000);
-
       const { data, error: fnError } = await supabase.functions.invoke("create-payment-intent", {
         body: {
           email: formData.email.trim(),
@@ -60,8 +95,6 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
           password: formData.password,
         },
       });
-
-      clearTimeout(timeoutId);
 
       console.log("[CheckoutPaymentSection] Response received", {
         hasData: Boolean(data),
@@ -81,13 +114,18 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       if (data?.clientSecret) {
         console.log("[CheckoutPaymentSection] clientSecret received successfully");
         setClientSecret(data.clientSecret);
+        setDebugNote("clientSecret via invoke");
       } else {
-        throw new Error("Keine Zahlungsinformationen erhalten");
+        // Fallback: direct fetch (some environments have flaky invoke response parsing)
+        const cs = await directFetchClientSecret();
+        setClientSecret(cs);
+        setDebugNote("clientSecret via direct fetch fallback");
       }
     } catch (err: any) {
       const message = err?.message || "Ein Fehler ist aufgetreten";
       console.error("[CheckoutPaymentSection] Error:", message, err);
       setError(message);
+      setDebugNote(null);
       toast({
         variant: "destructive",
         title: "Fehler",
@@ -148,6 +186,9 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Lade Zahlungsoptionen...</p>
+        {debugNote ? (
+          <p className="text-xs text-muted-foreground/80">{debugNote}</p>
+        ) : null}
       </div>
     );
   }

@@ -67,18 +67,21 @@ serve(async (req) => {
       });
     }
 
-    // Store pending registration
+    // Store pending registration - first delete any existing one with same email
+    await supabaseAdmin
+      .from("pending_registrations")
+      .delete()
+      .eq("email", email);
+
     const { error: insertError } = await supabaseAdmin
       .from("pending_registrations")
-      .upsert({
+      .insert({
         email,
         first_name: firstName,
         last_name: lastName,
         password_hash: password, // Will be hashed by Supabase Auth during actual registration
         billing_address: billingAddress,
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      }, {
-        onConflict: "email",
       });
 
     if (insertError) {

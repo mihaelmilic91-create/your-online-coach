@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          is_locked: boolean | null
+          is_published: boolean | null
+          lessons_count: number | null
+          sort_order: number | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_locked?: boolean | null
+          is_published?: boolean | null
+          lessons_count?: number | null
+          sort_order?: number | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_locked?: boolean | null
+          is_published?: boolean | null
+          lessons_count?: number | null
+          sort_order?: number | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lessons: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          is_published: boolean | null
+          sort_order: number | null
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_published?: boolean | null
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          is_published?: boolean | null
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -41,15 +130,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -176,6 +292,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

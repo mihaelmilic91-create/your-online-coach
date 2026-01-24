@@ -43,7 +43,7 @@ const Header = () => {
             <a href="/login">Anmelden</a>
           </Button>
           <Button variant="hero" size="sm" asChild>
-            <a href="/register">Registrieren</a>
+            <a href="/zugang">Registrieren</a>
           </Button>
         </div>
 
@@ -79,7 +79,7 @@ const Header = () => {
                 <a href="/login">Anmelden</a>
               </Button>
               <Button variant="hero" className="w-full" asChild>
-                <a href="/register">Registrieren</a>
+                <a href="/zugang">Registrieren</a>
               </Button>
             </div>
           </nav>

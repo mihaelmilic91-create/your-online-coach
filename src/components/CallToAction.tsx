@@ -89,7 +89,7 @@ const CallToAction = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button variant="hero" size="xl" className="gap-2" asChild>
-                <a href="/register">
+                <a href="/zugang">
                   Jetzt Registrieren
                   <ArrowRight className="w-5 h-5" />
                 </a>

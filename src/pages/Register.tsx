@@ -101,9 +101,9 @@ const Register = () => {
 
       toast({
         title: "Erfolgreich registriert!",
-        description: "Du kannst dich jetzt anmelden.",
+        description: "Willkommen bei Online DriveCoach!",
       });
-      navigate("/login");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",

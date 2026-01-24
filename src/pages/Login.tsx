@@ -80,7 +80,7 @@ const Login = () => {
         title: "Willkommen zurück!",
         description: "Du wurdest erfolgreich angemeldet.",
       });
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         variant: "destructive",

@@ -193,7 +193,7 @@ const Login = () => {
           {/* Register Link */}
           <p className="text-center text-muted-foreground mt-6">
             Noch kein Konto?{" "}
-            <Link to="/register" className="text-primary font-medium hover:underline">
+            <Link to="/checkout" className="text-primary font-medium hover:underline">
               Jetzt registrieren
             </Link>
           </p>

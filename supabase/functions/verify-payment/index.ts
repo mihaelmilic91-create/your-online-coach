@@ -67,6 +67,18 @@ serve(async (req) => {
       throw new Error("Fehler beim Erstellen des Kontos: " + authError.message);
     }
 
+    // Calculate access_until (1 year from now)
+    const accessUntil = new Date();
+    accessUntil.setFullYear(accessUntil.getFullYear() + 1);
+
+    // Update profile with access_until date
+    if (authData.user) {
+      await supabaseAdmin
+        .from('profiles')
+        .update({ access_until: accessUntil.toISOString() })
+        .eq('user_id', authData.user.id);
+    }
+
     // Mark pending registration as completed
     await supabaseAdmin
       .from('pending_registrations')
@@ -79,6 +91,7 @@ serve(async (req) => {
       email: pendingReg.email,
       firstName: pendingReg.first_name,
       lastName: pendingReg.last_name,
+      accessUntil: accessUntil.toISOString(),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

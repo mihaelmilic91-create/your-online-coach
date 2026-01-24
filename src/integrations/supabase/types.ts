@@ -144,6 +144,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          access_until: string | null
           avatar_url: string | null
           created_at: string
           display_name: string | null
@@ -152,6 +153,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          access_until?: string | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -160,6 +162,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          access_until?: string | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null

@@ -39,11 +39,11 @@ const Header = () => {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm">
-            Anmelden
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/login">Anmelden</a>
           </Button>
-          <Button variant="hero" size="sm">
-            Registrieren
+          <Button variant="hero" size="sm" asChild>
+            <a href="/register">Registrieren</a>
           </Button>
         </div>
 
@@ -75,11 +75,11 @@ const Header = () => {
               Erfahrungen
             </a>
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Button variant="ghost" className="w-full">
-                Anmelden
+              <Button variant="ghost" className="w-full" asChild>
+                <a href="/login">Anmelden</a>
               </Button>
-              <Button variant="hero" className="w-full">
-                Registrieren
+              <Button variant="hero" className="w-full" asChild>
+                <a href="/register">Registrieren</a>
               </Button>
             </div>
           </nav>

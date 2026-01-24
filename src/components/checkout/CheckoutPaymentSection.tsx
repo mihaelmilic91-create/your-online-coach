@@ -31,6 +31,7 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [debugNote, setDebugNote] = useState<string | null>(null);
+  const DEBUG_VERSION = "checkout-debug-v3";
 
   const directFetchClientSecret = async (): Promise<string> => {
     const baseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -177,9 +178,9 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Zahlung wird vorbereitet...</p>
-        {debugNote ? (
-          <p className="text-xs text-muted-foreground/80">{debugNote}</p>
-        ) : null}
+        <p className="text-xs text-foreground/70">
+          {DEBUG_VERSION} · {debugNote ?? "(no debugNote)"}
+        </p>
       </div>
     );
   }
@@ -203,9 +204,9 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Lade Zahlungsoptionen...</p>
-        {debugNote ? (
-          <p className="text-xs text-muted-foreground/80">{debugNote}</p>
-        ) : null}
+        <p className="text-xs text-foreground/70">
+          {DEBUG_VERSION} · {debugNote ?? "(no debugNote)"}
+        </p>
       </div>
     );
   }

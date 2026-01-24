@@ -33,6 +33,24 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
   const [debugNote, setDebugNote] = useState<string | null>(null);
   const DEBUG_VERSION = "checkout-debug-v3";
 
+  // If we end up with neither clientSecret nor error after an attempt,
+  // force a visible error so users are never stuck on an infinite placeholder.
+  useEffect(() => {
+    if (isLoading) return;
+    if (clientSecret) return;
+    if (error) return;
+
+    const t = window.setTimeout(() => {
+      if (!clientSecret && !error) {
+        setError(
+          "Zahlungsoptionen konnten nicht geladen werden. Bitte versuche es erneut oder verwende eine andere E-Mail-Adresse (falls sie bereits registriert ist)."
+        );
+      }
+    }, 1500);
+
+    return () => window.clearTimeout(t);
+  }, [isLoading, clientSecret, error]);
+
   const directFetchClientSecret = async (): Promise<string> => {
     const baseUrl = import.meta.env.VITE_SUPABASE_URL;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -187,9 +205,10 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Zahlung wird vorbereitet...</p>
-        <p className="text-xs text-foreground/70">
-          {DEBUG_VERSION} · {debugNote ?? "(no debugNote)"}
-        </p>
+        <div className="text-sm text-foreground/80">
+          <div className="font-mono">{DEBUG_VERSION}</div>
+          <div>{debugNote ?? "(no debugNote)"}</div>
+        </div>
       </div>
     );
   }
@@ -213,9 +232,16 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Lade Zahlungsoptionen...</p>
-        <p className="text-xs text-foreground/70">
-          {DEBUG_VERSION} · {debugNote ?? "(no debugNote)"}
-        </p>
+        <div className="text-sm text-foreground/80">
+          <div className="font-mono">{DEBUG_VERSION}</div>
+          <div>{debugNote ?? "(no debugNote)"}</div>
+        </div>
+        <button
+          onClick={handleRetry}
+          className="text-primary hover:underline text-sm"
+        >
+          Erneut versuchen
+        </button>
       </div>
     );
   }

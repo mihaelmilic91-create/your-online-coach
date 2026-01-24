@@ -82,7 +82,8 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://coach-from-scratch.lovable.app";
 
     // Create a one-time payment session for the yearly access
-    // Enable TWINT and other Swiss payment methods
+    // Let Stripe automatically enable available payment methods based on currency and customer location
+    // This includes: Card, TWINT, Apple Pay, Google Pay, and other Swiss payment methods
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -92,7 +93,9 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      payment_method_types: ["card", "twint"],
+      // Don't specify payment_method_types to let Stripe auto-detect best options
+      // Apple Pay and Google Pay work automatically when card is enabled
+      // TWINT is auto-enabled for CHF transactions in Switzerland
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}&registration_id=${pendingReg.id}`,
       cancel_url: `${origin}/checkout?payment=canceled`,
       metadata: {

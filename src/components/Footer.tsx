@@ -38,18 +38,18 @@ const Footer = () => {
                 <span className="text-primary-foreground font-bold text-lg">OD</span>
               </div>
               <span className="font-display font-bold text-lg text-background">
-                Online DriveCoach
+                Online Drivecoach
               </span>
             </a>
             <p className="text-background/70 mb-6 max-w-sm">
-              Die #1 Online-Plattform für Fahrschüler in der Schweiz. Lerne Autofahren mit professionellen Video-Kursen.
+              Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
             </p>
             
-            {/* Contact */}
+            {/* Contact - Placeholder */}
             <div className="space-y-3">
-              <a href="tel:+41791234567" className="flex items-center gap-3 text-background/70 hover:text-background transition-colors">
+              <a href="tel:+41000000000" className="flex items-center gap-3 text-background/70 hover:text-background transition-colors">
                 <Phone className="w-5 h-5" />
-                <span>+41 79 123 45 67</span>
+                <span>+41 XX XXX XX XX</span>
               </a>
               <a href="mailto:info@onlinedrivecoach.ch" className="flex items-center gap-3 text-background/70 hover:text-background transition-colors">
                 <Mail className="w-5 h-5" />
@@ -57,7 +57,7 @@ const Footer = () => {
               </a>
               <div className="flex items-center gap-3 text-background/70">
                 <MapPin className="w-5 h-5" />
-                <span>Zürich, Schweiz</span>
+                <span>Schweiz</span>
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ const Footer = () => {
         {/* Bottom */}
         <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-background/50 text-sm">
-            © 2024 Online DriveCoach. Alle Rechte vorbehalten.
+            © 2024 Online Drivecoach. Alle Rechte vorbehalten.
           </p>
           
           {/* Social */}

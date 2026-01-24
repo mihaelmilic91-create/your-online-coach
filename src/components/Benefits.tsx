@@ -1,30 +1,30 @@
 import { motion } from "framer-motion";
-import { MapPin, Wallet, GraduationCap, BookOpen } from "lucide-react";
+import { MapPin, Wallet, GraduationCap, Video } from "lucide-react";
 
 const Benefits = () => {
   const benefits = [
     {
       icon: MapPin,
       title: "Lerne überall & jederzeit",
-      description: "Mit unserer App hast du deine Fahrstunden immer dabei. Lerne im Bus, in der Pause oder zu Hause.",
+      description: "Ob im Zug, im Bett oder auf dem Sofa – du hast deine Fahrstunden immer dabei, wann und wo du willst.",
       color: "bg-blue-100 text-blue-600",
     },
     {
       icon: Wallet,
-      title: "Spare bei Fahrstunden",
-      description: "Gut vorbereitet brauchst du weniger praktische Stunden. Das spart dir hunderte Franken.",
+      title: "Spare durchschnittlich 4+ Fahrstunden",
+      description: "Das entspricht einer Ersparnis von über CHF 400 – weil du mit gezieltem Wissen in die Praxis gehst.",
       color: "bg-green-100 text-green-600",
     },
     {
       icon: GraduationCap,
-      title: "Lerne von Experten",
-      description: "Unsere Videos wurden von erfahrenen Fahrlehrern mit über 20 Jahren Erfahrung erstellt.",
+      title: "Lerne von einem Experten",
+      description: "Alle Inhalte wurden von einem erfahrenen Schweizer Fahrlehrer erstellt – praxisnah, verständlich und auf den Punkt.",
       color: "bg-primary/10 text-primary",
     },
     {
-      icon: BookOpen,
-      title: "Alle Prüfungsthemen",
-      description: "Von der Autobahnfahrt bis zum Parkieren – wir decken alle relevanten Manöver ab.",
+      icon: Video,
+      title: "Echte Aufnahmen von Schweizer Strassen",
+      description: "Unsere Videos zeigen dir echte Situationen auf Schweizer Strassen – so lernst du, was dich in der Prüfung wirklich erwartet.",
       color: "bg-amber-100 text-amber-600",
     },
   ];
@@ -43,7 +43,7 @@ const Benefits = () => {
             Vorteile
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Weshalb Online DriveCoach?
+            Weshalb Online Drivecoach?
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Entdecke, warum tausende Fahrschüler in der Schweiz auf uns vertrauen

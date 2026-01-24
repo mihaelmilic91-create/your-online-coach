@@ -32,7 +32,7 @@ const Hero = () => {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium"
               >
-                🚗 Die #1 Fahrschul-App der Schweiz
+                Willkommen bei Online Drivecoach
               </motion.span>
               
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
@@ -41,14 +41,14 @@ const Hero = () => {
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
-                Lerne alle Fahrmanöver mit professionellen Videos und bestehe deine Prüfung beim ersten Mal.
+                Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
               </p>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="hero" size="xl">
-                Jetzt Registrieren
+              <Button variant="hero" size="xl" asChild>
+                <a href="/register">Jetzt Registrieren</a>
               </Button>
               <Button variant="hero-outline" size="xl" className="gap-3">
                 <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
@@ -103,8 +103,8 @@ const Hero = () => {
                     <Award className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">98%</p>
-                    <p className="text-sm text-muted-foreground">Bestehensrate</p>
+                    <p className="font-semibold text-foreground">9/10</p>
+                    <p className="text-sm text-muted-foreground">verstehen schneller</p>
                   </div>
                 </div>
               </motion.div>

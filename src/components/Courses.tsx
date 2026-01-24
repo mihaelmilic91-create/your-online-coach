@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
-import { Play, Clock, BarChart3, Lock } from "lucide-react";
+import { Play, Clock, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Courses = () => {
+  // Note: These are placeholder courses based on "Kat. B" driving content
+  // Real course data should be fetched from the backend
   const courses = [
     {
       title: "Grundlagen des Fahrens",
@@ -11,14 +13,16 @@ const Courses = () => {
       level: "Anfänger",
       image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400&h=250&fit=crop",
       free: true,
+      description: "Lenkrad, Pedale, Spiegel richtig einstellen",
     },
     {
-      title: "Parkieren & Manöver",
+      title: "Parkieren & Manövrieren",
       lessons: 12,
       duration: "1h 20min",
       level: "Fortgeschritten",
       image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=250&fit=crop",
       free: false,
+      description: "Seitwärts, rückwärts und vorwärts parkieren",
     },
     {
       title: "Autobahnfahren",
@@ -27,6 +31,7 @@ const Courses = () => {
       level: "Fortgeschritten",
       image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&h=250&fit=crop",
       free: false,
+      description: "Auffahren, Spurwechsel, Ausfahren",
     },
     {
       title: "Prüfungsvorbereitung",
@@ -35,6 +40,7 @@ const Courses = () => {
       level: "Alle Level",
       image: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&h=250&fit=crop",
       free: false,
+      description: "Alle prüfungsrelevanten Themen der Kat. B",
     },
   ];
 
@@ -55,13 +61,13 @@ const Courses = () => {
           className="text-center mb-16"
         >
           <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-            Kurse
+            Video-Kurse
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Unsere Video-Kurse
+            Alle prüfungsrelevanten Themen der Kat. B
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Professionelle Lernvideos für jeden Schritt deiner Fahrausbildung
+            Professionelle Lernvideos für jeden Schritt deiner Fahrausbildung – von einem erfahrenen Schweizer Fahrlehrer erstellt
           </p>
         </motion.div>
 
@@ -110,9 +116,12 @@ const Courses = () => {
                 <span className={`inline-block px-2 py-1 text-xs font-medium rounded-md ${levelColors[course.level]} mb-3`}>
                   {course.level}
                 </span>
-                <h3 className="font-display text-lg font-semibold text-foreground mb-3 line-clamp-2">
+                <h3 className="font-display text-lg font-semibold text-foreground mb-2 line-clamp-2">
                   {course.title}
                 </h3>
+                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                  {course.description}
+                </p>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Play className="w-4 h-4" />
@@ -135,8 +144,8 @@ const Courses = () => {
           viewport={{ once: true }}
           className="text-center mt-12"
         >
-          <Button variant="hero" size="lg">
-            Alle Kurse ansehen
+          <Button variant="hero" size="lg" asChild>
+            <a href="/register">Alle Kurse ansehen</a>
           </Button>
         </motion.div>
       </div>

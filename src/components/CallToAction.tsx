@@ -6,9 +6,10 @@ import instructor from "@/assets/instructor.jpg";
 const CallToAction = () => {
   const features = [
     "Über 30 professionelle Lernvideos",
-    "Von erfahrenen Fahrlehrern erstellt",
+    "Von einem erfahrenen Schweizer Fahrlehrer erstellt",
+    "Echte Aufnahmen von Schweizer Strassen",
+    "Alle prüfungsrelevanten Themen der Kat. B",
     "Jederzeit und überall verfügbar",
-    "Regelmässige neue Inhalte",
   ];
 
   return (
@@ -29,7 +30,7 @@ const CallToAction = () => {
             <div className="relative rounded-3xl overflow-hidden shadow-elevated">
               <img
                 src={instructor}
-                alt="Fahrlehrer"
+                alt="Schweizer Fahrlehrer"
                 className="w-full aspect-square object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
@@ -43,8 +44,8 @@ const CallToAction = () => {
               viewport={{ once: true }}
               className="absolute -bottom-6 -right-6 bg-card shadow-elevated rounded-2xl p-5"
             >
-              <p className="font-display text-2xl font-bold text-foreground">20+ Jahre</p>
-              <p className="text-muted-foreground">Erfahrung</p>
+              <p className="font-display text-2xl font-bold text-foreground">CHF 400+</p>
+              <p className="text-muted-foreground">durchschnittlich gespart</p>
             </motion.div>
           </motion.div>
 
@@ -65,7 +66,7 @@ const CallToAction = () => {
             </h2>
             
             <p className="text-lg text-muted-foreground">
-              Schliesse dich tausenden erfolgreichen Fahrschülern an und bestehe deine Prüfung mit Selbstvertrauen.
+              Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
             </p>
 
             <ul className="space-y-3">
@@ -87,9 +88,11 @@ const CallToAction = () => {
             </ul>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button variant="hero" size="xl" className="gap-2">
-                Jetzt starten
-                <ArrowRight className="w-5 h-5" />
+              <Button variant="hero" size="xl" className="gap-2" asChild>
+                <a href="/register">
+                  Jetzt starten
+                  <ArrowRight className="w-5 h-5" />
+                </a>
               </Button>
               <Button variant="hero-outline" size="xl">
                 Mehr erfahren

@@ -8,7 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import logo from "@/assets/logo.png";
+import Header from "@/components/Header";
 
 const Zugang = () => {
   const benefits = [
@@ -33,15 +33,8 @@ const Zugang = () => {
   ];
 
   return (
-    <div className="min-h-screen gradient-hero">
-      {/* Header */}
-      <header className="py-6">
-        <div className="container mx-auto px-4">
-          <Link to="/" className="flex items-center justify-center gap-2">
-            <img src={logo} alt="Online DriveCoach" className="h-10" />
-          </Link>
-        </div>
-      </header>
+    <div className="min-h-screen gradient-hero pt-20">
+      <Header />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 md:py-12">

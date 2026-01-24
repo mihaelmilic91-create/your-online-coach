@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/logo.png";
+import Header from "@/components/Header";
 
 const checkoutSchema = z.object({
   email: z.string().trim().email({ message: "Ungültige E-Mail-Adresse" }),
@@ -147,23 +147,7 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
-      <header className="bg-primary py-4">
-        <div className="container mx-auto px-4">
-          <Link to="/" className="flex items-center justify-center gap-2">
-            <img src={logo} alt="Online DriveCoach" className="h-8 brightness-0 invert" />
-          </Link>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className="bg-card border-b border-border py-3">
-        <div className="container mx-auto px-4 flex justify-end">
-          <Link to="/" className="text-accent hover:underline text-sm font-medium">
-            Video-Kurse
-          </Link>
-        </div>
-      </nav>
+      <Header />
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -613,9 +597,9 @@ const Checkout = () => {
 
       {/* Footer */}
       <footer className="bg-card border-t border-border py-6 mt-8">
-        <div className="container mx-auto px-4">
-          <Link to="/" className="flex items-center justify-center gap-2">
-            <img src={logo} alt="Online DriveCoach" className="h-8 opacity-50" />
+        <div className="container mx-auto px-4 text-center">
+          <Link to="/" className="text-muted-foreground hover:text-foreground text-sm">
+            © 2025 Online DriveCoach
           </Link>
         </div>
       </footer>

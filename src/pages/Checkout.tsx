@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, ArrowLeft, Eye, EyeOff, CheckCircle, Shield, Lock, Clock, Star } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, CheckCircle, Shield, Lock, Clock, Star } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
+import CheckoutPaymentSection from "@/components/checkout/CheckoutPaymentSection";
 
 const checkoutSchema = z.object({
   email: z.string().trim().email({ message: "Ungültige E-Mail-Adresse" }),
@@ -41,8 +41,8 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -75,7 +75,7 @@ const Checkout = () => {
     { regex: /[0-9]/, text: "Zahl" },
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleContinueToPayment = (e: React.FormEvent) => {
     e.preventDefault();
     
     const result = checkoutSchema.safeParse(formData);
@@ -91,46 +91,12 @@ const Checkout = () => {
       return;
     }
 
-    setIsLoading(true);
+    // Show payment section
+    setShowPayment(true);
+  };
 
-    try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: {
-          email: formData.email.trim(),
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
-          billingAddress: {
-            street: formData.address.trim(),
-            city: formData.city.trim(),
-            postalCode: formData.postalCode.trim(),
-            canton: formData.canton,
-          },
-          password: formData.password,
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("Keine Checkout-URL erhalten");
-      }
-    } catch (error: any) {
-      console.error("Checkout error:", error);
-      const message = error?.message || "Ein unerwarteter Fehler ist aufgetreten.";
-      toast({
-        variant: "destructive",
-        title: "Fehler",
-        description: message.includes("bereits registriert") 
-          ? "Diese E-Mail ist bereits registriert. Bitte melde dich an."
-          : message,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handlePaymentSuccess = () => {
+    navigate("/payment-success");
   };
 
   const cantons = [
@@ -180,10 +146,13 @@ const Checkout = () => {
             className="text-center mb-8"
           >
             <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2">
-              Sichere deinen Zugang
+              {showPayment ? "Zahlung abschließen" : "Sichere deinen Zugang"}
             </h1>
             <p className="text-muted-foreground">
-              Nur noch wenige Schritte bis zu deinem Führerschein-Erfolg
+              {showPayment 
+                ? "Wähle deine bevorzugte Zahlungsmethode" 
+                : "Nur noch wenige Schritte bis zu deinem Führerschein-Erfolg"
+              }
             </p>
           </motion.div>
 
@@ -195,274 +164,291 @@ const Checkout = () => {
               transition={{ duration: 0.4, delay: 0.1 }}
               className="lg:col-span-3"
             >
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Account Section */}
-                <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                      1
-                    </div>
-                    <h2 className="font-display text-lg font-semibold text-foreground">
-                      Dein Konto
-                    </h2>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="email" className="text-sm font-medium">E-Mail-Adresse</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="deine@email.ch"
-                        value={formData.email}
-                        onChange={handleChange("email")}
-                        className={`h-12 mt-1.5 ${errors.email ? "border-destructive" : ""}`}
-                      />
-                      {errors.email && (
-                        <p className="text-sm text-destructive mt-1">{errors.email}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="password" className="text-sm font-medium">Passwort erstellen</Label>
-                      <div className="relative mt-1.5">
-                        <Input
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Sicheres Passwort wählen"
-                          value={formData.password}
-                          onChange={handleChange("password")}
-                          className={`h-12 pr-10 ${errors.password ? "border-destructive" : ""}`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
+              {!showPayment ? (
+                <form onSubmit={handleContinueToPayment} className="space-y-6">
+                  {/* Account Section */}
+                  <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+                        1
                       </div>
-                      {errors.password && (
-                        <p className="text-sm text-destructive mt-1">{errors.password}</p>
-                      )}
-                      
-                      {/* Password requirements - compact */}
-                      <div className="flex flex-wrap gap-3 mt-3">
-                        {passwordRequirements.map((req) => (
-                          <div
-                            key={req.text}
-                            className={`flex items-center gap-1 text-xs ${
-                              req.regex.test(formData.password)
-                                ? "text-accent"
-                                : "text-muted-foreground"
-                            }`}
+                      <h2 className="font-display text-lg font-semibold text-foreground">
+                        Dein Konto
+                      </h2>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="email" className="text-sm font-medium">E-Mail-Adresse</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="deine@email.ch"
+                          value={formData.email}
+                          onChange={handleChange("email")}
+                          className={`h-12 mt-1.5 ${errors.email ? "border-destructive" : ""}`}
+                        />
+                        {errors.email && (
+                          <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="password" className="text-sm font-medium">Passwort erstellen</Label>
+                        <div className="relative mt-1.5">
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Sicheres Passwort wählen"
+                            value={formData.password}
+                            onChange={handleChange("password")}
+                            className={`h-12 pr-10 ${errors.password ? "border-destructive" : ""}`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                           >
-                            <CheckCircle className="w-3 h-3" />
-                            <span>{req.text}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Billing Address Section */}
-                <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                      2
-                    </div>
-                    <h2 className="font-display text-lg font-semibold text-foreground">
-                      Rechnungsadresse
-                    </h2>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="firstName" className="text-sm font-medium">Vorname</Label>
-                        <Input
-                          id="firstName"
-                          placeholder="Max"
-                          value={formData.firstName}
-                          onChange={handleChange("firstName")}
-                          className={`h-12 mt-1.5 ${errors.firstName ? "border-destructive" : ""}`}
-                        />
-                        {errors.firstName && (
-                          <p className="text-sm text-destructive mt-1">{errors.firstName}</p>
+                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          </button>
+                        </div>
+                        {errors.password && (
+                          <p className="text-sm text-destructive mt-1">{errors.password}</p>
                         )}
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName" className="text-sm font-medium">Nachname</Label>
-                        <Input
-                          id="lastName"
-                          placeholder="Muster"
-                          value={formData.lastName}
-                          onChange={handleChange("lastName")}
-                          className={`h-12 mt-1.5 ${errors.lastName ? "border-destructive" : ""}`}
-                        />
-                        {errors.lastName && (
-                          <p className="text-sm text-destructive mt-1">{errors.lastName}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="address" className="text-sm font-medium">Strasse & Hausnummer</Label>
-                      <Input
-                        id="address"
-                        placeholder="Musterstrasse 123"
-                        value={formData.address}
-                        onChange={handleChange("address")}
-                        className={`h-12 mt-1.5 ${errors.address ? "border-destructive" : ""}`}
-                      />
-                      {errors.address && (
-                        <p className="text-sm text-destructive mt-1">{errors.address}</p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="postalCode" className="text-sm font-medium">PLZ</Label>
-                        <Input
-                          id="postalCode"
-                          placeholder="8000"
-                          value={formData.postalCode}
-                          onChange={handleChange("postalCode")}
-                          className={`h-12 mt-1.5 ${errors.postalCode ? "border-destructive" : ""}`}
-                        />
-                        {errors.postalCode && (
-                          <p className="text-sm text-destructive mt-1">{errors.postalCode}</p>
-                        )}
-                      </div>
-                      <div>
-                        <Label htmlFor="city" className="text-sm font-medium">Stadt</Label>
-                        <Input
-                          id="city"
-                          placeholder="Zürich"
-                          value={formData.city}
-                          onChange={handleChange("city")}
-                          className={`h-12 mt-1.5 ${errors.city ? "border-destructive" : ""}`}
-                        />
-                        {errors.city && (
-                          <p className="text-sm text-destructive mt-1">{errors.city}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium">Kanton (optional)</Label>
-                      <Select
-                        value={formData.canton}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, canton: value }))}
-                      >
-                        <SelectTrigger className="h-12 mt-1.5">
-                          <SelectValue placeholder="Kanton wählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {cantons.map((canton) => (
-                            <SelectItem key={canton} value={canton}>
-                              {canton}
-                            </SelectItem>
+                        
+                        {/* Password requirements - compact */}
+                        <div className="flex flex-wrap gap-3 mt-3">
+                          {passwordRequirements.map((req) => (
+                            <div
+                              key={req.text}
+                              className={`flex items-center gap-1 text-xs ${
+                                req.regex.test(formData.password)
+                                  ? "text-accent"
+                                  : "text-muted-foreground"
+                              }`}
+                            >
+                              <CheckCircle className="w-3 h-3" />
+                              <span>{req.text}</span>
+                            </div>
                           ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment & Terms Section */}
-                <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
-                      3
-                    </div>
-                    <h2 className="font-display text-lg font-semibold text-foreground">
-                      Zahlung
-                    </h2>
-                  </div>
-                  
-                  {/* Payment Methods Preview */}
-                  <div className="bg-muted/50 rounded-xl p-4 mb-5">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Akzeptierte Zahlungsmethoden:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-background rounded-lg border border-border text-sm">
-                        <CreditCard className="w-4 h-4" />
-                        Karte
-                      </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#00A3E0] text-white rounded-lg text-sm font-medium">
-                        <span className="w-4 h-4 bg-white rounded flex items-center justify-center text-[#00A3E0] text-[10px] font-bold">T</span>
-                        TWINT
-                      </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-background rounded-lg border border-border text-sm">
-                         Pay
-                      </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-background rounded-lg border border-border text-sm">
-                        G Pay
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Terms */}
-                  <div className="flex items-start gap-3">
-                    <Checkbox
-                      id="terms"
-                      checked={formData.agreeToTerms}
-                      onCheckedChange={(checked) => 
-                        setFormData((prev) => ({ ...prev, agreeToTerms: checked as boolean }))
-                      }
-                      className="mt-0.5"
-                    />
-                    <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
-                      Ich stimme den{" "}
-                      <Link to="/agb" className="text-primary hover:underline font-medium">
-                        AGB
-                      </Link>{" "}
-                      und der{" "}
-                      <Link to="/datenschutz" className="text-primary hover:underline font-medium">
-                        Datenschutzerklärung
-                      </Link>{" "}
-                      zu.
-                    </Label>
+                  {/* Billing Address Section */}
+                  <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+                        2
+                      </div>
+                      <h2 className="font-display text-lg font-semibold text-foreground">
+                        Rechnungsadresse
+                      </h2>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="firstName" className="text-sm font-medium">Vorname</Label>
+                          <Input
+                            id="firstName"
+                            placeholder="Max"
+                            value={formData.firstName}
+                            onChange={handleChange("firstName")}
+                            className={`h-12 mt-1.5 ${errors.firstName ? "border-destructive" : ""}`}
+                          />
+                          {errors.firstName && (
+                            <p className="text-sm text-destructive mt-1">{errors.firstName}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Label htmlFor="lastName" className="text-sm font-medium">Nachname</Label>
+                          <Input
+                            id="lastName"
+                            placeholder="Muster"
+                            value={formData.lastName}
+                            onChange={handleChange("lastName")}
+                            className={`h-12 mt-1.5 ${errors.lastName ? "border-destructive" : ""}`}
+                          />
+                          {errors.lastName && (
+                            <p className="text-sm text-destructive mt-1">{errors.lastName}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="address" className="text-sm font-medium">Strasse & Hausnummer</Label>
+                        <Input
+                          id="address"
+                          placeholder="Musterstrasse 123"
+                          value={formData.address}
+                          onChange={handleChange("address")}
+                          className={`h-12 mt-1.5 ${errors.address ? "border-destructive" : ""}`}
+                        />
+                        {errors.address && (
+                          <p className="text-sm text-destructive mt-1">{errors.address}</p>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label htmlFor="postalCode" className="text-sm font-medium">PLZ</Label>
+                          <Input
+                            id="postalCode"
+                            placeholder="8000"
+                            value={formData.postalCode}
+                            onChange={handleChange("postalCode")}
+                            className={`h-12 mt-1.5 ${errors.postalCode ? "border-destructive" : ""}`}
+                          />
+                          {errors.postalCode && (
+                            <p className="text-sm text-destructive mt-1">{errors.postalCode}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Label htmlFor="city" className="text-sm font-medium">Stadt</Label>
+                          <Input
+                            id="city"
+                            placeholder="Zürich"
+                            value={formData.city}
+                            onChange={handleChange("city")}
+                            className={`h-12 mt-1.5 ${errors.city ? "border-destructive" : ""}`}
+                          />
+                          {errors.city && (
+                            <p className="text-sm text-destructive mt-1">{errors.city}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-medium">Kanton (optional)</Label>
+                        <Select
+                          value={formData.canton}
+                          onValueChange={(value) => setFormData((prev) => ({ ...prev, canton: value }))}
+                        >
+                          <SelectTrigger className="h-12 mt-1.5">
+                            <SelectValue placeholder="Kanton wählen" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {cantons.map((canton) => (
+                              <SelectItem key={canton} value={canton}>
+                                {canton}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
-                  {errors.agreeToTerms && (
-                    <p className="text-sm text-destructive mt-2">{errors.agreeToTerms}</p>
-                  )}
-                </div>
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full h-14 text-base font-semibold bg-accent hover:bg-accent/90 text-accent-foreground rounded-xl shadow-lg shadow-accent/20"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin" />
-                      Wird verarbeitet...
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <Lock className="w-5 h-5" />
-                      Jetzt sicher bezahlen
-                    </span>
-                  )}
-                </Button>
+                  {/* Terms Section */}
+                  <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="terms"
+                        checked={formData.agreeToTerms}
+                        onCheckedChange={(checked) => 
+                          setFormData((prev) => ({ ...prev, agreeToTerms: checked as boolean }))
+                        }
+                        className="mt-0.5"
+                      />
+                      <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
+                        Ich stimme den{" "}
+                        <Link to="/agb" className="text-primary hover:underline font-medium">
+                          AGB
+                        </Link>{" "}
+                        und der{" "}
+                        <Link to="/datenschutz" className="text-primary hover:underline font-medium">
+                          Datenschutzerklärung
+                        </Link>{" "}
+                        zu.
+                      </Label>
+                    </div>
+                    {errors.agreeToTerms && (
+                      <p className="text-sm text-destructive mt-2">{errors.agreeToTerms}</p>
+                    )}
+                  </div>
 
-                {/* Back Link */}
-                <div className="text-center">
-                  <Link
-                    to="/zugang"
-                    className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  {/* Continue Button */}
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full h-14 text-base font-semibold bg-accent hover:bg-accent/90 text-accent-foreground rounded-xl shadow-lg shadow-accent/20"
                   >
-                    <ArrowLeft className="w-4 h-4" />
-                    Zurück zur Übersicht
-                  </Link>
+                    Weiter zur Zahlung
+                  </Button>
+
+                  {/* Back Link */}
+                  <div className="text-center">
+                    <Link
+                      to="/zugang"
+                      className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Zurück zur Übersicht
+                    </Link>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-6">
+                  {/* Summary of entered data */}
+                  <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-foreground">Deine Daten</h3>
+                      <button
+                        onClick={() => setShowPayment(false)}
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Bearbeiten
+                      </button>
+                    </div>
+                    <div className="grid gap-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">E-Mail:</span>
+                        <span className="font-medium">{formData.email}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Name:</span>
+                        <span className="font-medium">{formData.firstName} {formData.lastName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Adresse:</span>
+                        <span className="font-medium text-right">
+                          {formData.address}, {formData.postalCode} {formData.city}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Section */}
+                  <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-semibold text-sm">
+                        3
+                      </div>
+                      <h2 className="font-display text-lg font-semibold text-foreground">
+                        Zahlungsmethode wählen
+                      </h2>
+                    </div>
+                    
+                    <CheckoutPaymentSection
+                      formData={formData}
+                      onPaymentSuccess={handlePaymentSuccess}
+                    />
+                  </div>
+
+                  {/* Back Button */}
+                  <div className="text-center">
+                    <button
+                      onClick={() => setShowPayment(false)}
+                      className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Zurück zur Dateneingabe
+                    </button>
+                  </div>
                 </div>
-              </form>
+              )}
             </motion.div>
 
             {/* Order Summary - 2 columns */}

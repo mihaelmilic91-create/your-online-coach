@@ -8,29 +8,17 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { session_id, registration_id } = await req.json();
-
-    if (!session_id || !registration_id) {
-      throw new Error("Missing session_id or registration_id");
-    }
+    const { payment_intent_id, session_id, registration_id } = await req.json();
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
-
-    // Verify the payment session
-    const session = await stripe.checkout.sessions.retrieve(session_id);
-    
-    if (session.payment_status !== "paid") {
-      throw new Error("Payment not completed");
-    }
 
     // Initialize Supabase with service role
     const supabaseAdmin = createClient(
@@ -38,25 +26,109 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Get pending registration
-    const { data: pendingReg, error: fetchError } = await supabaseAdmin
+    let paymentStatus: string;
+    let email: string;
+    let firstName: string;
+    let lastName: string;
+    let existingUserId: string | null = null;
+
+    // Handle PaymentIntent (embedded checkout)
+    if (payment_intent_id) {
+      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+      
+      if (paymentIntent.status !== "succeeded") {
+        throw new Error("Payment not completed");
+      }
+
+      email = paymentIntent.metadata.email;
+      firstName = paymentIntent.metadata.firstName;
+      lastName = paymentIntent.metadata.lastName;
+      existingUserId = paymentIntent.metadata.existingUserId || null;
+      paymentStatus = paymentIntent.status;
+
+      console.log("PaymentIntent verified:", { email, firstName, existingUserId });
+
+    // Handle legacy Checkout Session
+    } else if (session_id && registration_id) {
+      const session = await stripe.checkout.sessions.retrieve(session_id);
+      
+      if (session.payment_status !== "paid") {
+        throw new Error("Payment not completed");
+      }
+
+      // Get pending registration
+      const { data: pendingReg, error: fetchError } = await supabaseAdmin
+        .from('pending_registrations')
+        .select('*')
+        .eq('id', registration_id)
+        .eq('stripe_session_id', session_id)
+        .is('completed_at', null)
+        .single();
+
+      if (fetchError || !pendingReg) {
+        console.error("Pending registration not found:", fetchError);
+        throw new Error("Registration not found or already completed");
+      }
+
+      email = pendingReg.email;
+      firstName = pendingReg.first_name;
+      lastName = pendingReg.last_name;
+      paymentStatus = session.payment_status;
+    } else {
+      throw new Error("Missing payment_intent_id or session_id");
+    }
+
+    // Calculate access_until (1 year from now)
+    const accessUntil = new Date();
+    accessUntil.setFullYear(accessUntil.getFullYear() + 1);
+
+    // Handle existing user (just update access)
+    if (existingUserId) {
+      console.log("Updating access for existing user:", existingUserId);
+      
+      const { error: updateError } = await supabaseAdmin
+        .from('profiles')
+        .update({ access_until: accessUntil.toISOString() })
+        .eq('user_id', existingUserId);
+
+      if (updateError) {
+        console.error("Error updating profile:", updateError);
+        throw new Error("Fehler beim Aktualisieren des Zugangs");
+      }
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        isExistingUser: true,
+        email,
+        firstName,
+        lastName,
+        accessUntil: accessUntil.toISOString(),
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // Handle new user - get pending registration
+    const { data: pendingReg, error: pendingError } = await supabaseAdmin
       .from('pending_registrations')
       .select('*')
-      .eq('id', registration_id)
-      .eq('stripe_session_id', session_id)
+      .eq('email', email)
       .is('completed_at', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .single();
 
-    if (fetchError || !pendingReg) {
-      console.error("Pending registration not found:", fetchError);
-      throw new Error("Registration not found or already completed");
+    if (pendingError || !pendingReg) {
+      console.error("Pending registration not found for new user:", pendingError);
+      throw new Error("Registrierung nicht gefunden");
     }
 
     // Create the user account
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: pendingReg.email,
       password: pendingReg.password_hash,
-      email_confirm: true, // Auto-confirm since they paid
+      email_confirm: true,
       user_metadata: {
         display_name: `${pendingReg.first_name} ${pendingReg.last_name}`,
       },
@@ -67,15 +139,17 @@ serve(async (req) => {
       throw new Error("Fehler beim Erstellen des Kontos: " + authError.message);
     }
 
-    // Calculate access_until (1 year from now)
-    const accessUntil = new Date();
-    accessUntil.setFullYear(accessUntil.getFullYear() + 1);
-
     // Update profile with access_until date
     if (authData.user) {
+      // Wait a moment for the trigger to create the profile
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       await supabaseAdmin
         .from('profiles')
-        .update({ access_until: accessUntil.toISOString() })
+        .update({ 
+          access_until: accessUntil.toISOString(),
+          display_name: `${pendingReg.first_name} ${pendingReg.last_name}`,
+        })
         .eq('user_id', authData.user.id);
     }
 
@@ -83,11 +157,11 @@ serve(async (req) => {
     await supabaseAdmin
       .from('pending_registrations')
       .update({ completed_at: new Date().toISOString() })
-      .eq('id', registration_id);
+      .eq('id', pendingReg.id);
 
-    // Return success with user info
     return new Response(JSON.stringify({ 
       success: true,
+      isExistingUser: false,
       email: pendingReg.email,
       firstName: pendingReg.first_name,
       lastName: pendingReg.last_name,

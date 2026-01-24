@@ -78,7 +78,11 @@ serve(async (req) => {
       throw new Error("Fehler bei der Registrierung");
     }
 
+    // Get origin for redirect URLs - fallback to production URL if not available
+    const origin = req.headers.get("origin") || "https://coach-from-scratch.lovable.app";
+
     // Create a one-time payment session for the yearly access
+    // Enable TWINT and other Swiss payment methods
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -88,8 +92,9 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&registration_id=${pendingReg.id}`,
-      cancel_url: `${req.headers.get("origin")}/checkout?payment=canceled`,
+      payment_method_types: ["card", "twint"],
+      success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}&registration_id=${pendingReg.id}`,
+      cancel_url: `${origin}/checkout?payment=canceled`,
       metadata: {
         registration_id: pendingReg.id,
         email: email,

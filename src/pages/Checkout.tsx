@@ -154,33 +154,7 @@ const Checkout = () => {
               transition={{ duration: 0.5 }}
             >
               <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Express Checkout */}
-                <div className="bg-card rounded-xl p-6 shadow-soft">
-                  <h2 className="text-center text-sm text-muted-foreground mb-4">
-                    Express-Zahlung
-                  </h2>
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-12 bg-foreground text-background hover:bg-foreground/90"
-                    >
-                      <span className="font-semibold"> Pay</span>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-12 bg-foreground text-background hover:bg-foreground/90"
-                    >
-                      <span className="font-semibold">G Pay</span>
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-4 my-6">
-                    <div className="flex-1 h-px bg-border" />
-                    <span className="text-sm text-muted-foreground">Oder fahre unten fort</span>
-                    <div className="flex-1 h-px bg-border" />
-                  </div>
-                </div>
+                {/* Express Checkout - removed as Stripe handles this */}
 
                 {/* Account Creation */}
                 <div className="bg-card rounded-xl p-6 shadow-soft space-y-4">
@@ -387,34 +361,23 @@ const Checkout = () => {
                     Du wirst zu Stripe weitergeleitet, um die Zahlung sicher abzuschliessen.
                   </p>
                   
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
-                      <CreditCard className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm">Kreditkarte</span>
+                  <div className="flex flex-wrap gap-3 pt-2">
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-muted rounded-lg border border-border">
+                      <CreditCard className="w-5 h-5 text-primary" />
+                      <span className="text-sm font-medium">Kreditkarte</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
-                      <span className="text-sm">TWINT</span>
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-[#00A3E0]/10 rounded-lg border border-[#00A3E0]/30">
+                      <div className="w-5 h-5 bg-[#00A3E0] rounded flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">T</span>
+                      </div>
+                      <span className="text-sm font-medium text-[#00A3E0]">TWINT</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
-                      <span className="text-sm">Apple Pay</span>
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-muted rounded-lg border border-border">
+                      <span className="text-sm font-medium">Apple Pay</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
-                      <span className="text-sm">Google Pay</span>
+                    <div className="flex items-center gap-2 px-4 py-2.5 bg-muted rounded-lg border border-border">
+                      <span className="text-sm font-medium">Google Pay</span>
                     </div>
-                  </div>
-                </div>
-
-                {/* Order Note */}
-                <div className="bg-card rounded-xl p-6 shadow-soft">
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      id="orderNote"
-                      checked={formData.orderNote !== ""}
-                      onCheckedChange={() => {}}
-                    />
-                    <Label htmlFor="orderNote" className="text-sm cursor-pointer">
-                      Eine Notiz zu deiner Bestellung hinzufügen
-                    </Label>
                   </div>
                 </div>
 

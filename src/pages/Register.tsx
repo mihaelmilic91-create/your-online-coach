@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import Header from "@/components/Header";
 
 const registerSchema = z.object({
   displayName: z.string()
@@ -123,22 +124,15 @@ const Register = () => {
   ];
 
   return (
-    <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
+    <div className="min-h-screen gradient-hero flex flex-col">
+      <Header />
+      <div className="flex-1 flex items-center justify-center p-4 pt-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-xl">OD</span>
-          </div>
-          <span className="font-display font-bold text-xl text-foreground">
-            Online <span className="text-gradient">DriveCoach</span>
-          </span>
-        </Link>
 
         {/* Form Card */}
         <div className="bg-card shadow-elevated rounded-3xl p-8">
@@ -291,6 +285,7 @@ const Register = () => {
           </p>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 };

@@ -79,6 +79,7 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
     setIsLoading(true);
     setError(null);
     setDebugNote(null);
+    setDebugNote("Pozivam backend funkciju...");
 
     try {
       const { data, error: fnError } = await supabase.functions.invoke("create-payment-intent", {
@@ -96,27 +97,40 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
         },
       });
 
+      let normalized: any = data;
+      // Some environments may return data as a JSON string
+      if (typeof normalized === "string") {
+        try {
+          normalized = JSON.parse(normalized);
+        } catch {
+          // leave as-is
+        }
+      }
+
       console.log("[CheckoutPaymentSection] Response received", {
+        dataType: typeof data,
+        normalizedType: typeof normalized,
         hasData: Boolean(data),
-        hasClientSecret: Boolean(data?.clientSecret),
+        hasClientSecret: Boolean(normalized?.clientSecret),
         fnError: fnError ? { message: fnError.message } : null,
-        dataError: data?.error || null,
+        dataError: normalized?.error || null,
       });
 
       if (fnError) {
         throw new Error(fnError.message || "Netzwerkfehler");
       }
 
-      if (data?.error) {
-        throw new Error(data.error);
+      if (normalized?.error) {
+        throw new Error(normalized.error);
       }
 
-      if (data?.clientSecret) {
+      if (normalized?.clientSecret) {
         console.log("[CheckoutPaymentSection] clientSecret received successfully");
-        setClientSecret(data.clientSecret);
+        setClientSecret(normalized.clientSecret);
         setDebugNote("clientSecret via invoke");
       } else {
         // Fallback: direct fetch (some environments have flaky invoke response parsing)
+        setDebugNote("invoke nije vratio clientSecret — fallback fetch...");
         const cs = await directFetchClientSecret();
         setClientSecret(cs);
         setDebugNote("clientSecret via direct fetch fallback");
@@ -163,6 +177,9 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Zahlung wird vorbereitet...</p>
+        {debugNote ? (
+          <p className="text-xs text-muted-foreground/80">{debugNote}</p>
+        ) : null}
       </div>
     );
   }

@@ -27,36 +27,26 @@ interface CheckoutPaymentSectionProps {
 const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentSectionProps) => {
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
   const [error, setError] = useState<string | null>(null);
-
-  const withTimeout = async <T,>(promise: Promise<T>, ms: number) => {
-    let timeoutId: number | undefined;
-    const timeoutPromise = new Promise<T>((_, reject) => {
-      timeoutId = window.setTimeout(() => {
-        reject(new Error("Zeitüberschreitung beim Laden der Zahlungsoptionen. Bitte erneut versuchen."));
-      }, ms);
-    });
-
-    try {
-      return await Promise.race([promise, timeoutPromise]);
-    } finally {
-      if (timeoutId) window.clearTimeout(timeoutId);
-    }
-  };
+  const [retryCount, setRetryCount] = useState(0);
 
   const initializePayment = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    console.debug("[CheckoutPaymentSection] initializePayment()", {
+    console.log("[CheckoutPaymentSection] initializePayment started", {
       email: formData.email,
       firstName: formData.firstName,
       lastName: formData.lastName,
+      hasAddress: Boolean(formData.address),
     });
 
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const invokePromise = supabase.functions.invoke("create-payment-intent", {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+      const { data, error: fnError } = await supabase.functions.invoke("create-payment-intent", {
         body: {
           email: formData.email.trim(),
           firstName: formData.firstName.trim(),
@@ -71,16 +61,17 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
         },
       });
 
-      const { data, error: fnError } = await withTimeout(invokePromise, 20000);
+      clearTimeout(timeoutId);
 
-      console.debug("[CheckoutPaymentSection] create-payment-intent response", {
+      console.log("[CheckoutPaymentSection] Response received", {
         hasData: Boolean(data),
-        hasClientSecret: Boolean((data as any)?.clientSecret),
-        fnError: fnError ? { message: fnError.message, name: fnError.name } : null,
+        hasClientSecret: Boolean(data?.clientSecret),
+        fnError: fnError ? { message: fnError.message } : null,
+        dataError: data?.error || null,
       });
 
       if (fnError) {
-        throw fnError;
+        throw new Error(fnError.message || "Netzwerkfehler");
       }
 
       if (data?.error) {
@@ -88,13 +79,14 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       }
 
       if (data?.clientSecret) {
+        console.log("[CheckoutPaymentSection] clientSecret received successfully");
         setClientSecret(data.clientSecret);
       } else {
         throw new Error("Keine Zahlungsinformationen erhalten");
       }
     } catch (err: any) {
       const message = err?.message || "Ein Fehler ist aufgetreten";
-      console.error("[CheckoutPaymentSection] initializePayment error", err);
+      console.error("[CheckoutPaymentSection] Error:", message, err);
       setError(message);
       toast({
         variant: "destructive",
@@ -108,13 +100,16 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
     }
   };
 
+  // Initialize payment on mount - formData is already populated when this component renders
   useEffect(() => {
-    // Only initialize when we have required data
-    if (!clientSecret && !isLoading && formData.email && formData.password && formData.firstName && formData.lastName) {
-      initializePayment();
-    }
+    console.log("[CheckoutPaymentSection] Component mounted, starting payment initialization");
+    initializePayment();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.email, formData.password, formData.firstName, formData.lastName]);
+  }, [retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount((c) => c + 1);
+  };
 
   const handlePaymentError = (errorMessage: string) => {
     setError(errorMessage);
@@ -139,7 +134,7 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       <div className="text-center py-8">
         <p className="text-destructive mb-4">{error}</p>
         <button
-          onClick={initializePayment}
+          onClick={handleRetry}
           className="text-primary hover:underline"
         >
           Erneut versuchen

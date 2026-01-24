@@ -14,7 +14,24 @@ serve(async (req) => {
   }
 
   try {
-    const { email, firstName, lastName, billingAddress } = await req.json();
+    const { email, firstName, lastName, billingAddress, password } = await req.json();
+
+    if (!email || !password || !firstName || !lastName) {
+      throw new Error("Missing required fields");
+    }
+
+    // Initialize Supabase with service role to access pending_registrations
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    // Check if email already exists in auth
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const emailExists = existingUsers?.users?.some(u => u.email === email);
+    if (emailExists) {
+      throw new Error("Diese E-Mail-Adresse ist bereits registriert");
+    }
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -43,8 +60,25 @@ serve(async (req) => {
       customerId = customer.id;
     }
 
+    // Store pending registration (password stored temporarily - will be used after payment)
+    const { data: pendingReg, error: pendingError } = await supabaseAdmin
+      .from('pending_registrations')
+      .insert({
+        email: email,
+        password_hash: password, // Will be used to create account after payment
+        first_name: firstName,
+        last_name: lastName,
+        billing_address: billingAddress,
+      })
+      .select()
+      .single();
+
+    if (pendingError) {
+      console.error("Error creating pending registration:", pendingError);
+      throw new Error("Fehler bei der Registrierung");
+    }
+
     // Create a one-time payment session for the yearly access
-    // Price ID: price_1RwI39DdM2PPWMJrRNcHkV11 (CHF 79.00 - Online Drivecoach Jahreslizenz)
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -54,14 +88,21 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/dashboard?payment=success`,
+      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&registration_id=${pendingReg.id}`,
       cancel_url: `${req.headers.get("origin")}/checkout?payment=canceled`,
       metadata: {
+        registration_id: pendingReg.id,
         email: email,
         firstName: firstName,
         lastName: lastName,
       },
     });
+
+    // Update pending registration with session ID
+    await supabaseAdmin
+      .from('pending_registrations')
+      .update({ stripe_session_id: session.id })
+      .eq('id', pendingReg.id);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

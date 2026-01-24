@@ -44,7 +44,6 @@ const Checkout = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "twint">("card");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -95,42 +94,38 @@ const Checkout = () => {
     setIsLoading(true);
 
     try {
-      // Create user account
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: formData.email.trim(),
-        password: formData.password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: {
-            display_name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+      // Call Stripe checkout edge function
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          email: formData.email.trim(),
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          billingAddress: {
+            street: formData.address.trim(),
+            city: formData.city.trim(),
+            postalCode: formData.postalCode.trim(),
+            canton: formData.canton,
           },
+          password: formData.password,
         },
       });
 
-      if (signUpError) {
-        toast({
-          variant: "destructive",
-          title: "Registrierung fehlgeschlagen",
-          description: signUpError.message,
-        });
-        setIsLoading(false);
-        return;
+      if (error) {
+        throw error;
       }
 
-      // TODO: Process payment with Stripe here
-      // For now, simulate successful payment
-
-      toast({
-        title: "Bestellung erfolgreich!",
-        description: "Dein Konto wurde erstellt. Willkommen bei Online DriveCoach!",
-      });
-      
-      navigate("/dashboard");
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error("Keine Checkout-URL erhalten");
+      }
     } catch (error) {
+      console.error("Checkout error:", error);
       toast({
         variant: "destructive",
         title: "Fehler",
-        description: "Ein unerwarteter Fehler ist aufgetreten.",
+        description: "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut.",
       });
     } finally {
       setIsLoading(false);
@@ -388,82 +383,23 @@ const Checkout = () => {
                   <h2 className="font-display text-lg font-semibold text-foreground">
                     Zahlungsoptionen
                   </h2>
-
-                  {/* Credit Card */}
-                  <div
-                    className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                      paymentMethod === "card" ? "border-primary bg-primary/5" : "border-border"
-                    }`}
-                    onClick={() => setPaymentMethod("card")}
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "card" ? "border-primary" : "border-muted-foreground"
-                        }`}>
-                          {paymentMethod === "card" && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                          )}
-                        </div>
-                        <span className="font-medium">Credit / Debit Card</span>
-                      </div>
-                      <CreditCard className="w-5 h-5 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    Du wirst zu Stripe weitergeleitet, um die Zahlung sicher abzuschliessen.
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                      <CreditCard className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm">Kreditkarte</span>
                     </div>
-
-                    {paymentMethod === "card" && (
-                      <div className="space-y-4 pl-8">
-                        <div>
-                          <Label className="text-sm text-muted-foreground">Kartennummer</Label>
-                          <div className="relative">
-                            <Input
-                              placeholder="1234 1234 1234 1234"
-                              className="h-12 pr-24"
-                            />
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
-                              <div className="w-8 h-5 bg-destructive rounded text-[8px] text-destructive-foreground flex items-center justify-center font-bold">MC</div>
-                              <div className="w-8 h-5 bg-primary rounded text-[8px] text-primary-foreground flex items-center justify-center font-bold">VISA</div>
-                              <div className="w-8 h-5 bg-accent rounded text-[8px] text-accent-foreground flex items-center justify-center font-bold">AMEX</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label className="text-sm text-muted-foreground">Ablaufdatum</Label>
-                            <Input placeholder="MM/JJ" className="h-12" />
-                          </div>
-                          <div>
-                            <Label className="text-sm text-muted-foreground">Sicherheitscode</Label>
-                            <Input placeholder="Prüfziffer" className="h-12" />
-                          </div>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Mit der Angabe Ihrer Kartendaten erklären Sie sich damit einverstanden, dass Online Drive Coach Ihre Karte für zukünftige Zahlungen gemäß seinen Bedingungen belastet.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* TWINT */}
-                  <div
-                    className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                      paymentMethod === "twint" ? "border-primary bg-primary/5" : "border-border"
-                    }`}
-                    onClick={() => setPaymentMethod("twint")}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "twint" ? "border-primary" : "border-muted-foreground"
-                        }`}>
-                          {paymentMethod === "twint" && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                          )}
-                        </div>
-                        <span className="font-medium">Twint</span>
-                      </div>
-                      <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                        <span className="text-accent-foreground text-xs font-bold">T</span>
-                      </div>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                      <span className="text-sm">TWINT</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                      <span className="text-sm">Apple Pay</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-lg">
+                      <span className="text-sm">Google Pay</span>
                     </div>
                   </div>
                 </div>

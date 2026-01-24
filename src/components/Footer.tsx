@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   const links = {
@@ -28,34 +28,33 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-foreground text-background py-16">
+    <footer className="bg-navy text-white py-16">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <a href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">OD</span>
-              </div>
-              <span className="font-display font-bold text-lg text-background">
-                Online Drivecoach
-              </span>
+            <a href="/" className="flex items-center mb-4">
+              <img 
+                src={logo} 
+                alt="Online DriveCoach" 
+                className="h-10 w-auto brightness-0 invert"
+              />
             </a>
-            <p className="text-background/70 mb-6 max-w-sm">
+            <p className="text-white/70 mb-6 max-w-sm">
               Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
             </p>
             
             {/* Contact - Placeholder */}
             <div className="space-y-3">
-              <a href="tel:+41000000000" className="flex items-center gap-3 text-background/70 hover:text-background transition-colors">
+              <a href="tel:+41000000000" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
                 <Phone className="w-5 h-5" />
                 <span>+41 XX XXX XX XX</span>
               </a>
-              <a href="mailto:info@onlinedrivecoach.ch" className="flex items-center gap-3 text-background/70 hover:text-background transition-colors">
+              <a href="mailto:info@onlinedrivecoach.ch" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
                 <Mail className="w-5 h-5" />
                 <span>info@onlinedrivecoach.ch</span>
               </a>
-              <div className="flex items-center gap-3 text-background/70">
+              <div className="flex items-center gap-3 text-white/70">
                 <MapPin className="w-5 h-5" />
                 <span>Schweiz</span>
               </div>
@@ -64,11 +63,11 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h4 className="font-display font-semibold text-background mb-4">Produkt</h4>
+            <h4 className="font-display font-semibold text-white mb-4">Produkt</h4>
             <ul className="space-y-3">
               {links.produkt.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-background/70 hover:text-background transition-colors">
+                  <a href={link.href} className="text-white/70 hover:text-white transition-colors">
                     {link.label}
                   </a>
                 </li>
@@ -77,11 +76,11 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-background mb-4">Unternehmen</h4>
+            <h4 className="font-display font-semibold text-white mb-4">Unternehmen</h4>
             <ul className="space-y-3">
               {links.unternehmen.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-background/70 hover:text-background transition-colors">
+                  <a href={link.href} className="text-white/70 hover:text-white transition-colors">
                     {link.label}
                   </a>
                 </li>
@@ -90,11 +89,11 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-background mb-4">Rechtliches</h4>
+            <h4 className="font-display font-semibold text-white mb-4">Rechtliches</h4>
             <ul className="space-y-3">
               {links.rechtliches.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-background/70 hover:text-background transition-colors">
+                  <a href={link.href} className="text-white/70 hover:text-white transition-colors">
                     {link.label}
                   </a>
                 </li>
@@ -104,8 +103,8 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-background/50 text-sm">
+        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-white/50 text-sm">
             © 2024 Online Drivecoach. Alle Rechte vorbehalten.
           </p>
           
@@ -116,7 +115,7 @@ const Footer = () => {
                 key={item.label}
                 href={item.href}
                 aria-label={item.label}
-                className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center text-background/70 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-accent hover:text-accent-foreground transition-all duration-300"
               >
                 <item.icon className="w-5 h-5" />
               </a>

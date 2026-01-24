@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,17 +12,16 @@ const Header = () => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50"
+      className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-b border-border/50"
     >
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">OD</span>
-          </div>
-          <span className="font-display font-bold text-lg text-foreground">
-            Online <span className="text-gradient">DriveCoach</span>
-          </span>
+        <a href="/" className="flex items-center">
+          <img 
+            src={logo} 
+            alt="Online DriveCoach" 
+            className="h-10 md:h-12 w-auto"
+          />
         </a>
 
         {/* Desktop Navigation */}

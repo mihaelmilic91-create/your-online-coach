@@ -7,25 +7,25 @@ const Benefits = () => {
       icon: MapPin,
       title: "Lerne überall & jederzeit",
       description: "Ob im Zug, im Bett oder auf dem Sofa – du hast deine Fahrstunden immer dabei, wann und wo du willst.",
-      color: "bg-blue-100 text-blue-600",
+      color: "bg-accent/10 text-accent",
     },
     {
       icon: Wallet,
       title: "Spare durchschnittlich 4+ Fahrstunden",
       description: "Das entspricht einer Ersparnis von über CHF 400 – weil du mit gezieltem Wissen in die Praxis gehst.",
-      color: "bg-green-100 text-green-600",
+      color: "bg-accent/10 text-accent",
     },
     {
       icon: GraduationCap,
       title: "Lerne von einem Experten",
       description: "Alle Inhalte wurden von einem erfahrenen Schweizer Fahrlehrer erstellt – praxisnah, verständlich und auf den Punkt.",
-      color: "bg-primary/10 text-primary",
+      color: "bg-accent/10 text-accent",
     },
     {
       icon: Video,
       title: "Echte Aufnahmen von Schweizer Strassen",
       description: "Unsere Videos zeigen dir echte Situationen auf Schweizer Strassen – so lernst du, was dich in der Prüfung wirklich erwartet.",
-      color: "bg-amber-100 text-amber-600",
+      color: "bg-accent/10 text-accent",
     },
   ];
 
@@ -39,7 +39,7 @@ const Benefits = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium mb-4">
             Vorteile
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">

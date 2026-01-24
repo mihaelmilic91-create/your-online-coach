@@ -45,9 +45,9 @@ const Courses = () => {
   ];
 
   const levelColors: Record<string, string> = {
-    "Anfänger": "bg-green-100 text-green-700",
-    "Fortgeschritten": "bg-amber-100 text-amber-700",
-    "Alle Level": "bg-blue-100 text-blue-700",
+    "Anfänger": "bg-accent/10 text-accent",
+    "Fortgeschritten": "bg-primary/10 text-primary",
+    "Alle Level": "bg-accent/10 text-accent",
   };
 
   return (
@@ -60,7 +60,7 @@ const Courses = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
+          <span className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium mb-4">
             Video-Kurse
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -93,14 +93,14 @@ const Courses = () => {
                 {/* Play button */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="w-14 h-14 rounded-full gradient-primary flex items-center justify-center shadow-elevated">
-                    <Play className="w-6 h-6 text-primary-foreground ml-1" />
+                    <Play className="w-6 h-6 text-accent-foreground ml-1" />
                   </div>
                 </div>
 
                 {/* Free/Premium badge */}
                 <div className="absolute top-3 left-3">
                   {course.free ? (
-                    <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+                    <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
                       GRATIS
                     </span>
                   ) : (

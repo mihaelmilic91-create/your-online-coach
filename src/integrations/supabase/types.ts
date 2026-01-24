@@ -103,6 +103,45 @@ export type Database = {
           },
         ]
       }
+      pending_registrations: {
+        Row: {
+          billing_address: Json | null
+          completed_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          first_name: string
+          id: string
+          last_name: string
+          password_hash: string
+          stripe_session_id: string | null
+        }
+        Insert: {
+          billing_address?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          first_name: string
+          id?: string
+          last_name: string
+          password_hash: string
+          stripe_session_id?: string | null
+        }
+        Update: {
+          billing_address?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          password_hash?: string
+          stripe_session_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

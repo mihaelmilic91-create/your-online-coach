@@ -11,11 +11,11 @@ import logo from "@/assets/logo.png";
 interface Course {
   id: string;
   title: string;
-  description: string;
-  duration: string;
-  lessons: number;
-  progress: number;
-  locked: boolean;
+  description: string | null;
+  duration: string | null;
+  lessons_count: number | null;
+  is_locked: boolean | null;
+  thumbnail_url: string | null;
 }
 
 interface AccessInfo {
@@ -29,66 +29,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkingAccess, setCheckingAccess] = useState(true);
-
-  // Placeholder courses - will be replaced with real data
-  const courses: Course[] = [
-    {
-      id: "1",
-      title: "Grundlagen",
-      description: "Lerne die Grundlagen des Autofahrens: Sitzposition, Spiegel, Lenkrad und mehr.",
-      duration: "45 Min",
-      lessons: 8,
-      progress: 0,
-      locked: false,
-    },
-    {
-      id: "2",
-      title: "Parkieren",
-      description: "Alle Parkmanöver erklärt: Längs, quer, vorwärts und rückwärts.",
-      duration: "60 Min",
-      lessons: 6,
-      progress: 0,
-      locked: false,
-    },
-    {
-      id: "3",
-      title: "Autobahn",
-      description: "Sicher auf der Autobahn: Auffahren, Spurwechsel und Ausfahren.",
-      duration: "30 Min",
-      lessons: 5,
-      progress: 0,
-      locked: false,
-    },
-    {
-      id: "4",
-      title: "Kreuzungen",
-      description: "Vorfahrtsregeln und richtiges Verhalten an Kreuzungen.",
-      duration: "50 Min",
-      lessons: 7,
-      progress: 0,
-      locked: true,
-    },
-    {
-      id: "5",
-      title: "Kreisverkehr",
-      description: "Einfahren, Fahren und Ausfahren im Kreisverkehr.",
-      duration: "25 Min",
-      lessons: 4,
-      progress: 0,
-      locked: true,
-    },
-    {
-      id: "6",
-      title: "Prüfungsvorbereitung",
-      description: "Alle wichtigen Themen für die praktische Prüfung.",
-      duration: "90 Min",
-      lessons: 12,
-      progress: 0,
-      locked: true,
-    },
-  ];
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -100,7 +43,6 @@ const Dashboard = () => {
       }
 
       setUser(session.user);
-      setLoading(false);
 
       // Check access
       try {
@@ -118,6 +60,16 @@ const Dashboard = () => {
       } finally {
         setCheckingAccess(false);
       }
+
+      // Load courses from database
+      const { data: coursesData } = await supabase
+        .from("courses")
+        .select("*")
+        .eq("is_published", true)
+        .order("sort_order", { ascending: true });
+
+      setCourses(coursesData || []);
+      setLoading(false);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -296,13 +248,13 @@ const Dashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 * index }}
               >
-                <Card className={`bg-card shadow-soft hover:shadow-elevated transition-all duration-300 ${course.locked ? 'opacity-60' : ''}`}>
+                <Card className={`bg-card shadow-soft hover:shadow-elevated transition-all duration-300 ${course.is_locked ? 'opacity-60' : ''}`}>
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-lg font-semibold text-foreground">
                         {course.title}
                       </CardTitle>
-                      {course.locked ? (
+                      {course.is_locked ? (
                         <Lock className="w-5 h-5 text-muted-foreground" />
                       ) : (
                         <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
@@ -317,35 +269,40 @@ const Dashboard = () => {
                     </p>
                     
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        {course.duration}
-                      </span>
+                      {course.duration && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          {course.duration}
+                        </span>
+                      )}
                       <span className="flex items-center gap-1">
                         <Video className="w-4 h-4" />
-                        {course.lessons} Videos
+                        {course.lessons_count || 0} Videos
                       </span>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Fortschritt</span>
-                        <span className="font-medium text-foreground">{course.progress}%</span>
-                      </div>
-                      <Progress value={course.progress} className="h-2" />
                     </div>
                     
                     <Button 
-                      variant={course.locked ? "outline" : "hero"} 
+                      variant={course.is_locked ? "outline" : "hero"} 
                       className="w-full"
-                      disabled={course.locked}
+                      disabled={!!course.is_locked}
+                      asChild={!course.is_locked}
                     >
-                      {course.locked ? "Bald verfügbar" : "Kurs starten"}
+                      {course.is_locked ? (
+                        <span>Bald verfügbar</span>
+                      ) : (
+                        <Link to={`/course/${course.id}`}>Kurs starten</Link>
+                      )}
                     </Button>
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
+
+            {courses.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">Noch keine Kurse verfügbar.</p>
+              </div>
+            )}
           </div>
         </motion.div>
       </main>

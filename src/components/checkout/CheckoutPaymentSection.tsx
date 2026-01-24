@@ -118,7 +118,16 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       });
 
       if (fnError) {
-        throw new Error(fnError.message || "Netzwerkfehler");
+        // Often the SDK only gives a generic message here; try fallback fetch to retrieve real error payload.
+        try {
+          setDebugNote("invoke non-2xx — pokušavam fallback fetch za detalje...");
+          const cs = await directFetchClientSecret();
+          setClientSecret(cs);
+          setDebugNote("clientSecret via direct fetch fallback");
+          return;
+        } catch (fallbackErr: any) {
+          throw new Error(fallbackErr?.message || fnError.message || "Netzwerkfehler");
+        }
       }
 
       if (normalized?.error) {

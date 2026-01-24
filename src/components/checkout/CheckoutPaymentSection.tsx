@@ -6,8 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import StripePaymentForm from "./StripePaymentForm";
 
-// Load Stripe with your publishable key
-const stripePromise = loadStripe("pk_live_51RYMouRnGnmNxMzPMZlUewemMbapVrSQnFv6F86hv2VBtWMJN0RKFJeE8RqxPnc3L35BtKv6rG4b4PjSbqANsJGH00PvJaQRWB");
+// Load Stripe with publishable key from environment
+const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 interface CheckoutPaymentSectionProps {
   formData: {
@@ -116,11 +117,13 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
     );
   }
 
-  if (!clientSecret) {
+  if (!clientSecret || !stripePromise) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-muted-foreground">Lade Zahlungsoptionen...</p>
+        <p className="text-muted-foreground">
+          {!stripePublishableKey ? "Stripe Konfiguration fehlt" : "Lade Zahlungsoptionen..."}
+        </p>
       </div>
     );
   }

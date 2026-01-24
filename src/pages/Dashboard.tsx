@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, Lock, CheckCircle, LogOut, User, Clock, Video } from "lucide-react";
+import { Play, Lock, CheckCircle, LogOut, User, Clock, Video, AlertTriangle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -18,11 +18,19 @@ interface Course {
   locked: boolean;
 }
 
+interface AccessInfo {
+  hasAccess: boolean;
+  accessUntil: string | null;
+  displayName: string | null;
+  daysRemaining: number;
+}
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checkingAccess, setCheckingAccess] = useState(true);
 
   // Placeholder courses - will be replaced with real data
   const courses: Course[] = [
@@ -92,19 +100,24 @@ const Dashboard = () => {
       }
 
       setUser(session.user);
-
-      // Fetch profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .single();
-
-      if (profileData) {
-        setProfile(profileData);
-      }
-
       setLoading(false);
+
+      // Check access
+      try {
+        const { data, error } = await supabase.functions.invoke("check-access");
+        
+        if (error) {
+          console.error("Error checking access:", error);
+          setAccessInfo({ hasAccess: false, accessUntil: null, displayName: null, daysRemaining: 0 });
+        } else {
+          setAccessInfo(data);
+        }
+      } catch (err) {
+        console.error("Error checking access:", err);
+        setAccessInfo({ hasAccess: false, accessUntil: null, displayName: null, daysRemaining: 0 });
+      } finally {
+        setCheckingAccess(false);
+      }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -123,7 +136,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  if (loading) {
+  if (loading || checkingAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
@@ -131,7 +144,54 @@ const Dashboard = () => {
     );
   }
 
-  const displayName = profile?.display_name || user?.user_metadata?.display_name || "Benutzer";
+  // No access - show upgrade prompt
+  if (!accessInfo?.hasAccess) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="bg-card shadow-soft border-b border-border">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <a href="/" className="flex items-center gap-2">
+                <img src={logo} alt="Online DriveCoach" className="h-10" />
+              </a>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Abmelden</span>
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-lg mx-auto text-center"
+          >
+            <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle className="w-10 h-10 text-destructive" />
+            </div>
+            <h1 className="font-display text-2xl font-bold text-foreground mb-4">
+              Kein aktiver Zugang
+            </h1>
+            <p className="text-muted-foreground mb-8">
+              {accessInfo?.accessUntil 
+                ? "Dein Jahreszugang ist abgelaufen. Erneuere deinen Zugang, um weiter zu lernen."
+                : "Du hast noch keinen Zugang zu den Kursen. Kaufe jetzt den Jahreszugang."}
+            </p>
+            <Button asChild size="lg" variant="hero">
+              <Link to="/checkout">
+                Zugang kaufen
+              </Link>
+            </Button>
+          </motion.div>
+        </main>
+      </div>
+    );
+  }
+
+  const displayName = accessInfo?.displayName || user?.user_metadata?.display_name || "Benutzer";
 
   return (
     <div className="min-h-screen bg-background">
@@ -207,12 +267,12 @@ const Dashboard = () => {
           
           <Card className="bg-card shadow-soft">
             <CardContent className="p-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">0%</p>
-                <p className="text-sm text-muted-foreground">Abgeschlossen</p>
+                <p className="text-2xl font-bold text-foreground">{accessInfo?.daysRemaining || 0}</p>
+                <p className="text-sm text-muted-foreground">Tage verbleibend</p>
               </div>
             </CardContent>
           </Card>

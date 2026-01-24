@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, ArrowLeft, ChevronDown } from "lucide-react";
+import { CreditCard, ArrowLeft, ChevronDown, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,10 +15,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 
 const checkoutSchema = z.object({
   email: z.string().trim().email({ message: "Ungültige E-Mail-Adresse" }),
+  password: z.string()
+    .min(8, { message: "Passwort muss mindestens 8 Zeichen haben" })
+    .regex(/[a-z]/, { message: "Passwort muss mindestens einen Kleinbuchstaben enthalten" })
+    .regex(/[A-Z]/, { message: "Passwort muss mindestens einen Großbuchstaben enthalten" })
+    .regex(/[0-9]/, { message: "Passwort muss mindestens eine Zahl enthalten" }),
   country: z.string().min(1, { message: "Bitte Land wählen" }),
   firstName: z.string().trim().min(2, { message: "Vorname erforderlich" }),
   lastName: z.string().trim().min(2, { message: "Nachname erforderlich" }),
@@ -37,9 +43,11 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"card" | "twint">("card");
   const [formData, setFormData] = useState({
     email: "",
+    password: "",
     country: "Schweiz",
     firstName: "",
     lastName: "",
@@ -61,6 +69,13 @@ const Checkout = () => {
     }
   };
 
+  const passwordRequirements = [
+    { regex: /.{8,}/, text: "Mindestens 8 Zeichen" },
+    { regex: /[a-z]/, text: "Ein Kleinbuchstabe" },
+    { regex: /[A-Z]/, text: "Ein Großbuchstabe" },
+    { regex: /[0-9]/, text: "Eine Zahl" },
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -78,16 +93,48 @@ const Checkout = () => {
     }
 
     setIsLoading(true);
-    
-    // Simulate checkout process
-    setTimeout(() => {
+
+    try {
+      // Create user account
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: formData.email.trim(),
+        password: formData.password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: {
+            display_name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
+          },
+        },
+      });
+
+      if (signUpError) {
+        toast({
+          variant: "destructive",
+          title: "Registrierung fehlgeschlagen",
+          description: signUpError.message,
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // TODO: Process payment with Stripe here
+      // For now, simulate successful payment
+
       toast({
         title: "Bestellung erfolgreich!",
-        description: "Du erhältst in Kürze eine Bestätigungs-E-Mail.",
+        description: "Dein Konto wurde erstellt. Willkommen bei Online DriveCoach!",
       });
-      navigate("/register");
+      
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Fehler",
+        description: "Ein unerwarteter Fehler ist aufgetreten.",
+      });
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const cantons = [
@@ -156,23 +203,67 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {/* Contact Information */}
+                {/* Account Creation */}
                 <div className="bg-card rounded-xl p-6 shadow-soft space-y-4">
                   <h2 className="font-display text-lg font-semibold text-foreground">
-                    Kontaktinformation
+                    Konto erstellen
                   </h2>
-                  <div className="space-y-2">
-                    <Input
-                      type="email"
-                      placeholder="E-Mail-Adresse"
-                      value={formData.email}
-                      onChange={handleChange("email")}
-                      className={`h-12 ${errors.email ? "border-destructive" : ""}`}
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-destructive">{errors.email}</p>
-                    )}
-                    <p className="text-sm text-accent">Du bestellst gerade als Gast.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Erstelle dein Konto, um sofort Zugang zu allen Videos zu erhalten.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Input
+                        type="email"
+                        placeholder="E-Mail-Adresse"
+                        value={formData.email}
+                        onChange={handleChange("email")}
+                        className={`h-12 ${errors.email ? "border-destructive" : ""}`}
+                      />
+                      {errors.email && (
+                        <p className="text-sm text-destructive">{errors.email}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Passwort erstellen"
+                          value={formData.password}
+                          onChange={handleChange("password")}
+                          className={`h-12 pr-10 ${errors.password ? "border-destructive" : ""}`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                      {errors.password && (
+                        <p className="text-sm text-destructive">{errors.password}</p>
+                      )}
+                      
+                      {/* Password requirements */}
+                      <div className="grid grid-cols-2 gap-2 pt-2">
+                        {passwordRequirements.map((req) => (
+                          <div
+                            key={req.text}
+                            className={`flex items-center gap-1.5 text-xs ${
+                              req.regex.test(formData.password)
+                                ? "text-accent"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            <span>{req.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -387,7 +478,7 @@ const Checkout = () => {
                         <span className="font-medium">Twint</span>
                       </div>
                       <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">T</span>
+                        <span className="text-accent-foreground text-xs font-bold">T</span>
                       </div>
                     </div>
                   </div>

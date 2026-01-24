@@ -20,26 +20,43 @@ serve(async (req) => {
       throw new Error("Alle Pflichtfelder müssen ausgefüllt sein.");
     }
 
-    // Create Supabase admin client to check for existing users
+    // Create Supabase admin client
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
 
-    // Check if email already exists in auth.users
-    const { data: existingUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-    if (listError) {
-      console.error("Error checking existing users:", listError);
-      throw new Error("Fehler bei der Überprüfung der E-Mail.");
+    // Check if user is already authenticated (existing user buying access)
+    const authHeader = req.headers.get("Authorization");
+    let isExistingUser = false;
+    let existingUserId: string | null = null;
+
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData } = await supabaseAdmin.auth.getUser(token);
+      if (userData?.user) {
+        isExistingUser = true;
+        existingUserId = userData.user.id;
+        console.log("Existing authenticated user:", userData.user.email);
+      }
     }
 
-    const emailExists = existingUsers.users.some(
-      (user) => user.email?.toLowerCase() === email.toLowerCase()
-    );
+    // Only check for duplicate email if this is a NEW user registration
+    if (!isExistingUser) {
+      const { data: existingUsers, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+      if (listError) {
+        console.error("Error checking existing users:", listError);
+        throw new Error("Fehler bei der Überprüfung der E-Mail.");
+      }
 
-    if (emailExists) {
-      throw new Error("Diese E-Mail-Adresse ist bereits registriert. Bitte melde dich an.");
+      const emailExists = existingUsers.users.some(
+        (user) => user.email?.toLowerCase() === email.toLowerCase()
+      );
+
+      if (emailExists) {
+        throw new Error("Diese E-Mail-Adresse ist bereits registriert. Bitte melde dich an.");
+      }
     }
 
     // Initialize Stripe
@@ -67,26 +84,29 @@ serve(async (req) => {
       });
     }
 
-    // Store pending registration - first delete any existing one with same email
-    await supabaseAdmin
-      .from("pending_registrations")
-      .delete()
-      .eq("email", email);
+    // Only store pending registration for new users
+    if (!isExistingUser) {
+      // Store pending registration - first delete any existing one with same email
+      await supabaseAdmin
+        .from("pending_registrations")
+        .delete()
+        .eq("email", email);
 
-    const { error: insertError } = await supabaseAdmin
-      .from("pending_registrations")
-      .insert({
-        email,
-        first_name: firstName,
-        last_name: lastName,
-        password_hash: password, // Will be hashed by Supabase Auth during actual registration
-        billing_address: billingAddress,
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      });
+      const { error: insertError } = await supabaseAdmin
+        .from("pending_registrations")
+        .insert({
+          email,
+          first_name: firstName,
+          last_name: lastName,
+          password_hash: password,
+          billing_address: billingAddress,
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        });
 
-    if (insertError) {
-      console.error("Error storing pending registration:", insertError);
-      throw new Error("Fehler beim Speichern der Registrierung.");
+      if (insertError) {
+        console.error("Error storing pending registration:", insertError);
+        throw new Error("Fehler beim Speichern der Registrierung.");
+      }
     }
 
     // Create PaymentIntent for CHF 79.00
@@ -94,7 +114,6 @@ serve(async (req) => {
       amount: 7900, // CHF 79.00 in cents
       currency: "chf",
       customer: customer.id,
-      // Enable automatic payment methods - Stripe will show best options
       automatic_payment_methods: {
         enabled: true,
       },
@@ -103,14 +122,17 @@ serve(async (req) => {
         firstName,
         lastName,
         product: "Online Drivecoach - Jahreslizenz",
+        existingUserId: existingUserId || "",
       },
     });
 
-    // Update pending registration with payment intent ID
-    await supabaseAdmin
-      .from("pending_registrations")
-      .update({ stripe_session_id: paymentIntent.id })
-      .eq("email", email);
+    // Update pending registration with payment intent ID (only for new users)
+    if (!isExistingUser) {
+      await supabaseAdmin
+        .from("pending_registrations")
+        .update({ stripe_session_id: paymentIntent.id })
+        .eq("email", email);
+    }
 
     return new Response(
       JSON.stringify({

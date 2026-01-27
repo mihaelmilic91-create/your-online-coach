@@ -4,7 +4,7 @@ import logo from "@/assets/logo.png";
 const Footer = () => {
   const links = {
     produkt: [
-      { label: "Video-Kurse", href: "#kurse" },
+      { label: "Lernvideos", href: "#kurse" },
       { label: "Preise", href: "#preise" },
       { label: "FAQ", href: "#faq" },
     ],

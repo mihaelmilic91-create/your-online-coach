@@ -61,7 +61,7 @@ const Courses = () => {
           className="text-center mb-16"
         >
           <span className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium mb-4">
-            Video-Kurse
+            Lernvideos
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
             Alle prüfungsrelevanten Themen der Kat. B

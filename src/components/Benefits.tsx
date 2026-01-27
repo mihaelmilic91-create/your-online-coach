@@ -11,8 +11,8 @@ const Benefits = () => {
     },
     {
       icon: Wallet,
-      title: "Spare durchschnittlich 4+ Fahrstunden",
-      description: "Das entspricht einer Ersparnis von über CHF 400 – weil du mit gezieltem Wissen in die Praxis gehst.",
+      title: "Spare mindestens 4+ Fahrstunden",
+      description: "Das entspricht einer Ersparnis von über CHF 360 – weil du mit gezieltem Wissen in die Praxis gehst.",
       color: "bg-accent/10 text-accent",
     },
     {
@@ -46,7 +46,7 @@ const Benefits = () => {
             Weshalb Online Drivecoach?
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Entdecke, warum tausende Fahrschüler in der Schweiz auf uns vertrauen
+            Entdecke, warum Fahrschüler in der Schweiz auf uns vertrauen
           </p>
         </motion.div>
 

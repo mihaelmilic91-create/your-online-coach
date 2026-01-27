@@ -50,7 +50,7 @@ const Footer = () => {
               <img 
                 src={swissMadeSoftware} 
                 alt="Swiss Made Software" 
-                className="h-6 w-auto brightness-0 invert opacity-70"
+                className="h-6 w-auto"
               />
             </div>
             

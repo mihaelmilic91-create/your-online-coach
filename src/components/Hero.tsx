@@ -67,11 +67,13 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="pt-2"
             >
-              <img 
-                src={swissMadeSoftware} 
-                alt="Swiss Made Software" 
-                className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"
-              />
+              <div className="inline-block bg-white rounded-lg px-3 py-2 shadow-soft">
+                <img 
+                  src={swissMadeSoftware} 
+                  alt="Swiss Made Software" 
+                  className="h-6 w-auto"
+                />
+              </div>
             </motion.div>
 
             {/* Feature badges */}

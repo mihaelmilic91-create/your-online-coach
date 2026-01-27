@@ -1,5 +1,6 @@
 import { Mail, Phone, MapPin, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
 import logo from "@/assets/logo.png";
+import swissMadeSoftware from "@/assets/swiss-made-software.png";
 
 const Footer = () => {
   const links = {
@@ -43,6 +44,15 @@ const Footer = () => {
             <p className="text-white/70 mb-6 max-w-sm">
               Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
             </p>
+            
+            {/* Swiss Made Software Badge */}
+            <div className="mb-6">
+              <img 
+                src={swissMadeSoftware} 
+                alt="Swiss Made Software" 
+                className="h-7 w-auto"
+              />
+            </div>
             
             {/* Contact - Placeholder */}
             <div className="space-y-3">

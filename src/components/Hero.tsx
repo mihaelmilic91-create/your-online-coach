@@ -67,11 +67,11 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="pt-2"
             >
-              <div className="inline-block bg-white rounded-lg px-3 py-2 shadow-soft">
+              <div className="inline-flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-soft border border-border/50">
                 <img 
                   src={swissMadeSoftware} 
                   alt="Swiss Made Software" 
-                  className="h-6 w-auto"
+                  className="h-5 w-auto"
                 />
               </div>
             </motion.div>

@@ -27,7 +27,7 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           <a href="#kurse" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-            Video-Kurse
+            Lernvideos
           </a>
           <a href="#vorteile" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
             Vorteile
@@ -66,7 +66,7 @@ const Header = () => {
         >
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
             <a href="#kurse" className="text-foreground font-medium py-2">
-              Video-Kurse
+              Lernvideos
             </a>
             <a href="#vorteile" className="text-foreground font-medium py-2">
               Vorteile

@@ -3,15 +3,15 @@ import { AlertTriangle, CheckCircle, XCircle, DollarSign, HelpCircle, Zap, Light
 
 const ProblemSolution = () => {
   const problems = [
-    { icon: DollarSign, text: "Fahrstunden sind teuer – jede Lektion kostet zwischen CHF 90 und CHF 120." },
-    { icon: HelpCircle, text: "Privatfahrten mit den Eltern oder Begleitpersonen sind oft unsicher – man weiss nicht genau, wie man richtig üben soll." },
-    { icon: AlertTriangle, text: "Viele Lernfahrer fühlen sich schlecht vorbereitet und unsicher vor der Prüfung." },
+    { icon: DollarSign, text: "Fahrstunden sind teuer, eine Fahrlektion kostet durchschnittlich CHF 90.-" },
+    { icon: HelpCircle, text: "Privatfahrten mit Begleitpersonen sind oft nicht effektiv - man weiss nicht genau, was man üben soll." },
+    { icon: AlertTriangle, text: "Viele Lernfahrer fühlen sich vor der praktischen Prüfung unsicher." },
   ];
 
   const solutions = [
     { icon: Lightbulb, text: "Unsere App erklärt dir alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde." },
     { icon: Target, text: "So kannst du gezielt mit deinen Begleitpersonen üben und bist optimal vorbereitet." },
-    { icon: Zap, text: "Spare durchschnittlich 4+ Fahrstunden – das entspricht über CHF 400!" },
+    { icon: Zap, text: "Spare mind. 4+ Fahrstunden – das entspricht über CHF 360.-!" },
   ];
 
   return (

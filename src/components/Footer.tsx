@@ -47,13 +47,11 @@ const Footer = () => {
             
             {/* Swiss Made Software Badge */}
             <div className="mb-6">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
-                <img 
-                  src={swissMadeSoftware} 
-                  alt="Swiss Made Software" 
-                  className="h-5 w-auto brightness-0 invert"
-                />
-              </div>
+              <img 
+                src={swissMadeSoftware} 
+                alt="Swiss Made Software" 
+                className="h-6 w-auto brightness-0 invert opacity-70"
+              />
             </div>
             
             {/* Contact - Placeholder */}

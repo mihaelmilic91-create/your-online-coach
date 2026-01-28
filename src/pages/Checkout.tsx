@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Eye, EyeOff, CheckCircle, Shield, Lock, Clock, Star } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, CheckCircle, Shield, Lock, Clock, Star, Loader2, AlertCircle } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 import CheckoutPaymentSection from "@/components/checkout/CheckoutPaymentSection";
 
@@ -57,6 +58,8 @@ const Checkout = () => {
     agreeToTerms: false,
   });
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailExistsError, setEmailExistsError] = useState(false);
 
   // Show canceled payment message
   const paymentCanceled = searchParams.get("payment") === "canceled";
@@ -65,6 +68,27 @@ const Checkout = () => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     if (errors[field as keyof CheckoutFormData]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+    // Clear email exists error when email changes
+    if (field === "email") {
+      setEmailExistsError(false);
+    }
+  };
+
+  // Check if email already exists in the system
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.functions.invoke("check-email-exists", {
+        body: { email: email.trim() },
+      });
+      if (error) {
+        console.error("Error checking email:", error);
+        return false;
+      }
+      return data?.exists === true;
+    } catch (err) {
+      console.error("Error checking email:", err);
+      return false;
     }
   };
 
@@ -75,7 +99,7 @@ const Checkout = () => {
     { regex: /[0-9]/, text: "Zahl" },
   ];
 
-  const handleContinueToPayment = (e: React.FormEvent) => {
+  const handleContinueToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const result = checkoutSchema.safeParse(formData);
@@ -91,6 +115,23 @@ const Checkout = () => {
       return;
     }
 
+    // Check if email already exists
+    setIsCheckingEmail(true);
+    setEmailExistsError(false);
+    
+    try {
+      const emailExists = await checkEmailExists(formData.email);
+      if (emailExists) {
+        setEmailExistsError(true);
+        setIsCheckingEmail(false);
+        return;
+      }
+    } catch (err) {
+      // If check fails, proceed to payment (edge function will catch it)
+      console.error("Email check failed:", err);
+    }
+    
+    setIsCheckingEmail(false);
     // Show payment section
     setShowPayment(true);
   };
@@ -186,10 +227,43 @@ const Checkout = () => {
                           placeholder="deine@email.ch"
                           value={formData.email}
                           onChange={handleChange("email")}
-                          className={`h-12 mt-1.5 ${errors.email ? "border-destructive" : ""}`}
+                          className={`h-12 mt-1.5 ${errors.email || emailExistsError ? "border-destructive" : ""}`}
                         />
                         {errors.email && (
                           <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                        )}
+                        
+                        {/* Email exists warning */}
+                        {emailExistsError && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-3 p-4 bg-destructive/10 border border-destructive/30 rounded-xl"
+                          >
+                            <div className="flex items-start gap-3">
+                              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-destructive">
+                                  Diese E-Mail-Adresse ist bereits registriert
+                                </p>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  Du hast bereits ein Konto. Bitte melde dich an, um fortzufahren.
+                                </p>
+                                <div className="mt-3 flex gap-3">
+                                  <Link to="/login?redirect=/checkout">
+                                    <Button size="sm" variant="default">
+                                      Jetzt anmelden
+                                    </Button>
+                                  </Link>
+                                  <Link to="/forgot-password">
+                                    <Button size="sm" variant="outline">
+                                      Passwort vergessen?
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
                         )}
                       </div>
 
@@ -374,8 +448,16 @@ const Checkout = () => {
                     type="submit"
                     size="lg"
                     className="w-full h-14 text-base font-semibold bg-accent hover:bg-accent/90 text-accent-foreground rounded-xl shadow-lg shadow-accent/20"
+                    disabled={isCheckingEmail}
                   >
-                    Weiter zur Zahlung
+                    {isCheckingEmail ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Überprüfe Daten...
+                      </span>
+                    ) : (
+                      "Weiter zur Zahlung"
+                    )}
                   </Button>
 
                   {/* Back Link */}

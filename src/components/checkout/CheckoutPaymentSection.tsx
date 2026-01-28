@@ -97,72 +97,14 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
 
     setIsLoading(true);
     setError(null);
-    setDebugNote(null);
     setDebugNote("Pozivam backend funkciju...");
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke("create-payment-intent", {
-        body: {
-          email: formData.email.trim(),
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
-          billingAddress: {
-            street: formData.address.trim(),
-            city: formData.city.trim(),
-            postalCode: formData.postalCode.trim(),
-            canton: formData.canton,
-          },
-          password: formData.password,
-        },
-      });
-
-      let normalized: any = data;
-      // Some environments may return data as a JSON string
-      if (typeof normalized === "string") {
-        try {
-          normalized = JSON.parse(normalized);
-        } catch {
-          // leave as-is
-        }
-      }
-
-      console.log("[CheckoutPaymentSection] Response received", {
-        dataType: typeof data,
-        normalizedType: typeof normalized,
-        hasData: Boolean(data),
-        hasClientSecret: Boolean(normalized?.clientSecret),
-        fnError: fnError ? { message: fnError.message } : null,
-        dataError: normalized?.error || null,
-      });
-
-      if (fnError) {
-        // Often the SDK only gives a generic message here; try fallback fetch to retrieve real error payload.
-        try {
-          setDebugNote("invoke non-2xx — pokušavam fallback fetch za detalje...");
-          const cs = await directFetchClientSecret();
-          setClientSecret(cs);
-          setDebugNote("clientSecret via direct fetch fallback");
-          return;
-        } catch (fallbackErr: any) {
-          throw new Error(fallbackErr?.message || fnError.message || "Netzwerkfehler");
-        }
-      }
-
-      if (normalized?.error) {
-        throw new Error(normalized.error);
-      }
-
-      if (normalized?.clientSecret) {
-        console.log("[CheckoutPaymentSection] clientSecret received successfully");
-        setClientSecret(normalized.clientSecret);
-        setDebugNote("clientSecret via invoke");
-      } else {
-        // Fallback: direct fetch (some environments have flaky invoke response parsing)
-        setDebugNote("invoke nije vratio clientSecret — fallback fetch...");
-        const cs = await directFetchClientSecret();
-        setClientSecret(cs);
-        setDebugNote("clientSecret via direct fetch fallback");
-      }
+      // Use direct fetch for more reliable response handling
+      const cs = await directFetchClientSecret();
+      console.log("[CheckoutPaymentSection] clientSecret received successfully via direct fetch");
+      setClientSecret(cs);
+      setDebugNote("clientSecret received");
     } catch (err: any) {
       const message = err?.message || "Ein Fehler ist aufgetreten";
       console.error("[CheckoutPaymentSection] Error:", message, err);

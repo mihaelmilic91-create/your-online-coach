@@ -32,6 +32,7 @@ const Dashboard = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [checkingAccess, setCheckingAccess] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -44,21 +45,43 @@ const Dashboard = () => {
 
       setUser(session.user);
 
-      // Check access
-      try {
-        const { data, error } = await supabase.functions.invoke("check-access");
-        
-        if (error) {
-          console.error("Error checking access:", error);
-          setAccessInfo({ hasAccess: false, accessUntil: null, displayName: null, daysRemaining: 0 });
-        } else {
-          setAccessInfo(data);
-        }
-      } catch (err) {
-        console.error("Error checking access:", err);
-        setAccessInfo({ hasAccess: false, accessUntil: null, displayName: null, daysRemaining: 0 });
-      } finally {
+      // Check if user is admin
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      
+      const userIsAdmin = !!roleData;
+      setIsAdmin(userIsAdmin);
+
+      // Admins always have access
+      if (userIsAdmin) {
+        setAccessInfo({ 
+          hasAccess: true, 
+          accessUntil: null, 
+          displayName: session.user.user_metadata?.display_name || "Admin", 
+          daysRemaining: 999 
+        });
         setCheckingAccess(false);
+      } else {
+        // Check access for regular users
+        try {
+          const { data, error } = await supabase.functions.invoke("check-access");
+          
+          if (error) {
+            console.error("Error checking access:", error);
+            setAccessInfo({ hasAccess: false, accessUntil: null, displayName: null, daysRemaining: 0 });
+          } else {
+            setAccessInfo(data);
+          }
+        } catch (err) {
+          console.error("Error checking access:", err);
+          setAccessInfo({ hasAccess: false, accessUntil: null, displayName: null, daysRemaining: 0 });
+        } finally {
+          setCheckingAccess(false);
+        }
       }
 
       // Load courses from database
@@ -156,6 +179,11 @@ const Dashboard = () => {
             </a>
             
             <div className="flex items-center gap-4">
+              {isAdmin && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/admin">Admin</Link>
+                </Button>
+              )}
               <div className="hidden sm:flex items-center gap-2 text-muted-foreground">
                 <User className="w-5 h-5" />
                 <span>{displayName}</span>

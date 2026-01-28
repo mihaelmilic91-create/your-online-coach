@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
@@ -6,9 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import StripePaymentForm from "./StripePaymentForm";
-
-// NOTE: Publishable keys are now provided by the backend response (based on PaymentIntent.livemode).
-// This avoids relying on Vite env vars (which aren't available from backend secrets at runtime).
 
 interface CheckoutPaymentSectionProps {
   formData: {
@@ -24,92 +21,98 @@ interface CheckoutPaymentSectionProps {
   onPaymentSuccess: () => void;
 }
 
-interface PaymentIntentResponse {
-  clientSecret: string;
-  paymentIntentId: string;
-  livemode: boolean;
-  publishableKey: string;
-}
+type LoadingState = "idle" | "fetching" | "initializing-stripe" | "ready" | "error";
 
 const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentSectionProps) => {
   const { toast } = useToast();
+  const [loadingState, setLoadingState] = useState<LoadingState>("idle");
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [stripe, setStripe] = useState<Stripe | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
 
-  const fetchPaymentIntent = async (): Promise<PaymentIntentResponse> => {
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    if (!baseUrl || !anonKey) throw new Error("Backend-Konfiguration fehlt (URL/Key)");
-
-    const { data: sessionData } = await supabase.auth.getSession();
-    const accessToken = sessionData.session?.access_token;
-
-    const res = await fetch(`${baseUrl}/functions/v1/create-payment-intent`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: anonKey,
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-      },
-      body: JSON.stringify({
-        email: formData.email.trim(),
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        billingAddress: {
-          street: formData.address.trim(),
-          city: formData.city.trim(),
-          postalCode: formData.postalCode.trim(),
-          canton: formData.canton,
-        },
-        password: formData.password,
-      }),
-    });
-
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
-    if (json?.error) throw new Error(json.error);
-    if (!json?.clientSecret) throw new Error("Keine Zahlungsinformationen erhalten");
-    
-    return {
-      clientSecret: json.clientSecret,
-      paymentIntentId: json.paymentIntentId,
-      livemode: json.livemode ?? true, // default to live if not specified
-      publishableKey: json.publishableKey,
-    };
-  };
-
-  const initializePayment = async () => {
-    console.log("[CheckoutPaymentSection] initializePayment started");
-    setIsLoading(true);
+  const initializePayment = useCallback(async () => {
+    console.log("[Checkout] Starting payment initialization...");
+    setLoadingState("fetching");
     setError(null);
+    setStripe(null);
+    setClientSecret(null);
 
     try {
-      const response = await fetchPaymentIntent();
-      console.log("[CheckoutPaymentSection] PaymentIntent received", {
-        livemode: response.livemode,
-        hasClientSecret: Boolean(response.clientSecret),
-      });
-
-      if (!response.publishableKey) {
-        throw new Error("Missing publishable key from backend");
+      // Step 1: Fetch PaymentIntent from backend
+      const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      if (!baseUrl || !anonKey) {
+        throw new Error("Backend-Konfiguration fehlt");
       }
 
-      console.log(
-        "[CheckoutPaymentSection] Using Stripe key mode:",
-        response.livemode ? "LIVE" : "TEST"
-      );
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
 
-      // Initialize Stripe with the correct key
-      const stripeInstance = loadStripe(response.publishableKey);
-      setStripePromise(stripeInstance);
-      setClientSecret(response.clientSecret);
+      console.log("[Checkout] Calling create-payment-intent...");
+      const res = await fetch(`${baseUrl}/functions/v1/create-payment-intent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: anonKey,
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          billingAddress: {
+            street: formData.address.trim(),
+            city: formData.city.trim(),
+            postalCode: formData.postalCode.trim(),
+            canton: formData.canton,
+          },
+          password: formData.password,
+        }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      
+      if (!res.ok) {
+        throw new Error(json?.error || `Server-Fehler: ${res.status}`);
+      }
+      
+      if (json?.error) {
+        throw new Error(json.error);
+      }
+      
+      if (!json?.clientSecret || !json?.publishableKey) {
+        console.error("[Checkout] Invalid response:", json);
+        throw new Error("Ungültige Zahlungsdaten vom Server");
+      }
+
+      console.log("[Checkout] PaymentIntent received:", {
+        livemode: json.livemode,
+        hasClientSecret: true,
+        pkPrefix: json.publishableKey.substring(0, 10),
+      });
+
+      // Step 2: Initialize Stripe
+      setLoadingState("initializing-stripe");
+      console.log("[Checkout] Loading Stripe with key:", json.publishableKey.substring(0, 15) + "...");
+      
+      const stripeInstance = await loadStripe(json.publishableKey);
+      
+      if (!stripeInstance) {
+        throw new Error("Stripe konnte nicht geladen werden. Bitte prüfe deine Internetverbindung.");
+      }
+
+      console.log("[Checkout] Stripe loaded successfully!");
+      setStripe(stripeInstance);
+      setClientSecret(json.clientSecret);
+      setLoadingState("ready");
+
     } catch (err: any) {
-      const message = err?.message || "Ein Fehler ist aufgetreten";
-      console.error("[CheckoutPaymentSection] Error:", message, err);
+      const message = err?.message || "Ein unbekannter Fehler ist aufgetreten";
+      console.error("[Checkout] Error:", message, err);
       setError(message);
+      setLoadingState("error");
+      
       toast({
         variant: "destructive",
         title: "Fehler",
@@ -117,18 +120,15 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
           ? "Diese E-Mail ist bereits registriert. Bitte melde dich an."
           : message,
       });
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [formData, toast]);
 
   useEffect(() => {
-    console.log("[CheckoutPaymentSection] Component mounted, starting payment initialization");
     initializePayment();
-  }, [retryCount]);
+  }, [initializePayment]);
 
   const handleRetry = () => {
-    setRetryCount((c) => c + 1);
+    initializePayment();
   };
 
   const handlePaymentError = (errorMessage: string) => {
@@ -140,23 +140,32 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
     });
   };
 
-  // Loading state
-  if (isLoading) {
+  // Loading states
+  if (loadingState === "idle" || loadingState === "fetching") {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-muted-foreground">Zahlung wird vorbereitet...</p>
+        <p className="text-muted-foreground">Zahlungsdaten werden geladen...</p>
+      </div>
+    );
+  }
+
+  if (loadingState === "initializing-stripe") {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-4">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <p className="text-muted-foreground">Zahlungsformular wird vorbereitet...</p>
       </div>
     );
   }
 
   // Error state
-  if (error || !clientSecret || !stripePromise) {
+  if (loadingState === "error" || !clientSecret || !stripe) {
     return (
       <div className="text-center py-8 space-y-4">
-        <div className="flex items-center justify-center gap-2 text-destructive">
-          <AlertCircle className="w-5 h-5" />
-          <p className="font-medium">
+        <div className="flex flex-col items-center gap-2 text-destructive">
+          <AlertCircle className="w-6 h-6" />
+          <p className="font-medium text-sm">
             {error || "Zahlungsoptionen konnten nicht geladen werden."}
           </p>
         </div>
@@ -172,9 +181,10 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
     );
   }
 
+  // Ready - render Stripe Elements
   return (
     <Elements
-      stripe={stripePromise}
+      stripe={stripe}
       options={{
         clientSecret,
         appearance: {

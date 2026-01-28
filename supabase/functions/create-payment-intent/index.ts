@@ -138,6 +138,7 @@ serve(async (req) => {
       JSON.stringify({
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
+        livemode: paymentIntent.livemode, // true = live, false = test
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

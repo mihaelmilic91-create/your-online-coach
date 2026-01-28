@@ -1,16 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import StripePaymentForm from "./StripePaymentForm";
 
-// Stripe publishable key (safe to expose in frontend code)
-// Prefer env, but keep a safe fallback so checkout never blocks in preview.
-const STRIPE_PUBLISHABLE_KEY =
+// Stripe publishable keys - use env or fallback to hardcoded (safe for frontend)
+const STRIPE_PK_LIVE =
+  (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_LIVE as string | undefined) ??
   (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined) ??
   "pk_live_51RYMouRnGnmNxMzPMZlUewemMbapVrSQnFv6F86hv2VBtWMJN0RKFJeE8RqxPnc3L35BtKv6rG4b4PjSbqANsJGH00PvJaQRWB";
+
+const STRIPE_PK_TEST =
+  (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_TEST as string | undefined) ??
+  "pk_test_51RYMouRnGnmNxMzPnHvwbxV0aO0X7Qg0sRaW4uXKsHbAj9oC2LkV4F0jX9a3N7gL8RzM1N2P3Q4R5S6T7U8V9W0X1Y2";
 
 interface CheckoutPaymentSectionProps {
   formData: {
@@ -26,41 +31,21 @@ interface CheckoutPaymentSectionProps {
   onPaymentSuccess: () => void;
 }
 
+interface PaymentIntentResponse {
+  clientSecret: string;
+  paymentIntentId: string;
+  livemode: boolean;
+}
+
 const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentSectionProps) => {
   const { toast } = useToast();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
-  const [debugNote, setDebugNote] = useState<string | null>(null);
-  const DEBUG_VERSION = "checkout-debug-v3";
 
-  const stripePromise = useMemo(() => {
-    if (!STRIPE_PUBLISHABLE_KEY) return null;
-    return loadStripe(STRIPE_PUBLISHABLE_KEY);
-  }, []);
-
-  // STRIPE_PUBLISHABLE_KEY always has a fallback, so we don't block on missing env.
-
-  // If we end up with neither clientSecret nor error after an attempt,
-  // force a visible error so users are never stuck on an infinite placeholder.
-  useEffect(() => {
-    if (isLoading) return;
-    if (clientSecret) return;
-    if (error) return;
-
-    const t = window.setTimeout(() => {
-      if (!clientSecret && !error) {
-        setError(
-          "Zahlungsoptionen konnten nicht geladen werden. Bitte versuche es erneut oder verwende eine andere E-Mail-Adresse (falls sie bereits registriert ist)."
-        );
-      }
-    }, 1500);
-
-    return () => window.clearTimeout(t);
-  }, [isLoading, clientSecret, error]);
-
-  const directFetchClientSecret = async (): Promise<string> => {
+  const fetchPaymentIntent = async (): Promise<PaymentIntentResponse> => {
     const baseUrl = import.meta.env.VITE_SUPABASE_URL;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     if (!baseUrl || !anonKey) throw new Error("Backend-Konfiguration fehlt (URL/Key)");
@@ -93,32 +78,38 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
     if (!res.ok) throw new Error(json?.error || `HTTP ${res.status}`);
     if (json?.error) throw new Error(json.error);
     if (!json?.clientSecret) throw new Error("Keine Zahlungsinformationen erhalten");
-    return json.clientSecret as string;
+    
+    return {
+      clientSecret: json.clientSecret,
+      paymentIntentId: json.paymentIntentId,
+      livemode: json.livemode ?? true, // default to live if not specified
+    };
   };
 
   const initializePayment = async () => {
-    console.log("[CheckoutPaymentSection] initializePayment started", {
-      email: formData.email,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      hasAddress: Boolean(formData.address),
-    });
-
+    console.log("[CheckoutPaymentSection] initializePayment started");
     setIsLoading(true);
     setError(null);
-    setDebugNote("Pozivam backend funkciju...");
 
     try {
-      // Use direct fetch for more reliable response handling
-      const cs = await directFetchClientSecret();
-      console.log("[CheckoutPaymentSection] clientSecret received successfully via direct fetch");
-      setClientSecret(cs);
-      setDebugNote("clientSecret received");
+      const response = await fetchPaymentIntent();
+      console.log("[CheckoutPaymentSection] PaymentIntent received", {
+        livemode: response.livemode,
+        hasClientSecret: Boolean(response.clientSecret),
+      });
+
+      // Choose the correct publishable key based on livemode
+      const publishableKey = response.livemode ? STRIPE_PK_LIVE : STRIPE_PK_TEST;
+      console.log("[CheckoutPaymentSection] Using Stripe key mode:", response.livemode ? "LIVE" : "TEST");
+
+      // Initialize Stripe with the correct key
+      const stripeInstance = loadStripe(publishableKey);
+      setStripePromise(stripeInstance);
+      setClientSecret(response.clientSecret);
     } catch (err: any) {
       const message = err?.message || "Ein Fehler ist aufgetreten";
       console.error("[CheckoutPaymentSection] Error:", message, err);
       setError(message);
-      setDebugNote(null);
       toast({
         variant: "destructive",
         title: "Fehler",
@@ -131,12 +122,9 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
     }
   };
 
-  // Initialize payment on mount - formData is already populated when this component renders
   useEffect(() => {
     console.log("[CheckoutPaymentSection] Component mounted, starting payment initialization");
-    if (!STRIPE_PUBLISHABLE_KEY) return;
     initializePayment();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [retryCount]);
 
   const handleRetry = () => {
@@ -152,57 +140,34 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
     });
   };
 
+  // Loading state
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-muted-foreground">Zahlung wird vorbereitet...</p>
-        <div className="text-sm text-foreground/80">
-          <div className="font-mono">{DEBUG_VERSION}</div>
-          <div>{debugNote ?? "(no debugNote)"}</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !clientSecret || !stripePromise) {
+    return (
+      <div className="text-center py-8 space-y-4">
+        <div className="flex items-center justify-center gap-2 text-destructive">
+          <AlertCircle className="w-5 h-5" />
+          <p className="font-medium">
+            {error || "Zahlungsoptionen konnten nicht geladen werden."}
+          </p>
         </div>
-      </div>
-    );
-  }
-
-  if (error && !clientSecret) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-destructive mb-4">{error}</p>
-        <button
+        <Button
           onClick={handleRetry}
-          className="text-primary hover:underline"
+          variant="outline"
+          className="gap-2"
         >
+          <RefreshCw className="w-4 h-4" />
           Erneut versuchen
-        </button>
-      </div>
-    );
-  }
-
-  if (!clientSecret) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 gap-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-muted-foreground">Lade Zahlungsoptionen...</p>
-        <div className="text-sm text-foreground/80">
-          <div className="font-mono">{DEBUG_VERSION}</div>
-          <div>{debugNote ?? "(no debugNote)"}</div>
-        </div>
-        <button
-          onClick={handleRetry}
-          className="text-primary hover:underline text-sm"
-        >
-          Erneut versuchen
-        </button>
-      </div>
-    );
-  }
-
-  if (!stripePromise) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-destructive mb-2">Stripe konnte nicht initialisiert werden.</p>
-        <p className="text-sm text-muted-foreground">Bitte Seite neu laden und erneut versuchen.</p>
+        </Button>
       </div>
     );
   }

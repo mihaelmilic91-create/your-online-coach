@@ -7,11 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import StripePaymentForm from "./StripePaymentForm";
 
-// Stripe publishable keys
-// IMPORTANT: These are publishable keys (safe to expose in frontend)
-// They MUST match the mode of the secret key on backend
-const STRIPE_PK_LIVE = "pk_live_51RYMouRnGnmNxMzPMZlUewemMbapVrSQnFv6F86hv2VBtWMJN0RKFJeE8RqxPnc3L35BtKv6rG4b4PjSbqANsJGH00PvJaQRWB";
-const STRIPE_PK_TEST = "pk_test_51RYMouRnGnmNxMzPnHvwbxV0aO0X7Qg0sRaW4uXKsHbAj9oC2LkV4F0jX9a3N7gL8RzM1N2P3Q4R5S6T7U8V9W0X1Y2";
+// NOTE: Publishable keys are now provided by the backend response (based on PaymentIntent.livemode).
+// This avoids relying on Vite env vars (which aren't available from backend secrets at runtime).
 
 interface CheckoutPaymentSectionProps {
   formData: {
@@ -31,6 +28,7 @@ interface PaymentIntentResponse {
   clientSecret: string;
   paymentIntentId: string;
   livemode: boolean;
+  publishableKey: string;
 }
 
 const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentSectionProps) => {
@@ -79,6 +77,7 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
       clientSecret: json.clientSecret,
       paymentIntentId: json.paymentIntentId,
       livemode: json.livemode ?? true, // default to live if not specified
+      publishableKey: json.publishableKey,
     };
   };
 
@@ -94,12 +93,17 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
         hasClientSecret: Boolean(response.clientSecret),
       });
 
-      // Choose the correct publishable key based on livemode
-      const publishableKey = response.livemode ? STRIPE_PK_LIVE : STRIPE_PK_TEST;
-      console.log("[CheckoutPaymentSection] Using Stripe key mode:", response.livemode ? "LIVE" : "TEST");
+      if (!response.publishableKey) {
+        throw new Error("Missing publishable key from backend");
+      }
+
+      console.log(
+        "[CheckoutPaymentSection] Using Stripe key mode:",
+        response.livemode ? "LIVE" : "TEST"
+      );
 
       // Initialize Stripe with the correct key
-      const stripeInstance = loadStripe(publishableKey);
+      const stripeInstance = loadStripe(response.publishableKey);
       setStripePromise(stripeInstance);
       setClientSecret(response.clientSecret);
     } catch (err: any) {

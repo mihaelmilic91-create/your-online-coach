@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -60,7 +60,12 @@ serve(async (req) => {
     }
 
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
+    if (!stripeSecretKey) {
+      throw new Error("STRIPE_SECRET_KEY is not configured");
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2025-08-27.basil",
     });
 
@@ -126,6 +131,20 @@ serve(async (req) => {
       },
     });
 
+    // Determine which publishable key the frontend should use.
+    // Note: publishable keys are safe to send to the client.
+    const publishableKey = paymentIntent.livemode
+      ? (Deno.env.get("VITE_STRIPE_PUBLISHABLE_KEY_LIVE") || Deno.env.get("VITE_STRIPE_PUBLISHABLE_KEY") || "")
+      : (Deno.env.get("VITE_STRIPE_PUBLISHABLE_KEY_TEST") || "");
+
+    if (!publishableKey) {
+      throw new Error(
+        paymentIntent.livemode
+          ? "Missing publishable key for LIVE mode (VITE_STRIPE_PUBLISHABLE_KEY_LIVE)"
+          : "Missing publishable key for TEST mode (VITE_STRIPE_PUBLISHABLE_KEY_TEST)"
+      );
+    }
+
     // Update pending registration with payment intent ID (only for new users)
     if (!isExistingUser) {
       await supabaseAdmin
@@ -139,6 +158,7 @@ serve(async (req) => {
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
         livemode: paymentIntent.livemode, // true = live, false = test
+        publishableKey,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

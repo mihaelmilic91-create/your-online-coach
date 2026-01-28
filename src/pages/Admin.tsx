@@ -98,30 +98,53 @@ const Admin = () => {
 
   const fetchCategories = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("video_categories")
-      .select("*")
-      .order("sort_order", { ascending: true });
-    
-    if (error) {
-      toast({ variant: "destructive", title: "Fehler", description: error.message });
-    } else {
-      setCategories(data || []);
+    try {
+      const { data, error } = await supabase
+        .from("video_categories")
+        .select("*")
+        .order("sort_order", { ascending: true });
+
+      if (error) {
+        toast({ variant: "destructive", title: "Fehler", description: error.message });
+        setCategories([]);
+      } else {
+        setCategories(data || []);
+      }
+    } catch (e) {
+      console.error("fetchCategories failed", e);
+      toast({
+        variant: "destructive",
+        title: "Fehler",
+        description: "Kategorien konnten nicht geladen werden.",
+      });
+      setCategories([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const fetchVideos = async (categoryId: string) => {
-    const { data, error } = await supabase
-      .from("videos")
-      .select("*")
-      .eq("category_id", categoryId)
-      .order("sort_order", { ascending: true });
-    
-    if (error) {
-      toast({ variant: "destructive", title: "Fehler", description: error.message });
-    } else {
-      setVideos(data || []);
+    try {
+      const { data, error } = await supabase
+        .from("videos")
+        .select("*")
+        .eq("category_id", categoryId)
+        .order("sort_order", { ascending: true });
+
+      if (error) {
+        toast({ variant: "destructive", title: "Fehler", description: error.message });
+        setVideos([]);
+      } else {
+        setVideos(data || []);
+      }
+    } catch (e) {
+      console.error("fetchVideos failed", e);
+      toast({
+        variant: "destructive",
+        title: "Fehler",
+        description: "Videos konnten nicht geladen werden.",
+      });
+      setVideos([]);
     }
   };
 

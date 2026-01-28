@@ -180,8 +180,8 @@ const Dashboard = () => {
             
             <div className="flex items-center gap-4">
               {isAdmin && (
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/admin">Admin</Link>
+                <Button variant="outline" size="sm" onClick={() => navigate("/admin")}>
+                  Admin
                 </Button>
               )}
               <div className="hidden sm:flex items-center gap-2 text-muted-foreground">

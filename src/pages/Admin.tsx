@@ -4,8 +4,7 @@ import { motion } from "framer-motion";
 import { 
   Plus, 
   Video, 
-  BookOpen, 
-  Upload, 
+  FolderOpen, 
   Trash2, 
   Edit, 
   Eye, 
@@ -26,24 +25,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
 
-interface Course {
+interface Category {
   id: string;
   title: string;
   description: string | null;
   thumbnail_url: string | null;
-  duration: string | null;
-  lessons_count: number;
-  is_published: boolean;
-  is_locked: boolean;
   sort_order: number;
+  is_published: boolean;
 }
 
-interface Lesson {
+interface VideoItem {
   id: string;
-  course_id: string;
+  category_id: string;
   title: string;
   description: string | null;
-  video_url: string | null;
+  vdocipher_video_id: string;
   duration: string | null;
   sort_order: number;
   is_published: boolean;
@@ -54,33 +50,30 @@ const Admin = () => {
   const { toast } = useToast();
   const { user, isAdmin, loading: authLoading } = useAuth();
   
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
   // Form states
-  const [showCourseForm, setShowCourseForm] = useState(false);
-  const [showLessonForm, setShowLessonForm] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [showVideoForm, setShowVideoForm] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingVideo, setEditingVideo] = useState<VideoItem | null>(null);
   
-  // Course form
-  const [courseTitle, setCourseTitle] = useState("");
-  const [courseDescription, setCourseDescription] = useState("");
-  const [courseDuration, setCourseDuration] = useState("");
-  const [courseIsPublished, setCourseIsPublished] = useState(false);
-  const [courseIsLocked, setCourseIsLocked] = useState(false);
+  // Category form
+  const [categoryTitle, setCategoryTitle] = useState("");
+  const [categoryDescription, setCategoryDescription] = useState("");
+  const [categoryIsPublished, setCategoryIsPublished] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   
-  // Lesson form
-  const [lessonTitle, setLessonTitle] = useState("");
-  const [lessonDescription, setLessonDescription] = useState("");
-  const [lessonDuration, setLessonDuration] = useState("");
-  const [lessonIsPublished, setLessonIsPublished] = useState(false);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  // Video form
+  const [videoTitle, setVideoTitle] = useState("");
+  const [videoDescription, setVideoDescription] = useState("");
+  const [videoDuration, setVideoDuration] = useState("");
+  const [vdocipherVideoId, setVdocipherVideoId] = useState("");
+  const [videoIsPublished, setVideoIsPublished] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -99,82 +92,78 @@ const Admin = () => {
     }
     
     if (!authLoading && isAdmin) {
-      fetchCourses();
+      fetchCategories();
     }
   }, [user, isAdmin, authLoading, navigate]);
 
-  const fetchCourses = async () => {
+  const fetchCategories = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("courses")
+      .from("video_categories")
       .select("*")
       .order("sort_order", { ascending: true });
     
     if (error) {
       toast({ variant: "destructive", title: "Fehler", description: error.message });
     } else {
-      setCourses(data || []);
+      setCategories(data || []);
     }
     setLoading(false);
   };
 
-  const fetchLessons = async (courseId: string) => {
+  const fetchVideos = async (categoryId: string) => {
     const { data, error } = await supabase
-      .from("lessons")
+      .from("videos")
       .select("*")
-      .eq("course_id", courseId)
+      .eq("category_id", categoryId)
       .order("sort_order", { ascending: true });
     
     if (error) {
       toast({ variant: "destructive", title: "Fehler", description: error.message });
     } else {
-      setLessons(data || []);
+      setVideos(data || []);
     }
   };
 
-  const resetCourseForm = () => {
-    setCourseTitle("");
-    setCourseDescription("");
-    setCourseDuration("");
-    setCourseIsPublished(false);
-    setCourseIsLocked(false);
+  const resetCategoryForm = () => {
+    setCategoryTitle("");
+    setCategoryDescription("");
+    setCategoryIsPublished(false);
     setThumbnailFile(null);
-    setEditingCourse(null);
-    setShowCourseForm(false);
+    setEditingCategory(null);
+    setShowCategoryForm(false);
   };
 
-  const resetLessonForm = () => {
-    setLessonTitle("");
-    setLessonDescription("");
-    setLessonDuration("");
-    setLessonIsPublished(false);
-    setVideoFile(null);
-    setEditingLesson(null);
-    setShowLessonForm(false);
-    setUploadProgress(0);
+  const resetVideoForm = () => {
+    setVideoTitle("");
+    setVideoDescription("");
+    setVideoDuration("");
+    setVdocipherVideoId("");
+    setVideoIsPublished(false);
+    setEditingVideo(null);
+    setShowVideoForm(false);
   };
 
-  const openCourseForm = (course?: Course) => {
-    if (course) {
-      setEditingCourse(course);
-      setCourseTitle(course.title);
-      setCourseDescription(course.description || "");
-      setCourseDuration(course.duration || "");
-      setCourseIsPublished(course.is_published);
-      setCourseIsLocked(course.is_locked);
+  const openCategoryForm = (category?: Category) => {
+    if (category) {
+      setEditingCategory(category);
+      setCategoryTitle(category.title);
+      setCategoryDescription(category.description || "");
+      setCategoryIsPublished(category.is_published);
     }
-    setShowCourseForm(true);
+    setShowCategoryForm(true);
   };
 
-  const openLessonForm = (lesson?: Lesson) => {
-    if (lesson) {
-      setEditingLesson(lesson);
-      setLessonTitle(lesson.title);
-      setLessonDescription(lesson.description || "");
-      setLessonDuration(lesson.duration || "");
-      setLessonIsPublished(lesson.is_published);
+  const openVideoForm = (video?: VideoItem) => {
+    if (video) {
+      setEditingVideo(video);
+      setVideoTitle(video.title);
+      setVideoDescription(video.description || "");
+      setVideoDuration(video.duration || "");
+      setVdocipherVideoId(video.vdocipher_video_id);
+      setVideoIsPublished(video.is_published);
     }
-    setShowLessonForm(true);
+    setShowVideoForm(true);
   };
 
   const uploadThumbnail = async (file: File): Promise<string | null> => {
@@ -197,201 +186,144 @@ const Admin = () => {
     return publicUrl;
   };
 
-  const uploadVideo = async (file: File): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    
-    setUploadProgress(10);
-    
-    const { error } = await supabase.storage
-      .from("course-videos")
-      .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
-    
-    setUploadProgress(90);
-    
-    if (error) {
-      toast({ variant: "destructive", title: "Upload fehlgeschlagen", description: error.message });
-      setUploadProgress(0);
-      return null;
-    }
-    
-    const { data: { publicUrl } } = supabase.storage
-      .from("course-videos")
-      .getPublicUrl(fileName);
-    
-    setUploadProgress(100);
-    return publicUrl;
-  };
-
-  const saveCourse = async () => {
-    if (!courseTitle.trim()) {
+  const saveCategory = async () => {
+    if (!categoryTitle.trim()) {
       toast({ variant: "destructive", title: "Fehler", description: "Titel ist erforderlich" });
       return;
     }
     
     setSaving(true);
     
-    let thumbnailUrl = editingCourse?.thumbnail_url || null;
+    let thumbnailUrl = editingCategory?.thumbnail_url || null;
     if (thumbnailFile) {
       thumbnailUrl = await uploadThumbnail(thumbnailFile);
     }
     
-    const courseData = {
-      title: courseTitle.trim(),
-      description: courseDescription.trim() || null,
-      duration: courseDuration.trim() || null,
+    const categoryData = {
+      title: categoryTitle.trim(),
+      description: categoryDescription.trim() || null,
       thumbnail_url: thumbnailUrl,
-      is_published: courseIsPublished,
-      is_locked: courseIsLocked,
+      is_published: categoryIsPublished,
     };
     
-    if (editingCourse) {
+    if (editingCategory) {
       const { error } = await supabase
-        .from("courses")
-        .update(courseData)
-        .eq("id", editingCourse.id);
+        .from("video_categories")
+        .update(categoryData)
+        .eq("id", editingCategory.id);
       
       if (error) {
         toast({ variant: "destructive", title: "Fehler", description: error.message });
       } else {
-        toast({ title: "Gespeichert", description: "Kurs wurde aktualisiert." });
-        resetCourseForm();
-        fetchCourses();
+        toast({ title: "Gespeichert", description: "Kategorie wurde aktualisiert." });
+        resetCategoryForm();
+        fetchCategories();
       }
     } else {
       const { error } = await supabase
-        .from("courses")
-        .insert([{ ...courseData, sort_order: courses.length }]);
+        .from("video_categories")
+        .insert([{ ...categoryData, sort_order: categories.length }]);
       
       if (error) {
         toast({ variant: "destructive", title: "Fehler", description: error.message });
       } else {
-        toast({ title: "Erstellt", description: "Neuer Kurs wurde erstellt." });
-        resetCourseForm();
-        fetchCourses();
+        toast({ title: "Erstellt", description: "Neue Kategorie wurde erstellt." });
+        resetCategoryForm();
+        fetchCategories();
       }
     }
     
     setSaving(false);
   };
 
-  const saveLesson = async () => {
-    if (!selectedCourse || !lessonTitle.trim()) {
-      toast({ variant: "destructive", title: "Fehler", description: "Titel ist erforderlich" });
+  const saveVideo = async () => {
+    if (!selectedCategory || !videoTitle.trim() || !vdocipherVideoId.trim()) {
+      toast({ variant: "destructive", title: "Fehler", description: "Titel und VdoCipher Video-ID sind erforderlich" });
       return;
     }
     
     setSaving(true);
     
-    let videoUrl = editingLesson?.video_url || null;
-    if (videoFile) {
-      videoUrl = await uploadVideo(videoFile);
-      if (!videoUrl) {
-        setSaving(false);
-        return;
-      }
-    }
-    
-    const lessonData = {
-      course_id: selectedCourse.id,
-      title: lessonTitle.trim(),
-      description: lessonDescription.trim() || null,
-      duration: lessonDuration.trim() || null,
-      video_url: videoUrl,
-      is_published: lessonIsPublished,
+    const videoData = {
+      category_id: selectedCategory.id,
+      title: videoTitle.trim(),
+      description: videoDescription.trim() || null,
+      duration: videoDuration.trim() || null,
+      vdocipher_video_id: vdocipherVideoId.trim(),
+      is_published: videoIsPublished,
     };
     
-    if (editingLesson) {
+    if (editingVideo) {
       const { error } = await supabase
-        .from("lessons")
-        .update(lessonData)
-        .eq("id", editingLesson.id);
+        .from("videos")
+        .update(videoData)
+        .eq("id", editingVideo.id);
       
       if (error) {
         toast({ variant: "destructive", title: "Fehler", description: error.message });
       } else {
-        toast({ title: "Gespeichert", description: "Lektion wurde aktualisiert." });
-        resetLessonForm();
-        fetchLessons(selectedCourse.id);
-        updateLessonsCount(selectedCourse.id);
+        toast({ title: "Gespeichert", description: "Video wurde aktualisiert." });
+        resetVideoForm();
+        fetchVideos(selectedCategory.id);
       }
     } else {
       const { error } = await supabase
-        .from("lessons")
-        .insert([{ ...lessonData, sort_order: lessons.length }]);
+        .from("videos")
+        .insert([{ ...videoData, sort_order: videos.length }]);
       
       if (error) {
         toast({ variant: "destructive", title: "Fehler", description: error.message });
       } else {
-        toast({ title: "Erstellt", description: "Neue Lektion wurde erstellt." });
-        resetLessonForm();
-        fetchLessons(selectedCourse.id);
-        updateLessonsCount(selectedCourse.id);
+        toast({ title: "Erstellt", description: "Neues Video wurde hinzugefügt." });
+        resetVideoForm();
+        fetchVideos(selectedCategory.id);
       }
     }
     
     setSaving(false);
   };
 
-  const updateLessonsCount = async (courseId: string) => {
-    const { count } = await supabase
-      .from("lessons")
-      .select("*", { count: "exact", head: true })
-      .eq("course_id", courseId);
-    
-    await supabase
-      .from("courses")
-      .update({ lessons_count: count || 0 })
-      .eq("id", courseId);
-    
-    fetchCourses();
-  };
-
-  const deleteCourse = async (course: Course) => {
-    if (!confirm(`Bist du sicher, dass du "${course.title}" löschen möchtest?`)) return;
+  const deleteCategory = async (category: Category) => {
+    if (!confirm(`Bist du sicher, dass du "${category.title}" löschen möchtest? Alle Videos in dieser Kategorie werden auch gelöscht.`)) return;
     
     const { error } = await supabase
-      .from("courses")
+      .from("video_categories")
       .delete()
-      .eq("id", course.id);
+      .eq("id", category.id);
     
     if (error) {
       toast({ variant: "destructive", title: "Fehler", description: error.message });
     } else {
-      toast({ title: "Gelöscht", description: "Kurs wurde gelöscht." });
-      if (selectedCourse?.id === course.id) {
-        setSelectedCourse(null);
-        setLessons([]);
+      toast({ title: "Gelöscht", description: "Kategorie wurde gelöscht." });
+      if (selectedCategory?.id === category.id) {
+        setSelectedCategory(null);
+        setVideos([]);
       }
-      fetchCourses();
+      fetchCategories();
     }
   };
 
-  const deleteLesson = async (lesson: Lesson) => {
-    if (!confirm(`Bist du sicher, dass du "${lesson.title}" löschen möchtest?`)) return;
+  const deleteVideo = async (video: VideoItem) => {
+    if (!confirm(`Bist du sicher, dass du "${video.title}" löschen möchtest?`)) return;
     
     const { error } = await supabase
-      .from("lessons")
+      .from("videos")
       .delete()
-      .eq("id", lesson.id);
+      .eq("id", video.id);
     
     if (error) {
       toast({ variant: "destructive", title: "Fehler", description: error.message });
     } else {
-      toast({ title: "Gelöscht", description: "Lektion wurde gelöscht." });
-      if (selectedCourse) {
-        fetchLessons(selectedCourse.id);
-        updateLessonsCount(selectedCourse.id);
+      toast({ title: "Gelöscht", description: "Video wurde gelöscht." });
+      if (selectedCategory) {
+        fetchVideos(selectedCategory.id);
       }
     }
   };
 
-  const selectCourse = (course: Course) => {
-    setSelectedCourse(course);
-    fetchLessons(course.id);
+  const selectCategory = (category: Category) => {
+    setSelectedCategory(category);
+    fetchVideos(category.id);
   };
 
   if (authLoading || loading) {
@@ -426,43 +358,40 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Courses List */}
+          {/* Categories List */}
           <div className="lg:col-span-1 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-accent" />
-                Kurse
+                <FolderOpen className="w-5 h-5 text-accent" />
+                Kategorien
               </h2>
-              <Button variant="hero" size="sm" onClick={() => openCourseForm()} className="gap-1">
+              <Button variant="hero" size="sm" onClick={() => openCategoryForm()} className="gap-1">
                 <Plus className="w-4 h-4" />
                 Neu
               </Button>
             </div>
             
             <div className="space-y-2">
-              {courses.map((course) => (
+              {categories.map((category) => (
                 <motion.div
-                  key={course.id}
+                  key={category.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
                   <Card 
                     className={`cursor-pointer transition-all ${
-                      selectedCourse?.id === course.id 
+                      selectedCategory?.id === category.id 
                         ? 'ring-2 ring-accent shadow-elevated' 
                         : 'hover:shadow-soft'
                     }`}
-                    onClick={() => selectCourse(course)}
+                    onClick={() => selectCategory(category)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-foreground truncate">{course.title}</h3>
+                          <h3 className="font-semibold text-foreground truncate">{category.title}</h3>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-muted-foreground">
-                              {course.lessons_count} Lektionen
-                            </span>
-                            {course.is_published ? (
+                            {category.is_published ? (
                               <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
                                 Veröffentlicht
                               </span>
@@ -474,10 +403,10 @@ const Admin = () => {
                           </div>
                         </div>
                         <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); openCourseForm(course); }}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); openCategoryForm(category); }}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); deleteCourse(course); }}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); deleteCategory(category); }}>
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -487,66 +416,70 @@ const Admin = () => {
                 </motion.div>
               ))}
               
-              {courses.length === 0 && (
+              {categories.length === 0 && (
                 <p className="text-center text-muted-foreground py-8">
-                  Noch keine Kurse vorhanden
+                  Noch keine Kategorien vorhanden
                 </p>
               )}
             </div>
           </div>
 
-          {/* Lessons List */}
+          {/* Videos List */}
           <div className="lg:col-span-2 space-y-4">
-            {selectedCourse ? (
+            {selectedCategory ? (
               <>
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
                     <Video className="w-5 h-5 text-accent" />
-                    Lektionen: {selectedCourse.title}
+                    Videos in "{selectedCategory.title}"
                   </h2>
-                  <Button variant="hero" size="sm" onClick={() => openLessonForm()} className="gap-1">
+                  <Button variant="hero" size="sm" onClick={() => openVideoForm()} className="gap-1">
                     <Plus className="w-4 h-4" />
-                    Lektion
+                    Video hinzufügen
                   </Button>
                 </div>
                 
-                <div className="grid md:grid-cols-2 gap-4">
-                  {lessons.map((lesson) => (
+                <div className="space-y-2">
+                  {videos.map((video, index) => (
                     <motion.div
-                      key={lesson.id}
+                      key={video.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
                     >
                       <Card className="hover:shadow-soft transition-all">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-foreground truncate">{lesson.title}</h3>
-                              <div className="flex items-center gap-2 mt-1">
-                                {lesson.duration && (
-                                  <span className="text-xs text-muted-foreground">{lesson.duration}</span>
-                                )}
-                                {lesson.video_url ? (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                                    Video ✓
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                                <Video className="w-5 h-5 text-accent" />
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="font-semibold text-foreground">{video.title}</h3>
+                                <div className="flex items-center gap-2 mt-1">
+                                  {video.duration && (
+                                    <span className="text-xs text-muted-foreground">{video.duration}</span>
+                                  )}
+                                  <span className="text-xs text-muted-foreground font-mono">
+                                    ID: {video.vdocipher_video_id.substring(0, 12)}...
                                   </span>
-                                ) : (
-                                  <span className="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-600">
-                                    Kein Video
-                                  </span>
-                                )}
-                                {lesson.is_published ? (
-                                  <Eye className="w-3 h-3 text-accent" />
-                                ) : (
-                                  <EyeOff className="w-3 h-3 text-muted-foreground" />
-                                )}
+                                  {video.is_published ? (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                                      Veröffentlicht
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                                      Entwurf
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                             <div className="flex gap-1">
-                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openLessonForm(lesson)}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openVideoForm(video)}>
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteLesson(lesson)}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteVideo(video)}>
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
@@ -556,73 +489,73 @@ const Admin = () => {
                     </motion.div>
                   ))}
                   
-                  {lessons.length === 0 && (
-                    <div className="col-span-2 text-center text-muted-foreground py-12">
-                      <Video className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                      <p>Noch keine Lektionen in diesem Kurs</p>
-                    </div>
+                  {videos.length === 0 && (
+                    <Card className="border-dashed">
+                      <CardContent className="p-8 text-center">
+                        <Video className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">
+                          Noch keine Videos in dieser Kategorie
+                        </p>
+                        <Button variant="hero" size="sm" onClick={() => openVideoForm()} className="mt-4 gap-1">
+                          <Plus className="w-4 h-4" />
+                          Video hinzufügen
+                        </Button>
+                      </CardContent>
+                    </Card>
                   )}
                 </div>
               </>
             ) : (
-              <div className="flex items-center justify-center h-64 text-muted-foreground">
-                <div className="text-center">
-                  <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                  <p>Wähle einen Kurs aus, um Lektionen zu verwalten</p>
-                </div>
-              </div>
+              <Card className="border-dashed">
+                <CardContent className="p-12 text-center">
+                  <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground text-lg">
+                    Wähle eine Kategorie aus, um Videos zu verwalten
+                  </p>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>
       </main>
 
-      {/* Course Form Modal */}
-      {showCourseForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      {/* Category Form Modal */}
+      {showCategoryForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-card rounded-2xl shadow-elevated w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            className="bg-card rounded-xl shadow-elevated max-w-md w-full max-h-[90vh] overflow-y-auto"
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-display text-xl font-bold text-foreground">
-                  {editingCourse ? "Kurs bearbeiten" : "Neuer Kurs"}
-                </h2>
-                <Button variant="ghost" size="icon" onClick={resetCourseForm}>
+                <h3 className="font-display text-xl font-bold text-foreground">
+                  {editingCategory ? "Kategorie bearbeiten" : "Neue Kategorie"}
+                </h3>
+                <Button variant="ghost" size="icon" onClick={resetCategoryForm}>
                   <X className="w-5 h-5" />
                 </Button>
               </div>
               
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="courseTitle">Titel *</Label>
+                  <Label htmlFor="categoryTitle">Titel *</Label>
                   <Input
-                    id="courseTitle"
-                    value={courseTitle}
-                    onChange={(e) => setCourseTitle(e.target.value)}
-                    placeholder="z.B. Grundlagen"
+                    id="categoryTitle"
+                    value={categoryTitle}
+                    onChange={(e) => setCategoryTitle(e.target.value)}
+                    placeholder="z.B. Theorieprüfung"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="courseDescription">Beschreibung</Label>
+                  <Label htmlFor="categoryDescription">Beschreibung</Label>
                   <Textarea
-                    id="courseDescription"
-                    value={courseDescription}
-                    onChange={(e) => setCourseDescription(e.target.value)}
-                    placeholder="Kurzbeschreibung des Kurses..."
+                    id="categoryDescription"
+                    value={categoryDescription}
+                    onChange={(e) => setCategoryDescription(e.target.value)}
+                    placeholder="Beschreibung der Kategorie..."
                     rows={3}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="courseDuration">Dauer</Label>
-                  <Input
-                    id="courseDuration"
-                    value={courseDuration}
-                    onChange={(e) => setCourseDuration(e.target.value)}
-                    placeholder="z.B. 45 Min"
                   />
                 </div>
                 
@@ -637,29 +570,20 @@ const Admin = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="coursePublished">Veröffentlicht</Label>
+                  <Label htmlFor="categoryPublished">Veröffentlicht</Label>
                   <Switch
-                    id="coursePublished"
-                    checked={courseIsPublished}
-                    onCheckedChange={setCourseIsPublished}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="courseLocked">Gesperrt</Label>
-                  <Switch
-                    id="courseLocked"
-                    checked={courseIsLocked}
-                    onCheckedChange={setCourseIsLocked}
+                    id="categoryPublished"
+                    checked={categoryIsPublished}
+                    onCheckedChange={setCategoryIsPublished}
                   />
                 </div>
               </div>
               
               <div className="flex gap-3 mt-6">
-                <Button variant="outline" className="flex-1" onClick={resetCourseForm}>
+                <Button variant="outline" onClick={resetCategoryForm} className="flex-1">
                   Abbrechen
                 </Button>
-                <Button variant="hero" className="flex-1 gap-2" onClick={saveCourse} disabled={saving}>
+                <Button variant="hero" onClick={saveCategory} disabled={saving} className="flex-1 gap-2">
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Speichern
                 </Button>
@@ -669,96 +593,87 @@ const Admin = () => {
         </div>
       )}
 
-      {/* Lesson Form Modal */}
-      {showLessonForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      {/* Video Form Modal */}
+      {showVideoForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-card rounded-2xl shadow-elevated w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            className="bg-card rounded-xl shadow-elevated max-w-md w-full max-h-[90vh] overflow-y-auto"
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="font-display text-xl font-bold text-foreground">
-                  {editingLesson ? "Lektion bearbeiten" : "Neue Lektion"}
-                </h2>
-                <Button variant="ghost" size="icon" onClick={resetLessonForm}>
+                <h3 className="font-display text-xl font-bold text-foreground">
+                  {editingVideo ? "Video bearbeiten" : "Neues Video"}
+                </h3>
+                <Button variant="ghost" size="icon" onClick={resetVideoForm}>
                   <X className="w-5 h-5" />
                 </Button>
               </div>
               
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="lessonTitle">Titel *</Label>
+                  <Label htmlFor="videoTitle">Titel *</Label>
                   <Input
-                    id="lessonTitle"
-                    value={lessonTitle}
-                    onChange={(e) => setLessonTitle(e.target.value)}
-                    placeholder="z.B. Einführung"
+                    id="videoTitle"
+                    value={videoTitle}
+                    onChange={(e) => setVideoTitle(e.target.value)}
+                    placeholder="z.B. Lektion 1: Einführung"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="lessonDescription">Beschreibung</Label>
+                  <Label htmlFor="vdocipherId">VdoCipher Video-ID *</Label>
+                  <Input
+                    id="vdocipherId"
+                    value={vdocipherVideoId}
+                    onChange={(e) => setVdocipherVideoId(e.target.value)}
+                    placeholder="z.B. abc123xyz..."
+                    className="font-mono"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Die Video-ID findest du in deinem VdoCipher Dashboard
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="videoDescription">Beschreibung</Label>
                   <Textarea
-                    id="lessonDescription"
-                    value={lessonDescription}
-                    onChange={(e) => setLessonDescription(e.target.value)}
-                    placeholder="Was lernt man in dieser Lektion..."
+                    id="videoDescription"
+                    value={videoDescription}
+                    onChange={(e) => setVideoDescription(e.target.value)}
+                    placeholder="Beschreibung des Videos..."
                     rows={3}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="lessonDuration">Dauer</Label>
+                  <Label htmlFor="videoDuration">Dauer</Label>
                   <Input
-                    id="lessonDuration"
-                    value={lessonDuration}
-                    onChange={(e) => setLessonDuration(e.target.value)}
-                    placeholder="z.B. 5 Min"
+                    id="videoDuration"
+                    value={videoDuration}
+                    onChange={(e) => setVideoDuration(e.target.value)}
+                    placeholder="z.B. 12:34"
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="video">Video (max. 500MB)</Label>
-                  <Input
-                    id="video"
-                    type="file"
-                    accept="video/*"
-                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                  />
-                  {uploadProgress > 0 && uploadProgress < 100 && (
-                    <div className="mt-2">
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-accent transition-all duration-300"
-                          style={{ width: `${uploadProgress}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Uploading... {uploadProgress}%
-                      </p>
-                    </div>
-                  )}
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="lessonPublished">Veröffentlicht</Label>
+                  <Label htmlFor="videoPublished">Veröffentlicht</Label>
                   <Switch
-                    id="lessonPublished"
-                    checked={lessonIsPublished}
-                    onCheckedChange={setLessonIsPublished}
+                    id="videoPublished"
+                    checked={videoIsPublished}
+                    onCheckedChange={setVideoIsPublished}
                   />
                 </div>
               </div>
               
               <div className="flex gap-3 mt-6">
-                <Button variant="outline" className="flex-1" onClick={resetLessonForm}>
+                <Button variant="outline" onClick={resetVideoForm} className="flex-1">
                   Abbrechen
                 </Button>
-                <Button variant="hero" className="flex-1 gap-2" onClick={saveLesson} disabled={saving}>
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                  {videoFile && !editingLesson?.video_url ? "Upload & Speichern" : "Speichern"}
+                <Button variant="hero" onClick={saveVideo} disabled={saving} className="flex-1 gap-2">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Speichern
                 </Button>
               </div>
             </div>

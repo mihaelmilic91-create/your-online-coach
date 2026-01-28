@@ -7,15 +7,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import StripePaymentForm from "./StripePaymentForm";
 
-// Stripe publishable keys - use env or fallback to hardcoded (safe for frontend)
-const STRIPE_PK_LIVE =
-  (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_LIVE as string | undefined) ??
-  (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined) ??
-  "pk_live_51RYMouRnGnmNxMzPMZlUewemMbapVrSQnFv6F86hv2VBtWMJN0RKFJeE8RqxPnc3L35BtKv6rG4b4PjSbqANsJGH00PvJaQRWB";
-
-const STRIPE_PK_TEST =
-  (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY_TEST as string | undefined) ??
-  "pk_test_51RYMouRnGnmNxMzPnHvwbxV0aO0X7Qg0sRaW4uXKsHbAj9oC2LkV4F0jX9a3N7gL8RzM1N2P3Q4R5S6T7U8V9W0X1Y2";
+// Stripe publishable keys
+// IMPORTANT: These are publishable keys (safe to expose in frontend)
+// They MUST match the mode of the secret key on backend
+const STRIPE_PK_LIVE = "pk_live_51RYMouRnGnmNxMzPMZlUewemMbapVrSQnFv6F86hv2VBtWMJN0RKFJeE8RqxPnc3L35BtKv6rG4b4PjSbqANsJGH00PvJaQRWB";
+const STRIPE_PK_TEST = "pk_test_51RYMouRnGnmNxMzPnHvwbxV0aO0X7Qg0sRaW4uXKsHbAj9oC2LkV4F0jX9a3N7gL8RzM1N2P3Q4R5S6T7U8V9W0X1Y2";
 
 interface CheckoutPaymentSectionProps {
   formData: {

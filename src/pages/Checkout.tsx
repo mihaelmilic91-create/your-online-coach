@@ -115,11 +115,21 @@ const Checkout = () => {
       return;
     }
 
-    // Check if email already exists
+    // If user is already logged in, allow continuing (even though email exists)
     setIsCheckingEmail(true);
     setEmailExistsError(false);
     
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const sessionEmail = sessionData.session?.user?.email?.toLowerCase();
+      const formEmail = formData.email.trim().toLowerCase();
+
+      if (sessionEmail && sessionEmail === formEmail) {
+        setIsCheckingEmail(false);
+        setShowPayment(true);
+        return;
+      }
+
       const emailExists = await checkEmailExists(formData.email);
       if (emailExists) {
         setEmailExistsError(true);
@@ -244,10 +254,10 @@ const Checkout = () => {
                               <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                               <div className="flex-1">
                                 <p className="text-sm font-medium text-destructive">
-                                  Diese E-Mail-Adresse ist bereits registriert
+                                  Već imaš nalog na ovu e-mail adresu
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">
-                                  Du hast bereits ein Konto. Bitte melde dich an, um fortzufahren.
+                                  Ako si već registrovan (čak i ako još nisi platio), samo se prijavi i nastavi na plaćanje.
                                 </p>
                                 <div className="mt-3 flex gap-3">
                                   <Link to="/login?redirect=/checkout">

@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   PaymentElement,
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
-import { Lock, Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface StripePaymentFormProps {
@@ -13,44 +13,30 @@ interface StripePaymentFormProps {
   onError: (error: string) => void;
 }
 
-const LOAD_TIMEOUT_MS = 15000; // 15 seconds timeout
-
 const StripePaymentForm = ({ onSuccess, onError }: StripePaymentFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [timedOut, setTimedOut] = useState(false);
-
-  // Timeout: if PaymentElement doesn't become ready within 15s, show error
-  useEffect(() => {
-    if (isReady) return;
-
-    const timeout = window.setTimeout(() => {
-      if (!isReady) {
-        setTimedOut(true);
-        setLoadError(
-          "Das Zahlungsformular konnte nicht geladen werden. Bitte lade die Seite neu."
-        );
-      }
-    }, LOAD_TIMEOUT_MS);
-
-    return () => window.clearTimeout(timeout);
-  }, [isReady]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!stripe || !elements || !isReady) {
-      onError("Zahlungsformular wird noch geladen. Bitte warte einen Moment.");
+    if (!stripe || !elements) {
+      onError("Stripe ist noch nicht bereit. Bitte warte einen Moment.");
+      return;
+    }
+
+    if (!isReady) {
+      onError("Das Zahlungsformular wird noch geladen.");
       return;
     }
 
     setIsProcessing(true);
 
     try {
+      // Validate the form first
       const { error: submitError } = await elements.submit();
       if (submitError) {
         onError(submitError.message || "Bitte überprüfe deine Zahlungsdaten.");
@@ -58,6 +44,7 @@ const StripePaymentForm = ({ onSuccess, onError }: StripePaymentFormProps) => {
         return;
       }
 
+      // Confirm the payment
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -72,56 +59,44 @@ const StripePaymentForm = ({ onSuccess, onError }: StripePaymentFormProps) => {
         } else {
           onError("Ein unerwarteter Fehler ist aufgetreten.");
         }
-      } else if (paymentIntent && paymentIntent.status === "succeeded") {
-        toast({
-          title: "Zahlung erfolgreich!",
-          description: "Dein Zugang wird jetzt aktiviert...",
-        });
-        window.location.href = `${window.location.origin}/payment-success?payment_intent=${paymentIntent.id}`;
-      } else if (paymentIntent && paymentIntent.status === "requires_action") {
-        // 3D Secure - Stripe handles redirect automatically
-      } else {
-        window.location.href = `${window.location.origin}/payment-success?payment_intent=${paymentIntent?.id}`;
+        setIsProcessing(false);
+        return;
+      }
+
+      // Handle successful payment
+      if (paymentIntent) {
+        if (paymentIntent.status === "succeeded") {
+          toast({
+            title: "Zahlung erfolgreich!",
+            description: "Dein Zugang wird jetzt aktiviert...",
+          });
+          // Redirect to success page
+          window.location.href = `${window.location.origin}/payment-success?payment_intent=${paymentIntent.id}`;
+        } else if (paymentIntent.status === "requires_action") {
+          // 3D Secure is being handled by Stripe automatically
+          console.log("[StripePaymentForm] 3D Secure required, Stripe handling...");
+        } else {
+          // Other status - still redirect
+          window.location.href = `${window.location.origin}/payment-success?payment_intent=${paymentIntent.id}`;
+        }
       }
     } catch (err: any) {
+      console.error("[StripePaymentForm] Unexpected error:", err);
       onError(err.message || "Zahlungsfehler aufgetreten");
-    } finally {
       setIsProcessing(false);
     }
   };
-
-  const handleReload = () => {
-    window.location.reload();
-  };
-
-  // Show error if timed out or load error
-  if (loadError || timedOut) {
-    return (
-      <div className="text-center py-8 space-y-4">
-        <div className="flex items-center justify-center gap-2 text-destructive">
-          <AlertCircle className="w-5 h-5" />
-          <p className="text-sm font-medium">{loadError}</p>
-        </div>
-        <Button onClick={handleReload} variant="outline" className="gap-2">
-          <RefreshCw className="w-4 h-4" />
-          Seite neu laden
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <PaymentElement
         onReady={() => {
-          console.log("[StripePaymentForm] PaymentElement ready");
+          console.log("[StripePaymentForm] PaymentElement is ready");
           setIsReady(true);
         }}
         onLoadError={(event) => {
           console.error("[StripePaymentForm] PaymentElement load error:", event);
-          setLoadError(
-            "Fehler beim Laden der Zahlungsoptionen. Bitte prüfe deine Internetverbindung."
-          );
+          onError("Fehler beim Laden der Zahlungsoptionen. Bitte lade die Seite neu.");
         }}
         options={{
           layout: "tabs",

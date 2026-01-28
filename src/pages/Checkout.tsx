@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Eye, EyeOff, CheckCircle, Shield, Lock, Clock, Star, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, CheckCircle, Shield, Lock, Clock, Star, Loader2, AlertCircle, User } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -18,8 +18,10 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 import CheckoutPaymentSection from "@/components/checkout/CheckoutPaymentSection";
+import { useAuth } from "@/hooks/useAuth";
 
-const checkoutSchema = z.object({
+// Schema for new users (requires password)
+const newUserCheckoutSchema = z.object({
   email: z.string().trim().email({ message: "Ungültige E-Mail-Adresse" }),
   password: z.string()
     .min(8, { message: "Passwort muss mindestens 8 Zeichen haben" })
@@ -36,12 +38,26 @@ const checkoutSchema = z.object({
   }),
 });
 
-type CheckoutFormData = z.infer<typeof checkoutSchema>;
+// Schema for logged-in users (no password required)
+const loggedInCheckoutSchema = z.object({
+  email: z.string().trim().email({ message: "Ungültige E-Mail-Adresse" }),
+  firstName: z.string().trim().min(2, { message: "Vorname erforderlich" }),
+  lastName: z.string().trim().min(2, { message: "Nachname erforderlich" }),
+  address: z.string().trim().min(5, { message: "Adresse erforderlich" }),
+  postalCode: z.string().trim().min(4, { message: "Postleitzahl erforderlich" }),
+  city: z.string().trim().min(2, { message: "Stadt erforderlich" }),
+  agreeToTerms: z.literal(true, {
+    errorMap: () => ({ message: "Du musst den AGB zustimmen" }),
+  }),
+});
+
+type CheckoutFormData = z.infer<typeof newUserCheckoutSchema>;
 
 const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [formData, setFormData] = useState({
@@ -60,6 +76,25 @@ const Checkout = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailExistsError, setEmailExistsError] = useState(false);
+
+  // Check if user is logged in
+  const isLoggedIn = !!user;
+
+  // Pre-fill form with user data when logged in
+  useEffect(() => {
+    if (user) {
+      const displayName = user.user_metadata?.display_name || "";
+      const [firstName = "", lastName = ""] = displayName.split(" ");
+      
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || "",
+        firstName: firstName || prev.firstName,
+        lastName: lastName || prev.lastName,
+        password: "LOGGED_IN_USER", // Placeholder - won't be used
+      }));
+    }
+  }, [user]);
 
   // Show canceled payment message
   const paymentCanceled = searchParams.get("payment") === "canceled";
@@ -102,7 +137,10 @@ const Checkout = () => {
   const handleContinueToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const result = checkoutSchema.safeParse(formData);
+    // Use different schema based on login status
+    const schema = isLoggedIn ? loggedInCheckoutSchema : newUserCheckoutSchema;
+    const result = schema.safeParse(formData);
+    
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof CheckoutFormData, string>> = {};
       result.error.errors.forEach((err) => {
@@ -115,21 +153,17 @@ const Checkout = () => {
       return;
     }
 
-    // If user is already logged in, allow continuing (even though email exists)
+    // If user is already logged in, skip email check
+    if (isLoggedIn) {
+      setShowPayment(true);
+      return;
+    }
+
+    // Check email for new users
     setIsCheckingEmail(true);
     setEmailExistsError(false);
     
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const sessionEmail = sessionData.session?.user?.email?.toLowerCase();
-      const formEmail = formData.email.trim().toLowerCase();
-
-      if (sessionEmail && sessionEmail === formEmail) {
-        setIsCheckingEmail(false);
-        setShowPayment(true);
-        return;
-      }
-
       const emailExists = await checkEmailExists(formData.email);
       if (emailExists) {
         setEmailExistsError(true);
@@ -217,7 +251,7 @@ const Checkout = () => {
             >
               {!showPayment ? (
                 <form onSubmit={handleContinueToPayment} className="space-y-6">
-                  {/* Account Section */}
+                {/* Account Section */}
                   <div className="bg-card rounded-2xl p-6 shadow-sm border border-border/50">
                     <div className="flex items-center gap-3 mb-5">
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
@@ -228,96 +262,115 @@ const Checkout = () => {
                       </h2>
                     </div>
                     
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="email" className="text-sm font-medium">E-Mail-Adresse</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="deine@email.ch"
-                          value={formData.email}
-                          onChange={handleChange("email")}
-                          className={`h-12 mt-1.5 ${errors.email || emailExistsError ? "border-destructive" : ""}`}
-                        />
-                        {errors.email && (
-                          <p className="text-sm text-destructive mt-1">{errors.email}</p>
-                        )}
-                        
-                        {/* Email exists warning */}
-                        {emailExistsError && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="mt-3 p-4 bg-destructive/10 border border-destructive/30 rounded-xl"
-                          >
-                            <div className="flex items-start gap-3">
-                              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-destructive">
-                                  Već imaš nalog na ovu e-mail adresu
-                                </p>
-                                <p className="text-sm text-muted-foreground mt-1">
-                                  Ako si već registrovan (čak i ako još nisi platio), samo se prijavi i nastavi na plaćanje.
-                                </p>
-                                <div className="mt-3 flex gap-3">
-                                  <Link to="/login?redirect=/checkout">
-                                    <Button size="sm" variant="default">
-                                      Jetzt anmelden
-                                    </Button>
-                                  </Link>
-                                  <Link to="/forgot-password">
-                                    <Button size="sm" variant="outline">
-                                      Passwort vergessen?
-                                    </Button>
-                                  </Link>
+                    {/* Logged in user info */}
+                    {isLoggedIn ? (
+                      <div className="p-4 bg-accent/10 rounded-xl border border-accent/20">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                            <User className="w-5 h-5 text-accent" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">
+                              Angemeldet als {user?.email}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Dein Zugang wird nach der Zahlung automatisch freigeschaltet
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="email" className="text-sm font-medium">E-Mail-Adresse</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="deine@email.ch"
+                            value={formData.email}
+                            onChange={handleChange("email")}
+                            className={`h-12 mt-1.5 ${errors.email || emailExistsError ? "border-destructive" : ""}`}
+                          />
+                          {errors.email && (
+                            <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                          )}
+                          
+                          {/* Email exists warning */}
+                          {emailExistsError && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-3 p-4 bg-destructive/10 border border-destructive/30 rounded-xl"
+                            >
+                              <div className="flex items-start gap-3">
+                                <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-destructive">
+                                    Diese E-Mail ist bereits registriert
+                                  </p>
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    Melde dich an, um deine Lizenz zu verlängern oder bezahle mit dem bestehenden Konto.
+                                  </p>
+                                  <div className="mt-3 flex gap-3">
+                                    <Link to="/login?redirect=/checkout">
+                                      <Button size="sm" variant="default">
+                                        Jetzt anmelden
+                                      </Button>
+                                    </Link>
+                                    <Link to="/forgot-password">
+                                      <Button size="sm" variant="outline">
+                                        Passwort vergessen?
+                                      </Button>
+                                    </Link>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </div>
+                            </motion.div>
+                          )}
+                        </div>
 
-                      <div>
-                        <Label htmlFor="password" className="text-sm font-medium">Passwort erstellen</Label>
-                        <div className="relative mt-1.5">
-                          <Input
-                            id="password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Sicheres Passwort wählen"
-                            value={formData.password}
-                            onChange={handleChange("password")}
-                            className={`h-12 pr-10 ${errors.password ? "border-destructive" : ""}`}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                          </button>
-                        </div>
-                        {errors.password && (
-                          <p className="text-sm text-destructive mt-1">{errors.password}</p>
-                        )}
-                        
-                        {/* Password requirements - compact */}
-                        <div className="flex flex-wrap gap-3 mt-3">
-                          {passwordRequirements.map((req) => (
-                            <div
-                              key={req.text}
-                              className={`flex items-center gap-1 text-xs ${
-                                req.regex.test(formData.password)
-                                  ? "text-accent"
-                                  : "text-muted-foreground"
-                              }`}
+                        <div>
+                          <Label htmlFor="password" className="text-sm font-medium">Passwort erstellen</Label>
+                          <div className="relative mt-1.5">
+                            <Input
+                              id="password"
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Sicheres Passwort wählen"
+                              value={formData.password}
+                              onChange={handleChange("password")}
+                              className={`h-12 pr-10 ${errors.password ? "border-destructive" : ""}`}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                             >
-                              <CheckCircle className="w-3 h-3" />
-                              <span>{req.text}</span>
-                            </div>
-                          ))}
+                              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                          </div>
+                          {errors.password && (
+                            <p className="text-sm text-destructive mt-1">{errors.password}</p>
+                          )}
+                          
+                          {/* Password requirements - compact */}
+                          <div className="flex flex-wrap gap-3 mt-3">
+                            {passwordRequirements.map((req) => (
+                              <div
+                                key={req.text}
+                                className={`flex items-center gap-1 text-xs ${
+                                  req.regex.test(formData.password)
+                                    ? "text-accent"
+                                    : "text-muted-foreground"
+                                }`}
+                              >
+                                <CheckCircle className="w-3 h-3" />
+                                <span>{req.text}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Billing Address Section */}

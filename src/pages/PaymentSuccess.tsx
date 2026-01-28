@@ -85,6 +85,22 @@ const PaymentSuccess = () => {
           
           // Trigger confetti animation
           setTimeout(triggerConfetti, 500);
+
+          // Auto-login for new users using the temp password from pending registration
+          if (!data.isExistingUser && data.tempPassword) {
+            console.log("Auto-login: Attempting to sign in new user...");
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+              email: data.email,
+              password: data.tempPassword,
+            });
+            
+            if (signInError) {
+              console.error("Auto-login failed:", signInError);
+              // Don't show error - user can still log in manually
+            } else {
+              console.log("Auto-login successful!");
+            }
+          }
         } else {
           throw new Error(data?.error || "Verification failed");
         }
@@ -269,9 +285,9 @@ const PaymentSuccess = () => {
                 <Button
                   size="lg"
                   className="w-full h-14 text-base font-semibold bg-accent hover:bg-accent/90 text-accent-foreground rounded-xl shadow-lg shadow-accent/20"
-                  onClick={() => navigate(userInfo?.isExistingUser ? "/dashboard" : "/login")}
+                  onClick={() => navigate("/dashboard")}
                 >
-                  {userInfo?.isExistingUser ? "Zum Dashboard" : "Jetzt anmelden"}
+                  Zum Dashboard
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </motion.div>

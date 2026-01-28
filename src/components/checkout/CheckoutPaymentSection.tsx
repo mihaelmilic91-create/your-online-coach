@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { Loader2 } from "lucide-react";
@@ -7,8 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import StripePaymentForm from "./StripePaymentForm";
 
 // Stripe publishable key (safe to expose in frontend code)
-const STRIPE_PUBLISHABLE_KEY = "pk_live_51RYMouRnGnmNxMzPMZlUewemMbapVrSQnFv6F86hv2VBtWMJN0RKFJeE8RqxPnc3L35BtKv6rG4b4PjSbqANsJGH00PvJaQRWB";
-const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+// Provided via environment/secret: VITE_STRIPE_PUBLISHABLE_KEY
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
 
 interface CheckoutPaymentSectionProps {
   formData: {
@@ -32,6 +32,20 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
   const [retryCount, setRetryCount] = useState(0);
   const [debugNote, setDebugNote] = useState<string | null>(null);
   const DEBUG_VERSION = "checkout-debug-v3";
+
+  const stripePromise = useMemo(() => {
+    if (!STRIPE_PUBLISHABLE_KEY) return null;
+    return loadStripe(STRIPE_PUBLISHABLE_KEY);
+  }, []);
+
+  useEffect(() => {
+    if (!STRIPE_PUBLISHABLE_KEY) {
+      setError(
+        "Stripe Konfiguration fehlt (Publishable Key). Bitte kontaktiere den Support."
+      );
+      setIsLoading(false);
+    }
+  }, []);
 
   // If we end up with neither clientSecret nor error after an attempt,
   // force a visible error so users are never stuck on an infinite placeholder.
@@ -125,6 +139,7 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
   // Initialize payment on mount - formData is already populated when this component renders
   useEffect(() => {
     console.log("[CheckoutPaymentSection] Component mounted, starting payment initialization");
+    if (!STRIPE_PUBLISHABLE_KEY) return;
     initializePayment();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [retryCount]);
@@ -184,6 +199,15 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
         >
           Erneut versuchen
         </button>
+      </div>
+    );
+  }
+
+  if (!stripePromise) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-destructive mb-2">Stripe konnte nicht initialisiert werden.</p>
+        <p className="text-sm text-muted-foreground">Bitte Seite neu laden und erneut versuchen.</p>
       </div>
     );
   }

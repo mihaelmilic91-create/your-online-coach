@@ -124,10 +124,13 @@ serve(async (req) => {
       throw new Error("Registrierung nicht gefunden");
     }
 
+    // Store the original password before creating user (for auto-login)
+    const originalPassword = pendingReg.password_hash;
+
     // Create the user account
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: pendingReg.email,
-      password: pendingReg.password_hash,
+      password: originalPassword,
       email_confirm: true,
       user_metadata: {
         display_name: `${pendingReg.first_name} ${pendingReg.last_name}`,
@@ -159,6 +162,7 @@ serve(async (req) => {
       .update({ completed_at: new Date().toISOString() })
       .eq('id', pendingReg.id);
 
+    // Return tempPassword for auto-login on frontend
     return new Response(JSON.stringify({ 
       success: true,
       isExistingUser: false,
@@ -166,6 +170,7 @@ serve(async (req) => {
       firstName: pendingReg.first_name,
       lastName: pendingReg.last_name,
       accessUntil: accessUntil.toISOString(),
+      tempPassword: originalPassword, // For auto-login
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

@@ -542,13 +542,24 @@ const Lernvideos = () => {
                           }`}
                           onClick={() => handlePlayVideo(video)}
                         >
-                          {/* Watched Badge with count */}
-                          {isWatched && (
-                            <div className="absolute top-3 right-3 z-10 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg">
-                              <CheckCircle2 className="w-3 h-3" />
-                              {watchCount}x angesehen
-                            </div>
-                          )}
+                          {/* Watch Status Badge */}
+                          <div className={`absolute top-3 right-3 z-10 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg ${
+                            isWatched 
+                              ? 'bg-green-500 text-white' 
+                              : 'bg-muted text-muted-foreground'
+                          }`}>
+                            {isWatched ? (
+                              <>
+                                <CheckCircle2 className="w-3 h-3" />
+                                {watchCount}x angesehen
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-3 h-3" />
+                                Noch nicht angesehen
+                              </>
+                            )}
+                          </div>
                           
                           <CardContent className="p-0">
                             {/* Video Thumbnail */}

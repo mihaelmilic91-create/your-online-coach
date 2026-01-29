@@ -7,6 +7,7 @@ interface VdoCipherPlayerProps {
   videoId: string;
   className?: string;
   onEnded?: () => void;
+  autoplay?: boolean;
 }
 
 declare global {
@@ -17,7 +18,7 @@ declare global {
   }
 }
 
-const VdoCipherPlayer = ({ videoId, className, onEnded }: VdoCipherPlayerProps) => {
+const VdoCipherPlayer = ({ videoId, className, onEnded, autoplay = true }: VdoCipherPlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,14 +68,16 @@ const VdoCipherPlayer = ({ videoId, className, onEnded }: VdoCipherPlayerProps) 
           containerRef.current.innerHTML = "";
         }
 
-        // Create iframe for video
+        // Create iframe for video with autoplay
         const iframe = document.createElement("iframe");
         iframe.id = `vdocipher-${videoId}`;
-        iframe.src = `https://player.vdocipher.com/v2/?otp=${otp}&playbackInfo=${playbackInfo}`;
+        // Add autoplay parameter to URL
+        const autoplayParam = autoplay ? "&autoplay=true" : "";
+        iframe.src = `https://player.vdocipher.com/v2/?otp=${otp}&playbackInfo=${playbackInfo}${autoplayParam}`;
         iframe.style.width = "100%";
         iframe.style.height = "100%";
         iframe.style.border = "0";
-        iframe.allow = "encrypted-media; fullscreen; picture-in-picture";
+        iframe.allow = "encrypted-media; fullscreen; picture-in-picture; autoplay";
         iframe.allowFullscreen = true;
         
         containerRef.current?.appendChild(iframe);

@@ -406,10 +406,9 @@ const Lernvideos = () => {
 
                 <div className="flex items-center justify-between">
                   <Button
-                    variant="outline"
                     onClick={handlePrevVideo}
                     disabled={!hasPrevVideo}
-                    className="gap-2 border-white/20 text-white hover:bg-white/10 disabled:opacity-30"
+                    className="gap-2 bg-white/10 border border-white/30 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span className="hidden sm:inline">Vorheriges Video</span>
@@ -421,10 +420,9 @@ const Lernvideos = () => {
                   </span>
 
                   <Button
-                    variant="outline"
                     onClick={handleNextVideo}
                     disabled={!hasNextVideo}
-                    className="gap-2 border-white/20 text-white hover:bg-white/10 disabled:opacity-30"
+                    className="gap-2 bg-white/10 border border-white/30 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <span className="hidden sm:inline">Nächstes Video</span>
                     <span className="sm:hidden">Weiter</span>

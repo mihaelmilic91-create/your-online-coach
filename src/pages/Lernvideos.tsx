@@ -537,62 +537,59 @@ const Lernvideos = () => {
                         transition={{ duration: 0.3, delay: 0.05 * index }}
                       >
                         <Card 
-                          className={`bg-card shadow-soft hover:shadow-elevated transition-all group cursor-pointer overflow-hidden relative ${
-                            isWatched ? 'ring-2 ring-green-500/30' : ''
+                          className={`bg-card shadow-soft hover:shadow-elevated transition-all group cursor-pointer overflow-hidden ${
+                            isWatched ? 'ring-2 ring-accent/30' : ''
                           }`}
                           onClick={() => handlePlayVideo(video)}
                         >
-                          {/* Watch Status Badge */}
-                          <div className={`absolute top-3 right-3 z-10 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg ${
-                            isWatched 
-                              ? 'bg-green-500 text-white' 
-                              : 'bg-muted text-muted-foreground'
-                          }`}>
-                            {isWatched ? (
-                              <>
-                                <CheckCircle2 className="w-3 h-3" />
-                                {watchCount}x angesehen
-                              </>
-                            ) : (
-                              <>
-                                <Play className="w-3 h-3" />
-                                Noch nicht angesehen
-                              </>
-                            )}
-                          </div>
-                          
                           <CardContent className="p-0">
                             {/* Video Thumbnail */}
                             <div className="relative aspect-video bg-muted overflow-hidden">
                               <div className={`absolute inset-0 flex items-center justify-center ${
                                 isWatched 
-                                  ? 'bg-gradient-to-br from-green-500/20 to-accent/20' 
+                                  ? 'bg-gradient-to-br from-accent/20 to-primary/20' 
                                   : 'bg-gradient-to-br from-accent/20 to-primary/20'
                               }`}>
                                 <div className={`w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg ${
-                                  isWatched ? 'bg-green-500/90' : 'bg-accent/90'
+                                  isWatched ? 'bg-accent/90' : 'bg-accent/90'
                                 }`}>
                                   <Play className="w-8 h-8 text-white ml-1" />
                                 </div>
                               </div>
                               {/* Hover overlay */}
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                <span className={`text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity px-4 py-2 rounded-full text-sm ${
-                                  isWatched ? 'bg-green-500' : 'bg-accent'
-                                }`}>
+                                <span className="text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity px-4 py-2 rounded-full text-sm bg-accent">
                                   {isWatched ? 'Erneut ansehen' : 'Jetzt ansehen'}
                                 </span>
                               </div>
                             </div>
                             
                             <div className="p-4">
-                              <h3 className={`font-semibold mb-1 line-clamp-2 transition-colors ${
-                                isWatched 
-                                  ? 'text-green-600 group-hover:text-green-500' 
-                                  : 'text-foreground group-hover:text-accent'
-                              }`}>
-                                {video.title}
-                              </h3>
+                              {/* Title row with badge */}
+                              <div className="flex items-start justify-between gap-2 mb-1">
+                                <h3 className={`font-semibold line-clamp-2 transition-colors flex-1 ${
+                                  isWatched 
+                                    ? 'text-accent group-hover:text-accent/80' 
+                                    : 'text-foreground group-hover:text-accent'
+                                }`}>
+                                  {video.title}
+                                </h3>
+                                {/* Watch Status Badge */}
+                                <div className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-medium flex items-center gap-1 ${
+                                  isWatched 
+                                    ? 'bg-accent text-white' 
+                                    : 'bg-muted text-muted-foreground'
+                                }`}>
+                                  {isWatched ? (
+                                    <>
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      {watchCount}x
+                                    </>
+                                  ) : (
+                                    <span>Neu</span>
+                                  )}
+                                </div>
+                              </div>
                               {video.description && (
                                 <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                                   {video.description}

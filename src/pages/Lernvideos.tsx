@@ -586,7 +586,7 @@ const Lernvideos = () => {
                                       {watchCount}x
                                     </>
                                   ) : (
-                                    <span>Neu</span>
+                                    <span>Ungesehen</span>
                                   )}
                                 </div>
                               </div>

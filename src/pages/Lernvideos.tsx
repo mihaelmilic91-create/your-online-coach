@@ -48,22 +48,28 @@ const Lernvideos = () => {
   // Video player state
   const [playingVideo, setPlayingVideo] = useState<VideoItem | null>(null);
   
-  // Watch progress state
-  const [watchedVideoIds, setWatchedVideoIds] = useState<Set<string>>(new Set());
+  // Watch progress state - now tracks watch count
+  const [videoWatchCounts, setVideoWatchCounts] = useState<Map<string, number>>(new Map());
 
   const loadWatchProgress = async (userId: string) => {
     const { data } = await supabase
       .from("video_progress")
-      .select("video_id")
+      .select("video_id, watch_count")
       .eq("user_id", userId);
     
     if (data) {
-      setWatchedVideoIds(new Set(data.map(p => p.video_id)));
+      const counts = new Map<string, number>();
+      data.forEach(p => counts.set(p.video_id, p.watch_count || 1));
+      setVideoWatchCounts(counts);
     }
   };
 
   const markVideoAsWatched = async (videoId: string) => {
     if (!user) return;
+    
+    // Get current watch count
+    const currentCount = videoWatchCounts.get(videoId) || 0;
+    const newCount = currentCount + 1;
     
     const { error } = await supabase
       .from("video_progress")
@@ -72,12 +78,13 @@ const Lernvideos = () => {
         video_id: videoId,
         watched_at: new Date().toISOString(),
         progress_percent: 100,
+        watch_count: newCount,
       }, {
         onConflict: "user_id,video_id"
       });
     
     if (!error) {
-      setWatchedVideoIds(prev => new Set([...prev, videoId]));
+      setVideoWatchCounts(prev => new Map(prev).set(videoId, newCount));
     }
   };
 
@@ -233,7 +240,7 @@ const Lernvideos = () => {
   const hasNextVideo = currentVideoIndex < videos.length - 1;
   
   // Calculate watched count for current category
-  const watchedInCategory = videos.filter(v => watchedVideoIds.has(v.id)).length;
+  const watchedInCategory = videos.filter(v => videoWatchCounts.has(v.id)).length;
 
   if (loading || checkingAccess) {
     return (
@@ -346,8 +353,11 @@ const Lernvideos = () => {
                   <p className="text-white/60 text-sm">{selectedCategory?.title}</p>
                   <h2 className="text-white font-semibold truncate max-w-md flex items-center gap-2">
                     {playingVideo.title}
-                    {watchedVideoIds.has(playingVideo.id) && (
-                      <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    {videoWatchCounts.has(playingVideo.id) && (
+                      <span className="flex items-center gap-1 text-green-400 text-sm font-normal">
+                        <CheckCircle2 className="w-4 h-4" />
+                        {videoWatchCounts.get(playingVideo.id)}x
+                      </span>
                     )}
                   </h2>
                 </div>
@@ -381,8 +391,11 @@ const Lernvideos = () => {
                   <p className="text-white/60 text-sm">{selectedCategory?.title}</p>
                   <h2 className="text-white font-semibold flex items-center gap-2">
                     {playingVideo.title}
-                    {watchedVideoIds.has(playingVideo.id) && (
-                      <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    {videoWatchCounts.has(playingVideo.id) && (
+                      <span className="flex items-center gap-1 text-green-400 text-sm font-normal">
+                        <CheckCircle2 className="w-4 h-4" />
+                        {videoWatchCounts.get(playingVideo.id)}x
+                      </span>
                     )}
                   </h2>
                 </div>
@@ -513,7 +526,8 @@ const Lernvideos = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {videos.map((video, index) => {
-                    const isWatched = watchedVideoIds.has(video.id);
+                    const watchCount = videoWatchCounts.get(video.id) || 0;
+                    const isWatched = watchCount > 0;
                     
                     return (
                       <motion.div
@@ -528,11 +542,11 @@ const Lernvideos = () => {
                           }`}
                           onClick={() => handlePlayVideo(video)}
                         >
-                          {/* Watched Badge */}
+                          {/* Watched Badge with count */}
                           {isWatched && (
                             <div className="absolute top-3 right-3 z-10 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg">
                               <CheckCircle2 className="w-3 h-3" />
-                              Angesehen
+                              {watchCount}x angesehen
                             </div>
                           )}
                           

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, LogOut, User, Clock, Video, AlertTriangle, FolderOpen, X, ChevronLeft, ChevronRight, Home } from "lucide-react";
+import { Play, LogOut, User, Clock, Video, AlertTriangle, FolderOpen, X, ChevronLeft, ChevronRight, Home, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,6 +47,39 @@ const Lernvideos = () => {
   
   // Video player state
   const [playingVideo, setPlayingVideo] = useState<VideoItem | null>(null);
+  
+  // Watch progress state
+  const [watchedVideoIds, setWatchedVideoIds] = useState<Set<string>>(new Set());
+
+  const loadWatchProgress = async (userId: string) => {
+    const { data } = await supabase
+      .from("video_progress")
+      .select("video_id")
+      .eq("user_id", userId);
+    
+    if (data) {
+      setWatchedVideoIds(new Set(data.map(p => p.video_id)));
+    }
+  };
+
+  const markVideoAsWatched = async (videoId: string) => {
+    if (!user) return;
+    
+    const { error } = await supabase
+      .from("video_progress")
+      .upsert({
+        user_id: user.id,
+        video_id: videoId,
+        watched_at: new Date().toISOString(),
+        progress_percent: 100,
+      }, {
+        onConflict: "user_id,video_id"
+      });
+    
+    if (!error) {
+      setWatchedVideoIds(prev => new Set([...prev, videoId]));
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -58,6 +91,9 @@ const Lernvideos = () => {
       }
 
       setUser(session.user);
+
+      // Load watch progress
+      await loadWatchProgress(session.user.id);
 
       // Check if user is admin
       const { data: roleData } = await supabase
@@ -159,9 +195,12 @@ const Lernvideos = () => {
     setPlayingVideo(null);
   };
 
-  const handleVideoEnded = () => {
-    // Find next video in list
+  const handleVideoEnded = async () => {
+    // Mark video as watched
     if (playingVideo) {
+      await markVideoAsWatched(playingVideo.id);
+      
+      // Find next video in list
       const currentIndex = videos.findIndex(v => v.id === playingVideo.id);
       if (currentIndex < videos.length - 1) {
         setPlayingVideo(videos[currentIndex + 1]);
@@ -192,6 +231,9 @@ const Lernvideos = () => {
   const currentVideoIndex = playingVideo ? videos.findIndex(v => v.id === playingVideo.id) : -1;
   const hasPrevVideo = currentVideoIndex > 0;
   const hasNextVideo = currentVideoIndex < videos.length - 1;
+  
+  // Calculate watched count for current category
+  const watchedInCategory = videos.filter(v => watchedVideoIds.has(v.id)).length;
 
   if (loading || checkingAccess) {
     return (
@@ -302,7 +344,12 @@ const Lernvideos = () => {
                 <img src={logo} alt="Online DriveCoach" className="h-8" />
                 <div className="hidden sm:block">
                   <p className="text-white/60 text-sm">{selectedCategory?.title}</p>
-                  <h2 className="text-white font-semibold truncate max-w-md">{playingVideo.title}</h2>
+                  <h2 className="text-white font-semibold truncate max-w-md flex items-center gap-2">
+                    {playingVideo.title}
+                    {watchedVideoIds.has(playingVideo.id) && (
+                      <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    )}
+                  </h2>
                 </div>
               </div>
               <Button 
@@ -332,7 +379,12 @@ const Lernvideos = () => {
                 {/* Mobile title */}
                 <div className="sm:hidden mb-3">
                   <p className="text-white/60 text-sm">{selectedCategory?.title}</p>
-                  <h2 className="text-white font-semibold">{playingVideo.title}</h2>
+                  <h2 className="text-white font-semibold flex items-center gap-2">
+                    {playingVideo.title}
+                    {watchedVideoIds.has(playingVideo.id) && (
+                      <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    )}
+                  </h2>
                 </div>
                 
                 {playingVideo.description && (
@@ -441,62 +493,98 @@ const Lernvideos = () => {
           >
             {selectedCategory ? (
               <>
-                <h2 className="font-display text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Video className="w-5 h-5 text-accent" />
-                  {selectedCategory.title}
-                  <span className="text-sm font-normal text-muted-foreground ml-2">
-                    ({videos.length} {videos.length === 1 ? 'Video' : 'Videos'})
-                  </span>
-                </h2>
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
+                    <Video className="w-5 h-5 text-accent" />
+                    {selectedCategory.title}
+                    <span className="text-sm font-normal text-muted-foreground ml-2">
+                      ({videos.length} {videos.length === 1 ? 'Video' : 'Videos'})
+                    </span>
+                  </h2>
+                  {videos.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      <span className="text-muted-foreground">
+                        {watchedInCategory} von {videos.length} angesehen
+                      </span>
+                    </div>
+                  )}
+                </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {videos.map((video, index) => (
-                    <motion.div
-                      key={video.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.05 * index }}
-                    >
-                      <Card 
-                        className="bg-card shadow-soft hover:shadow-elevated transition-all group cursor-pointer overflow-hidden"
-                        onClick={() => handlePlayVideo(video)}
+                  {videos.map((video, index) => {
+                    const isWatched = watchedVideoIds.has(video.id);
+                    
+                    return (
+                      <motion.div
+                        key={video.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.05 * index }}
                       >
-                        <CardContent className="p-0">
-                          {/* Video Thumbnail */}
-                          <div className="relative aspect-video bg-muted overflow-hidden">
-                            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-accent/20 to-primary/20">
-                              <div className="w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                                <Play className="w-8 h-8 text-white ml-1" />
-                              </div>
+                        <Card 
+                          className={`bg-card shadow-soft hover:shadow-elevated transition-all group cursor-pointer overflow-hidden relative ${
+                            isWatched ? 'ring-2 ring-green-500/30' : ''
+                          }`}
+                          onClick={() => handlePlayVideo(video)}
+                        >
+                          {/* Watched Badge */}
+                          {isWatched && (
+                            <div className="absolute top-3 right-3 z-10 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-lg">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Angesehen
                             </div>
-                            {/* Hover overlay */}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                              <span className="text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity bg-accent px-4 py-2 rounded-full text-sm">
-                                Jetzt ansehen
-                              </span>
-                            </div>
-                          </div>
+                          )}
                           
-                          <div className="p-4">
-                            <h3 className="font-semibold text-foreground mb-1 line-clamp-2 group-hover:text-accent transition-colors">
-                              {video.title}
-                            </h3>
-                            {video.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                                {video.description}
-                              </p>
-                            )}
-                            {video.duration && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <Clock className="w-4 h-4" />
-                                {video.duration}
+                          <CardContent className="p-0">
+                            {/* Video Thumbnail */}
+                            <div className="relative aspect-video bg-muted overflow-hidden">
+                              <div className={`absolute inset-0 flex items-center justify-center ${
+                                isWatched 
+                                  ? 'bg-gradient-to-br from-green-500/20 to-accent/20' 
+                                  : 'bg-gradient-to-br from-accent/20 to-primary/20'
+                              }`}>
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg ${
+                                  isWatched ? 'bg-green-500/90' : 'bg-accent/90'
+                                }`}>
+                                  <Play className="w-8 h-8 text-white ml-1" />
+                                </div>
                               </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
+                              {/* Hover overlay */}
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <span className={`text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity px-4 py-2 rounded-full text-sm ${
+                                  isWatched ? 'bg-green-500' : 'bg-accent'
+                                }`}>
+                                  {isWatched ? 'Erneut ansehen' : 'Jetzt ansehen'}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="p-4">
+                              <h3 className={`font-semibold mb-1 line-clamp-2 transition-colors ${
+                                isWatched 
+                                  ? 'text-green-600 group-hover:text-green-500' 
+                                  : 'text-foreground group-hover:text-accent'
+                              }`}>
+                                {video.title}
+                              </h3>
+                              {video.description && (
+                                <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                                  {video.description}
+                                </p>
+                              )}
+                              {video.duration && (
+                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                  <Clock className="w-4 h-4" />
+                                  {video.duration}
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
                   
                   {videos.length === 0 && (
                     <div className="col-span-full text-center py-12">

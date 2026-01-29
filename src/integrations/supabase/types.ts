@@ -226,6 +226,44 @@ export type Database = {
         }
         Relationships: []
       }
+      video_progress: {
+        Row: {
+          created_at: string
+          id: string
+          progress_percent: number | null
+          updated_at: string
+          user_id: string
+          video_id: string
+          watched_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          progress_percent?: number | null
+          updated_at?: string
+          user_id: string
+          video_id: string
+          watched_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          progress_percent?: number | null
+          updated_at?: string
+          user_id?: string
+          video_id?: string
+          watched_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_progress_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       videos: {
         Row: {
           category_id: string

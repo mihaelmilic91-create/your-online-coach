@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Play, Lock, LogOut, User, Clock, Video, AlertTriangle, Calendar, FolderOpen } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, LogOut, User, Clock, Video, AlertTriangle, Calendar, FolderOpen, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import VdoCipherPlayer from "@/components/VdoCipherPlayer";
 import logo from "@/assets/logo.png";
 
 interface Category {
@@ -43,6 +44,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Video player state
+  const [playingVideo, setPlayingVideo] = useState<VideoItem | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -147,6 +151,48 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  const handlePlayVideo = (video: VideoItem) => {
+    setPlayingVideo(video);
+  };
+
+  const handleClosePlayer = () => {
+    setPlayingVideo(null);
+  };
+
+  const handleVideoEnded = () => {
+    // Find next video in list
+    if (playingVideo) {
+      const currentIndex = videos.findIndex(v => v.id === playingVideo.id);
+      if (currentIndex < videos.length - 1) {
+        setPlayingVideo(videos[currentIndex + 1]);
+      } else {
+        setPlayingVideo(null);
+      }
+    }
+  };
+
+  const handlePrevVideo = () => {
+    if (playingVideo) {
+      const currentIndex = videos.findIndex(v => v.id === playingVideo.id);
+      if (currentIndex > 0) {
+        setPlayingVideo(videos[currentIndex - 1]);
+      }
+    }
+  };
+
+  const handleNextVideo = () => {
+    if (playingVideo) {
+      const currentIndex = videos.findIndex(v => v.id === playingVideo.id);
+      if (currentIndex < videos.length - 1) {
+        setPlayingVideo(videos[currentIndex + 1]);
+      }
+    }
+  };
+
+  const currentVideoIndex = playingVideo ? videos.findIndex(v => v.id === playingVideo.id) : -1;
+  const hasPrevVideo = currentVideoIndex > 0;
+  const hasNextVideo = currentVideoIndex < videos.length - 1;
+
   if (loading || checkingAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -207,7 +253,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card shadow-soft border-b border-border">
+      <header className="bg-card shadow-soft border-b border-border sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <a href="/" className="flex items-center gap-2">
@@ -233,6 +279,91 @@ const Dashboard = () => {
         </div>
       </header>
 
+      {/* Video Player Modal */}
+      <AnimatePresence>
+        {playingVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 flex flex-col"
+          >
+            {/* Player Header */}
+            <div className="bg-black/50 backdrop-blur-sm border-b border-white/10 px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <img src={logo} alt="Online DriveCoach" className="h-8" />
+                <div className="hidden sm:block">
+                  <p className="text-white/60 text-sm">{selectedCategory?.title}</p>
+                  <h2 className="text-white font-semibold truncate max-w-md">{playingVideo.title}</h2>
+                </div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleClosePlayer}
+                className="text-white hover:bg-white/10"
+              >
+                <X className="w-6 h-6" />
+              </Button>
+            </div>
+
+            {/* Video Player */}
+            <div className="flex-1 flex items-center justify-center p-4">
+              <div className="w-full max-w-6xl">
+                <VdoCipherPlayer
+                  videoId={playingVideo.vdocipher_video_id}
+                  className="w-full"
+                  onEnded={handleVideoEnded}
+                />
+              </div>
+            </div>
+
+            {/* Player Footer with Navigation */}
+            <div className="bg-black/50 backdrop-blur-sm border-t border-white/10 px-4 py-4">
+              <div className="max-w-6xl mx-auto">
+                {/* Mobile title */}
+                <div className="sm:hidden mb-3">
+                  <p className="text-white/60 text-sm">{selectedCategory?.title}</p>
+                  <h2 className="text-white font-semibold">{playingVideo.title}</h2>
+                </div>
+                
+                {playingVideo.description && (
+                  <p className="text-white/70 text-sm mb-4 line-clamp-2">{playingVideo.description}</p>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={handlePrevVideo}
+                    disabled={!hasPrevVideo}
+                    className="gap-2 border-white/20 text-white hover:bg-white/10 disabled:opacity-30"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">Vorheriges Video</span>
+                    <span className="sm:hidden">Zurück</span>
+                  </Button>
+                  
+                  <span className="text-white/60 text-sm">
+                    {currentVideoIndex + 1} / {videos.length}
+                  </span>
+
+                  <Button
+                    variant="outline"
+                    onClick={handleNextVideo}
+                    disabled={!hasNextVideo}
+                    className="gap-2 border-white/20 text-white hover:bg-white/10 disabled:opacity-30"
+                  >
+                    <span className="hidden sm:inline">Nächstes Video</span>
+                    <span className="sm:hidden">Weiter</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
@@ -246,7 +377,7 @@ const Dashboard = () => {
             Willkommen, {displayName}!
           </h1>
           <p className="text-muted-foreground text-lg">
-            Starte deine Lernreise und bereite dich auf die Autoprüfung vor.
+            Wähle ein Video und drücke Play, um mit dem Lernen zu beginnen.
           </p>
         </motion.div>
 
@@ -361,19 +492,28 @@ const Dashboard = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: 0.05 * index }}
                     >
-                      <Card className="bg-card shadow-soft hover:shadow-elevated transition-all group">
+                      <Card 
+                        className="bg-card shadow-soft hover:shadow-elevated transition-all group cursor-pointer"
+                        onClick={() => handlePlayVideo(video)}
+                      >
                         <CardContent className="p-0">
                           {/* Video Thumbnail Placeholder */}
                           <div className="relative aspect-video bg-muted rounded-t-lg overflow-hidden">
                             <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-accent/20 to-primary/20">
-                              <div className="w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <div className="w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
                                 <Play className="w-8 h-8 text-white ml-1" />
                               </div>
+                            </div>
+                            {/* Hover overlay */}
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                              <span className="text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity bg-accent px-4 py-2 rounded-full text-sm">
+                                Jetzt ansehen
+                              </span>
                             </div>
                           </div>
                           
                           <div className="p-4">
-                            <h3 className="font-semibold text-foreground mb-1 line-clamp-2">
+                            <h3 className="font-semibold text-foreground mb-1 line-clamp-2 group-hover:text-accent transition-colors">
                               {video.title}
                             </h3>
                             {video.duration && (
@@ -382,17 +522,6 @@ const Dashboard = () => {
                                 {video.duration}
                               </div>
                             )}
-                            
-                            <Button 
-                              variant="hero" 
-                              size="sm"
-                              className="w-full mt-3"
-                              asChild
-                            >
-                              <Link to={`/video/${video.id}`}>
-                                Video ansehen
-                              </Link>
-                            </Button>
                           </div>
                         </CardContent>
                       </Card>

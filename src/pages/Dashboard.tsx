@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, LogOut, User, Video, AlertTriangle, Calendar, FolderOpen } from "lucide-react";
+import { Play, LogOut, Video, AlertTriangle, Calendar, FolderOpen, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import ProfileWidget from "@/components/dashboard/ProfileWidget";
 import OrdersWidget from "@/components/dashboard/OrdersWidget";
+import UserAvatar from "@/components/dashboard/UserAvatar";
+import AccessProgressBar from "@/components/dashboard/AccessProgressBar";
+import WatchProgressWidget from "@/components/dashboard/WatchProgressWidget";
+import RecentVideosWidget from "@/components/dashboard/RecentVideosWidget";
 import logo from "@/assets/logo.png";
 
 interface AccessInfo {
@@ -16,12 +20,20 @@ interface AccessInfo {
   daysRemaining: number;
 }
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 10) return "Guten Morgen";
+  if (hour < 18) return "Guten Tag";
+  return "Guten Abend";
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
   const [categoriesCount, setCategoriesCount] = useState(0);
   const [videosCount, setVideosCount] = useState(0);
+  const [watchedCount, setWatchedCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -91,8 +103,16 @@ const Dashboard = () => {
         .select("*", { count: "exact", head: true })
         .eq("is_published", true);
 
+      // Load watched count
+      const { count: watchCount } = await supabase
+        .from("video_progress")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", session.user.id)
+        .gt("watch_count", 0);
+
       setCategoriesCount(catCount || 0);
       setVideosCount(vidCount || 0);
+      setWatchedCount(watchCount || 0);
       
       setLoading(false);
     };
@@ -170,23 +190,23 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Header - Compact with Avatar */}
       <header className="bg-card shadow-soft border-b border-border">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <a href="/" className="flex items-center gap-2">
-              <img src={logo} alt="Online DriveCoach" className="h-10" />
+              <img src={logo} alt="Online DriveCoach" className="h-9" />
             </a>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {isAdmin && (
                 <Button variant="outline" size="sm" onClick={() => navigate("/admin")}>
                   Admin
                 </Button>
               )}
-              <div className="hidden sm:flex items-center gap-2 text-muted-foreground">
-                <User className="w-5 h-5" />
-                <span>{displayName}</span>
+              <div className="hidden sm:flex items-center gap-2">
+                <UserAvatar name={displayName} size="sm" />
+                <span className="text-sm font-medium text-foreground">{displayName}</span>
               </div>
               <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
                 <LogOut className="w-4 h-4" />
@@ -198,32 +218,33 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
+      <main className="container mx-auto px-4 py-6 space-y-6">
+        {/* Welcome Section with Progress Bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="bg-gradient-to-br from-accent/5 via-primary/5 to-transparent rounded-2xl p-6 border border-border"
         >
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Willkommen, {displayName}!
+          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-1">
+            {getGreeting()}, {displayName}!
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground mb-4">
             Starte deine Lernreise und bereite dich auf die Autoprüfung vor.
           </p>
+          <AccessProgressBar daysRemaining={accessInfo?.daysRemaining || 0} />
         </motion.div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - 4 columns */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
         >
           <Card className="bg-card shadow-soft">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
                 <FolderOpen className="w-6 h-6 text-accent" />
               </div>
               <div>
@@ -234,8 +255,8 @@ const Dashboard = () => {
           </Card>
           
           <Card className="bg-card shadow-soft">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
                 <Video className="w-6 h-6 text-accent" />
               </div>
               <div>
@@ -244,10 +265,22 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="bg-card shadow-soft">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                <Eye className="w-6 h-6 text-accent" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{watchedCount}/{videosCount || 30}</p>
+                <p className="text-sm text-muted-foreground">Angesehen</p>
+              </div>
+            </CardContent>
+          </Card>
           
           <Card className="bg-card shadow-soft">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Calendar className="w-6 h-6 text-primary" />
               </div>
               <div>
@@ -260,26 +293,26 @@ const Dashboard = () => {
           </Card>
         </motion.div>
 
-        {/* Main Action Card */}
+        {/* Main Action + Recent Videos Row */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-8"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
         >
-          <Card className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20 shadow-elevated overflow-hidden">
-            <CardContent className="p-8 md:p-12">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                  <Play className="w-12 h-12 md:w-16 md:h-16 text-accent ml-2" />
+          {/* Main Action Card */}
+          <Card className="lg:col-span-2 bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20 shadow-elevated overflow-hidden">
+            <CardContent className="p-6 md:p-8">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                  <Play className="w-10 h-10 md:w-12 md:h-12 text-accent ml-1" />
                 </div>
                 <div className="text-center md:text-left flex-1">
-                  <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-3">
+                  <h2 className="font-display text-xl md:text-2xl font-bold text-foreground mb-2">
                     Lernvideos ansehen
                   </h2>
-                  <p className="text-muted-foreground text-lg mb-6 max-w-xl">
-                    Entdecke alle Lernvideos, die dir helfen, dich optimal auf die Fahrprüfung vorzubereiten. 
-                    Klicke einfach auf Play und starte mit dem Lernen!
+                  <p className="text-muted-foreground mb-4 max-w-lg">
+                    Entdecke alle Lernvideos, die dir helfen, dich optimal auf die Fahrprüfung vorzubereiten.
                   </p>
                   <Button asChild size="lg" variant="hero" className="gap-2">
                     <Link to="/lernvideos">
@@ -291,14 +324,17 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Recent Videos Widget */}
+          <RecentVideosWidget userId={user?.id} />
         </motion.div>
 
-        {/* Profile & Billing Section */}
+        {/* Bottom Widgets Row - Profile, Orders, Progress */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           <ProfileWidget 
             user={user} 
@@ -306,6 +342,7 @@ const Dashboard = () => {
             onDisplayNameChange={setDisplayName}
           />
           <OrdersWidget />
+          <WatchProgressWidget totalVideos={videosCount || 30} userId={user?.id} />
         </motion.div>
       </main>
     </div>

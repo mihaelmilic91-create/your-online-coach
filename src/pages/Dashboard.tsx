@@ -5,6 +5,8 @@ import { Play, LogOut, User, Video, AlertTriangle, Calendar, FolderOpen } from "
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import ProfileWidget from "@/components/dashboard/ProfileWidget";
+import OrdersWidget from "@/components/dashboard/OrdersWidget";
 import logo from "@/assets/logo.png";
 
 interface AccessInfo {
@@ -23,6 +25,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [displayName, setDisplayName] = useState("");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -48,12 +51,14 @@ const Dashboard = () => {
 
       // Admins always have access
       if (userIsAdmin) {
+        const adminName = session.user.user_metadata?.display_name || "Admin";
         setAccessInfo({ 
           hasAccess: true, 
           accessUntil: null, 
-          displayName: session.user.user_metadata?.display_name || "Admin", 
+          displayName: adminName, 
           daysRemaining: 999 
         });
+        setDisplayName(adminName);
         setCheckingAccess(false);
       } else {
         // Check access for regular users
@@ -65,6 +70,7 @@ const Dashboard = () => {
             setAccessInfo({ hasAccess: false, accessUntil: null, displayName: null, daysRemaining: 0 });
           } else {
             setAccessInfo(data);
+            setDisplayName(data.displayName || session.user.user_metadata?.display_name || "Benutzer");
           }
         } catch (err) {
           console.error("Error checking access:", err);
@@ -162,8 +168,6 @@ const Dashboard = () => {
     );
   }
 
-  const displayName = accessInfo?.displayName || user?.user_metadata?.display_name || "Benutzer";
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -215,7 +219,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8"
         >
           <Card className="bg-card shadow-soft">
             <CardContent className="p-6 flex items-center gap-4">
@@ -261,6 +265,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-8"
         >
           <Card className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20 shadow-elevated overflow-hidden">
             <CardContent className="p-8 md:p-12">
@@ -286,6 +291,21 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </motion.div>
+
+        {/* Profile & Billing Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        >
+          <ProfileWidget 
+            user={user} 
+            displayName={displayName} 
+            onDisplayNameChange={setDisplayName}
+          />
+          <OrdersWidget />
         </motion.div>
       </main>
     </div>

@@ -123,9 +123,12 @@ const OrdersWidget = () => {
       </CardHeader>
       <CardContent>
         {!billingInfo?.payments || billingInfo.payments.length === 0 ? (
-          <p className="text-muted-foreground text-center py-4">
-            Keine Zahlungen gefunden
-          </p>
+          <div className="text-center py-8">
+            <Receipt className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-muted-foreground">
+              Keine Zahlungen gefunden
+            </p>
+          </div>
         ) : (
           <div className="space-y-3">
             {billingInfo.payments.map((payment) => (
@@ -134,9 +137,18 @@ const OrdersWidget = () => {
                 className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground truncate">
-                    {payment.description}
-                  </p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="font-medium text-foreground truncate">
+                      {payment.description}
+                    </p>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      payment.status === "succeeded" 
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                    }`}>
+                      {payment.status === "succeeded" ? "Bezahlt" : "Ausstehend"}
+                    </span>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     {formatDate(payment.date)}
                   </p>

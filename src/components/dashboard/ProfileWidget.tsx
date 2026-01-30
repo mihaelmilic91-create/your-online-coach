@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { User, Pencil, Check, X, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Pencil, Check, X, Mail, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import UserAvatar from "./UserAvatar";
 
 interface ProfileWidgetProps {
   user: any;
@@ -25,7 +27,6 @@ const ProfileWidget = ({ user, displayName, onDisplayNameChange }: ProfileWidget
 
     setSaving(true);
     try {
-      // Update profile in database
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ display_name: editedName.trim() })
@@ -33,7 +34,6 @@ const ProfileWidget = ({ user, displayName, onDisplayNameChange }: ProfileWidget
 
       if (profileError) throw profileError;
 
-      // Also update user metadata
       const { error: authError } = await supabase.auth.updateUser({
         data: { display_name: editedName.trim() }
       });
@@ -59,15 +59,17 @@ const ProfileWidget = ({ user, displayName, onDisplayNameChange }: ProfileWidget
   return (
     <Card className="bg-card shadow-soft">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <User className="w-5 h-5 text-accent" />
-          Profil
-        </CardTitle>
+        <CardTitle className="text-lg">Profil</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
+        {/* Avatar centered */}
+        <div className="flex justify-center">
+          <UserAvatar name={displayName} size="xl" />
+        </div>
+
         {/* Display Name */}
         <div>
-          <label className="text-sm text-muted-foreground mb-1 block">Name</label>
+          <label className="text-sm text-muted-foreground mb-1.5 block">Name</label>
           {isEditing ? (
             <div className="flex items-center gap-2">
               <Input
@@ -95,7 +97,7 @@ const ProfileWidget = ({ user, displayName, onDisplayNameChange }: ProfileWidget
               </Button>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
               <span className="font-medium text-foreground">{displayName}</span>
               <Button 
                 size="icon" 
@@ -111,12 +113,20 @@ const ProfileWidget = ({ user, displayName, onDisplayNameChange }: ProfileWidget
 
         {/* Email (read-only) */}
         <div>
-          <label className="text-sm text-muted-foreground mb-1 block">E-Mail</label>
-          <div className="flex items-center gap-2 text-foreground">
+          <label className="text-sm text-muted-foreground mb-1.5 block">E-Mail</label>
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 text-foreground">
             <Mail className="w-4 h-4 text-muted-foreground" />
-            <span>{user?.email}</span>
+            <span className="truncate">{user?.email}</span>
           </div>
         </div>
+
+        {/* Password reset link */}
+        <Button asChild variant="outline" className="w-full gap-2">
+          <Link to="/forgot-password">
+            <KeyRound className="w-4 h-4" />
+            Passwort ändern
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   );

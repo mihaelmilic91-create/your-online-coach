@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Pencil, Check, X, Mail, KeyRound } from "lucide-react";
+import { Pencil, Check, X, Mail, KeyRound, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import UserAvatar from "./UserAvatar";
@@ -58,75 +58,67 @@ const ProfileWidget = ({ user, displayName, onDisplayNameChange }: ProfileWidget
 
   return (
     <Card className="bg-card shadow-soft">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Profil</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        {/* Avatar centered */}
-        <div className="flex justify-center">
-          <UserAvatar name={displayName} size="xl" />
-        </div>
-
-        {/* Display Name */}
-        <div>
-          <label className="text-sm text-muted-foreground mb-1.5 block">Name</label>
-          {isEditing ? (
-            <div className="flex items-center gap-2">
-              <Input
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                className="flex-1"
-                placeholder="Dein Name"
-              />
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                onClick={handleSave}
-                disabled={saving}
-                className="text-accent hover:text-accent/80"
-              >
-                <Check className="w-4 h-4" />
-              </Button>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                onClick={handleCancel}
-                disabled={saving}
-              >
-                <X className="w-4 h-4" />
-              </Button>
+      <CardContent className="p-4">
+        <div className="flex items-center gap-4">
+          {/* Avatar */}
+          <UserAvatar name={displayName} size="lg" />
+          
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            {isEditing ? (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  className="h-8 text-sm"
+                  placeholder="Dein Name"
+                />
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="h-7 w-7 text-accent hover:text-accent/80"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                </Button>
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  onClick={handleCancel}
+                  disabled={saving}
+                  className="h-7 w-7"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-foreground truncate">{displayName}</span>
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  onClick={() => setIsEditing(true)}
+                  className="h-6 w-6 flex-shrink-0"
+                >
+                  <Pencil className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-0.5">
+              <Mail className="w-3.5 h-3.5" />
+              <span className="truncate">{user?.email}</span>
             </div>
-          ) : (
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-              <span className="font-medium text-foreground">{displayName}</span>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                onClick={() => setIsEditing(true)}
-                className="h-8 w-8"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Email (read-only) */}
-        <div>
-          <label className="text-sm text-muted-foreground mb-1.5 block">E-Mail</label>
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 text-foreground">
-            <Mail className="w-4 h-4 text-muted-foreground" />
-            <span className="truncate">{user?.email}</span>
           </div>
-        </div>
 
-        {/* Password reset link */}
-        <Button asChild variant="outline" className="w-full gap-2">
-          <Link to="/forgot-password">
-            <KeyRound className="w-4 h-4" />
-            Passwort ändern
-          </Link>
-        </Button>
+          {/* Password change button */}
+          <Button asChild variant="outline" size="sm" className="gap-1.5 flex-shrink-0">
+            <Link to="/forgot-password">
+              <KeyRound className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Passwort</span>
+            </Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

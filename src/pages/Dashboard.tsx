@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, LogOut, Video, AlertTriangle, Calendar, FolderOpen, Eye } from "lucide-react";
+import { Play, LogOut, Video, AlertTriangle, Calendar, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,8 +9,7 @@ import ProfileWidget from "@/components/dashboard/ProfileWidget";
 import OrdersWidget from "@/components/dashboard/OrdersWidget";
 import UserAvatar from "@/components/dashboard/UserAvatar";
 import AccessProgressBar from "@/components/dashboard/AccessProgressBar";
-import WatchProgressWidget from "@/components/dashboard/WatchProgressWidget";
-import RecentVideosWidget from "@/components/dashboard/RecentVideosWidget";
+import LearningProgressWidget from "@/components/dashboard/LearningProgressWidget";
 import logo from "@/assets/logo.png";
 
 interface AccessInfo {
@@ -33,7 +32,7 @@ const Dashboard = () => {
   const [accessInfo, setAccessInfo] = useState<AccessInfo | null>(null);
   const [categoriesCount, setCategoriesCount] = useState(0);
   const [videosCount, setVideosCount] = useState(0);
-  const [watchedCount, setWatchedCount] = useState(0);
+  
   const [loading, setLoading] = useState(true);
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -103,16 +102,8 @@ const Dashboard = () => {
         .select("*", { count: "exact", head: true })
         .eq("is_published", true);
 
-      // Load watched count
-      const { count: watchCount } = await supabase
-        .from("video_progress")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", session.user.id)
-        .gt("watch_count", 0);
-
       setCategoriesCount(catCount || 0);
       setVideosCount(vidCount || 0);
-      setWatchedCount(watchCount || 0);
       
       setLoading(false);
     };
@@ -235,12 +226,12 @@ const Dashboard = () => {
           <AccessProgressBar daysRemaining={accessInfo?.daysRemaining || 0} />
         </motion.div>
 
-        {/* Stats Cards - 4 columns */}
+        {/* Stats Cards - 3 columns */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+          className="grid grid-cols-3 gap-4"
         >
           <Card className="bg-card shadow-soft">
             <CardContent className="p-5 flex items-center gap-4">
@@ -265,18 +256,6 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
-
-          <Card className="bg-card shadow-soft">
-            <CardContent className="p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                <Eye className="w-6 h-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{watchedCount}/{videosCount || 30}</p>
-                <p className="text-sm text-muted-foreground">Angesehen</p>
-              </div>
-            </CardContent>
-          </Card>
           
           <Card className="bg-card shadow-soft">
             <CardContent className="p-5 flex items-center gap-4">
@@ -293,7 +272,7 @@ const Dashboard = () => {
           </Card>
         </motion.div>
 
-        {/* Main Action + Recent Videos Row */}
+        {/* Main Action + Learning Progress Row */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -325,16 +304,16 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Recent Videos Widget */}
-          <RecentVideosWidget userId={user?.id} />
+          {/* Combined Learning Progress Widget */}
+          <LearningProgressWidget userId={user?.id} totalVideos={videosCount || 30} />
         </motion.div>
 
-        {/* Bottom Widgets Row - Profile, Orders, Progress */}
+        {/* Bottom Widgets Row - Profile, Orders */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
           <ProfileWidget 
             user={user} 
@@ -342,7 +321,6 @@ const Dashboard = () => {
             onDisplayNameChange={setDisplayName}
           />
           <OrdersWidget />
-          <WatchProgressWidget totalVideos={videosCount || 30} userId={user?.id} />
         </motion.div>
       </main>
     </div>

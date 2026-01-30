@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Receipt, Download, ExternalLink, Loader2, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Payment {
@@ -36,7 +36,7 @@ const OrdersWidget = () => {
         setBillingInfo(data);
       } catch (err) {
         console.error("Error fetching billing info:", err);
-        setError("Zahlungsinformationen konnten nicht geladen werden");
+        setError("Fehler beim Laden");
       } finally {
         setLoading(false);
       }
@@ -69,16 +69,8 @@ const OrdersWidget = () => {
   if (loading) {
     return (
       <Card className="bg-card shadow-soft">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-accent" />
-            Zahlungen & Rechnungen
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-          </div>
+        <CardContent className="p-4 flex items-center justify-center">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
     );
@@ -87,99 +79,79 @@ const OrdersWidget = () => {
   if (error) {
     return (
       <Card className="bg-card shadow-soft">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-accent" />
-            Zahlungen & Rechnungen
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-center py-4">{error}</p>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+              <Receipt className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <p className="text-sm text-muted-foreground">{error}</p>
+          </div>
         </CardContent>
       </Card>
     );
   }
 
+  const latestPayment = billingInfo?.payments?.[0];
+
   return (
     <Card className="bg-card shadow-soft">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-accent" />
-            Zahlungen & Rechnungen
-          </CardTitle>
-          {billingInfo?.portalUrl && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleManagePayments}
-              className="gap-2"
-            >
-              <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">Zahlungsmethoden</span>
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        {!billingInfo?.payments || billingInfo.payments.length === 0 ? (
-          <div className="text-center py-8">
-            <Receipt className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground">
-              Keine Zahlungen gefunden
-            </p>
+      <CardContent className="p-4">
+        <div className="flex items-center gap-4">
+          {/* Icon */}
+          <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+            <Receipt className="w-6 h-6 text-accent" />
           </div>
-        ) : (
-          <div className="space-y-3">
-            {billingInfo.payments.map((payment) => (
-              <div 
-                key={payment.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-medium text-foreground truncate">
-                      {payment.description}
-                    </p>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      payment.status === "succeeded" 
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" 
-                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                    }`}>
-                      {payment.status === "succeeded" ? "Bezahlt" : "Ausstehend"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {formatDate(payment.date)}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 ml-4">
-                  <span className="font-semibold text-foreground whitespace-nowrap">
-                    {formatAmount(payment.amount, payment.currency)}
-                  </span>
-                  {(payment.invoiceUrl || payment.receiptUrl) && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => {
-                        const url = payment.invoiceUrl || payment.receiptUrl;
-                        if (url) window.open(url, "_blank");
-                      }}
-                      title="Rechnung herunterladen"
-                    >
-                      {payment.invoiceUrl ? (
-                        <Download className="w-4 h-4" />
-                      ) : (
-                        <ExternalLink className="w-4 h-4" />
-                      )}
-                    </Button>
-                  )}
-                </div>
+          
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-foreground">Zahlungen</p>
+            {latestPayment ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{formatAmount(latestPayment.amount, latestPayment.currency)}</span>
+                <span>•</span>
+                <span>{formatDate(latestPayment.date)}</span>
+                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${
+                  latestPayment.status === "succeeded" 
+                    ? "bg-accent/10 text-accent" 
+                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                }`}>
+                  {latestPayment.status === "succeeded" ? "Bezahlt" : "Ausstehend"}
+                </span>
               </div>
-            ))}
+            ) : (
+              <p className="text-sm text-muted-foreground">Keine Zahlungen</p>
+            )}
           </div>
-        )}
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {latestPayment && (latestPayment.invoiceUrl || latestPayment.receiptUrl) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => {
+                  const url = latestPayment.invoiceUrl || latestPayment.receiptUrl;
+                  if (url) window.open(url, "_blank");
+                }}
+                title="Rechnung"
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+            )}
+            {billingInfo?.portalUrl && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleManagePayments}
+                className="gap-1.5"
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Verwalten</span>
+              </Button>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

@@ -2,6 +2,8 @@ const ALLOWED_ORIGINS = [
   "https://your-online-coach.lovable.app",
   "https://id-preview--5370795f-9ff6-4fff-b21f-727093d0832b.lovable.app",
   "https://5370795f-9ff6-4fff-b21f-727093d0832b.lovableproject.com",
+  "https://onlinedrivecoach.ch",
+  "https://www.onlinedrivecoach.ch",
   "http://localhost:5173",
   "http://localhost:8080",
 ];

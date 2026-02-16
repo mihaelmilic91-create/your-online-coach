@@ -14,7 +14,8 @@ import {
   X,
   Loader2,
   GripVertical,
-  MessageSquare
+  MessageSquare,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
+import PagesManager from "@/components/admin/PagesManager";
 
 import {
   DndContext,
@@ -265,7 +267,7 @@ const Admin = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "testimonials">("videos");
+  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages">("videos");
   
   // Form states
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -653,12 +655,23 @@ const Admin = () => {
             <MessageSquare className="w-4 h-4" />
             Rezensionen
           </Button>
+          <Button
+            variant={activeTab === "pages" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("pages")}
+            className="gap-2"
+          >
+            <FileText className="w-4 h-4" />
+            Seiten
+          </Button>
         </div>
       </div>
 
       <main className="container mx-auto px-4 py-8">
         {activeTab === "testimonials" ? (
           <TestimonialsManager />
+        ) : activeTab === "pages" ? (
+          <PagesManager />
         ) : (
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Categories List */}

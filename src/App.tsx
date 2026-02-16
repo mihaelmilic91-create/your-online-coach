@@ -17,6 +17,7 @@ import CoursePage from "./pages/Course";
 import LessonPage from "./pages/Lesson";
 import VideoPage from "./pages/Video";
 import Lernvideos from "./pages/Lernvideos";
+import StaticPage from "./pages/StaticPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/course/:courseId/lesson/:lessonId" element={<LessonPage />} />
           <Route path="/video/:videoId" element={<VideoPage />} />
           <Route path="/lernvideos" element={<Lernvideos />} />
+          <Route path="/:slug" element={<StaticPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

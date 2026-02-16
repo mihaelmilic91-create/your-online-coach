@@ -1,1 +1,4 @@
 project_id = "arlrfyrcxxxmhaeqetcr"
+
+[functions.get-public-video-otp]
+verify_jwt = false

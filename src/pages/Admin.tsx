@@ -13,7 +13,8 @@ import {
   Save,
   X,
   Loader2,
-  GripVertical
+  GripVertical,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
+import TestimonialsManager from "@/components/admin/TestimonialsManager";
 
 import {
   DndContext,
@@ -263,6 +265,7 @@ const Admin = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<"videos" | "testimonials">("videos");
   
   // Form states
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -629,7 +632,34 @@ const Admin = () => {
         </div>
       </header>
 
+      {/* Tab Navigation */}
+      <div className="container mx-auto px-4 pt-6">
+        <div className="flex gap-2">
+          <Button
+            variant={activeTab === "videos" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("videos")}
+            className="gap-2"
+          >
+            <Video className="w-4 h-4" />
+            Videos & Kategorien
+          </Button>
+          <Button
+            variant={activeTab === "testimonials" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setActiveTab("testimonials")}
+            className="gap-2"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Rezensionen
+          </Button>
+        </div>
+      </div>
+
       <main className="container mx-auto px-4 py-8">
+        {activeTab === "testimonials" ? (
+          <TestimonialsManager />
+        ) : (
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Categories List */}
           <div className="lg:col-span-1 space-y-4">
@@ -739,6 +769,7 @@ const Admin = () => {
             )}
           </div>
         </div>
+        )}
       </main>
 
       {/* Category Form Modal */}

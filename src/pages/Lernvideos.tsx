@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, LogOut, User, Clock, Video, AlertTriangle, FolderOpen, X, ChevronLeft, ChevronRight, Home, CheckCircle2, Heart } from "lucide-react";
+import { Play, LogOut, User, Clock, Video, AlertTriangle, FolderOpen, X, ChevronLeft, ChevronRight, Home, CheckCircle2, Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,6 +53,7 @@ const Lernvideos = () => {
   const [posterUrls, setPosterUrls] = useState<Record<string, string | null>>({});
   const [favoriteVideoIds, setFavoriteVideoIds] = useState<Set<string>>(new Set());
   const [isFavoritesCategory, setIsFavoritesCategory] = useState(false);
+  const [videoRatings, setVideoRatings] = useState<Map<string, number>>(new Map());
   const loadWatchProgress = async (userId: string) => {
     const { data } = await supabase
       .from("video_progress")
@@ -74,6 +75,39 @@ const Lernvideos = () => {
     
     if (data) {
       setFavoriteVideoIds(new Set(data.map(f => f.video_id)));
+    }
+  };
+
+  const loadRatings = async (userId: string) => {
+    const { data } = await supabase
+      .from("video_self_assessments")
+      .select("video_id, rating")
+      .eq("user_id", userId);
+    
+    if (data) {
+      const ratings = new Map<string, number>();
+      data.forEach(r => ratings.set(r.video_id, r.rating));
+      setVideoRatings(ratings);
+    }
+  };
+
+  const saveRating = async (e: React.MouseEvent, videoId: string, rating: number) => {
+    e.stopPropagation();
+    if (!user) return;
+    
+    const { error } = await supabase
+      .from("video_self_assessments")
+      .upsert({
+        user_id: user.id,
+        video_id: videoId,
+        rating,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: "user_id,video_id"
+      });
+    
+    if (!error) {
+      setVideoRatings(prev => new Map(prev).set(videoId, rating));
     }
   };
 
@@ -175,6 +209,7 @@ const Lernvideos = () => {
       await Promise.all([
         loadWatchProgress(session.user.id),
         loadFavorites(session.user.id),
+        loadRatings(session.user.id),
       ]);
 
       // Check if user is admin
@@ -333,8 +368,32 @@ const Lernvideos = () => {
   const hasPrevVideo = currentVideoIndex > 0;
   const hasNextVideo = currentVideoIndex < videos.length - 1;
   
-  // Calculate watched count for current category
+  // Calculate watched count and average rating for current category
   const watchedInCategory = videos.filter(v => videoWatchCounts.has(v.id)).length;
+  const ratedVideosInCategory = videos.filter(v => videoRatings.has(v.id));
+  const avgRatingInCategory = ratedVideosInCategory.length > 0
+    ? ratedVideosInCategory.reduce((sum, v) => sum + (videoRatings.get(v.id) || 0), 0) / ratedVideosInCategory.length
+    : 0;
+
+  // Inline star rating component
+  const StarRating = ({ videoId, size = "sm" }: { videoId: string; size?: "sm" | "md" }) => {
+    const currentRating = videoRatings.get(videoId) || 0;
+    const starSize = size === "sm" ? "w-3.5 h-3.5" : "w-5 h-5";
+    return (
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map(star => (
+          <button
+            key={star}
+            onClick={(e) => saveRating(e, videoId, star === currentRating ? 0 : star)}
+            className="hover:scale-110 transition-transform"
+            title={`${star} von 5 – Praxisbewertung`}
+          >
+            <Star className={`${starSize} ${star <= currentRating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/40'}`} />
+          </button>
+        ))}
+      </div>
+    );
+  };
 
   if (loading || checkingAccess) {
     return (
@@ -497,6 +556,12 @@ const Lernvideos = () => {
                 {playingVideo.description && (
                   <p className="text-white/70 text-sm mb-4 line-clamp-2">{playingVideo.description}</p>
                 )}
+                
+                {/* Self-assessment in player */}
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-white/60 text-sm">Wie gut bist du in der Praxis?</span>
+                  <StarRating videoId={playingVideo.id} size="md" />
+                </div>
 
                 <div className="flex items-center justify-between">
                   <Button
@@ -629,11 +694,21 @@ const Lernvideos = () => {
                     </span>
                   </h2>
                   {videos.length > 0 && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      <span className="text-muted-foreground">
-                        {watchedInCategory} von {videos.length} angesehen
-                      </span>
+                    <div className="flex items-center gap-4 text-sm flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <span className="text-muted-foreground">
+                          {watchedInCategory} von {videos.length} angesehen
+                        </span>
+                      </div>
+                      {avgRatingInCategory > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                          <span className="text-muted-foreground">
+                            Ø {avgRatingInCategory.toFixed(1)} Praxis
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -718,12 +793,18 @@ const Lernvideos = () => {
                                   {video.description}
                                 </p>
                               )}
-                              {video.duration && (
-                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                  <Clock className="w-4 h-4" />
-                                  {video.duration}
+                              <div className="flex items-center justify-between">
+                                {video.duration && (
+                                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                    <Clock className="w-4 h-4" />
+                                    {video.duration}
+                                  </div>
+                                )}
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-muted-foreground mr-1">Praxis:</span>
+                                  <StarRating videoId={video.id} />
                                 </div>
-                              )}
+                              </div>
                             </div>
                           </CardContent>
                         </Card>

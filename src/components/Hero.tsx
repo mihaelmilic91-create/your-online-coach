@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Play, Clock, Video, Award } from "lucide-react";
+import { Play, Clock, Video, Award, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import appMockup from "@/assets/app-mockup.png";
@@ -116,11 +116,11 @@ const Hero = () => {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                    <Award className="w-6 h-6 text-accent" />
+                    <Tag className="w-6 h-6 text-accent" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">9/10</p>
-                    <p className="text-sm text-muted-foreground">verstehen schneller</p>
+                    <p className="font-semibold text-foreground">nur CHF 79.–</p>
+                    <p className="text-sm text-muted-foreground">Jahreslizenz</p>
                   </div>
                 </div>
               </motion.div>

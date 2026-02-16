@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Play, Clock, History, BarChart3, TrendingUp, Eye } from "lucide-react";
+import { Play, Clock, History, LogIn, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,8 +22,8 @@ interface LearningProgressWidgetProps {
 
 const LearningProgressWidget = ({ userId, totalVideos }: LearningProgressWidgetProps) => {
   const [recentVideos, setRecentVideos] = useState<RecentVideo[]>([]);
-  const [watchedCount, setWatchedCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [daysSinceLogin, setDaysSinceLogin] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,16 +37,6 @@ const LearningProgressWidget = ({ userId, totalVideos }: LearningProgressWidgetP
           .limit(4);
 
         if (progressError) throw progressError;
-
-        // Get watched count
-        const { count, error: countError } = await supabase
-          .from("video_progress")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", userId)
-          .gt("watch_count", 0);
-
-        if (countError) throw countError;
-        setWatchedCount(count || 0);
 
         if (progressData && progressData.length > 0) {
           const videoIds = progressData.map(p => p.video_id);
@@ -72,6 +62,17 @@ const LearningProgressWidget = ({ userId, totalVideos }: LearningProgressWidgetP
 
           setRecentVideos(combined);
         }
+
+        // Calculate days since last login
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.last_sign_in_at) {
+          const lastLogin = new Date(session.user.last_sign_in_at);
+          const now = new Date();
+          const diffDays = Math.floor((now.getTime() - lastLogin.getTime()) / 86400000);
+          setDaysSinceLogin(diffDays);
+        } else {
+          setDaysSinceLogin(0);
+        }
       } catch (err) {
         console.error("Error fetching learning progress:", err);
       } finally {
@@ -83,17 +84,6 @@ const LearningProgressWidget = ({ userId, totalVideos }: LearningProgressWidgetP
       fetchData();
     }
   }, [userId]);
-
-  const percentage = totalVideos > 0 ? Math.round((watchedCount / totalVideos) * 100) : 0;
-
-  const getMessage = () => {
-    if (percentage === 0) return "Starte jetzt mit dem ersten Video!";
-    if (percentage < 25) return "Guter Anfang! Bleib dran.";
-    if (percentage < 50) return "Du machst Fortschritte!";
-    if (percentage < 75) return "Super! Mehr als die Hälfte geschafft.";
-    if (percentage < 100) return "Fast fertig! Du schaffst das!";
-    return "Alle Videos angesehen! 🎉";
-  };
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -124,12 +114,12 @@ const LearningProgressWidget = ({ userId, totalVideos }: LearningProgressWidgetP
 
   return (
     <Card className="bg-card shadow-soft">
-      <Tabs defaultValue="progress" className="w-full">
+      <Tabs defaultValue="login" className="w-full">
         <CardHeader className="pb-2">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="progress" className="gap-2">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Fortschritt</span>
+            <TabsTrigger value="login" className="gap-2">
+              <LogIn className="w-4 h-4" />
+              <span className="hidden sm:inline">Letzter Login</span>
             </TabsTrigger>
             <TabsTrigger value="recent" className="gap-2">
               <History className="w-4 h-4" />
@@ -139,48 +129,22 @@ const LearningProgressWidget = ({ userId, totalVideos }: LearningProgressWidgetP
         </CardHeader>
         
         <CardContent className="pt-4">
-          {/* Progress Tab */}
-          <TabsContent value="progress" className="mt-0">
+          {/* Login Counter Tab */}
+          <TabsContent value="login" className="mt-0">
             <div className="flex items-center gap-5">
-              {/* Progress Circle */}
-              <div className="relative w-20 h-20 flex-shrink-0">
-                <svg className="w-20 h-20 transform -rotate-90">
-                  <circle
-                    className="text-muted"
-                    strokeWidth="6"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="34"
-                    cx="40"
-                    cy="40"
-                  />
-                  <circle
-                    className="text-accent transition-all duration-500"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="transparent"
-                    r="34"
-                    cx="40"
-                    cy="40"
-                    strokeDasharray={`${percentage * 2.136} 213.6`}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-lg font-bold text-foreground">{percentage}%</span>
-                </div>
+              <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                <LogIn className="w-8 h-8 text-accent" />
               </div>
-              
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-foreground font-medium">
-                    {watchedCount} / {totalVideos} Videos
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <TrendingUp className="w-4 h-4 text-accent" />
-                  {getMessage()}
+              <div className="flex-1 space-y-1">
+                <p className="text-3xl font-bold text-foreground">
+                  {daysSinceLogin !== null ? daysSinceLogin : "–"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {daysSinceLogin === 0
+                    ? "Heute eingeloggt"
+                    : daysSinceLogin === 1
+                    ? "Tag seit dem letzten Login"
+                    : "Tage seit dem letzten Login"}
                 </p>
               </div>
             </div>

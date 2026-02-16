@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
+import Stripe from "npm:stripe@17.7.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
@@ -40,9 +40,7 @@ serve(async (req) => {
     console.log("Fetching billing info for:", userEmail);
 
     // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
-    });
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "");
 
     // Find customer by email
     const customers = await stripe.customers.list({ 

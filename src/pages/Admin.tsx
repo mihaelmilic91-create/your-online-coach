@@ -15,7 +15,13 @@ import {
   Loader2,
   GripVertical,
   MessageSquare,
-  FileText
+  FileText,
+  Users,
+  Ticket,
+  CreditCard,
+  Code,
+  BarChart3,
+  Package
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +35,12 @@ import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
 import PagesManager from "@/components/admin/PagesManager";
+import UsersManager from "@/components/admin/UsersManager";
+import CouponsManager from "@/components/admin/CouponsManager";
+import PixelsManager from "@/components/admin/PixelsManager";
+import StatsOverview from "@/components/admin/StatsOverview";
+import PaymentsManager from "@/components/admin/PaymentsManager";
+import ProductManager from "@/components/admin/ProductManager";
 
 import {
   DndContext,
@@ -267,7 +279,7 @@ const Admin = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages">("videos");
+  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages" | "users" | "coupons" | "payments" | "pixels" | "stats" | "product">("stats");
   
   // Form states
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -636,42 +648,49 @@ const Admin = () => {
 
       {/* Tab Navigation */}
       <div className="container mx-auto px-4 pt-6">
-        <div className="flex gap-2">
-          <Button
-            variant={activeTab === "videos" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveTab("videos")}
-            className="gap-2"
-          >
-            <Video className="w-4 h-4" />
-            Videos & Kategorien
-          </Button>
-          <Button
-            variant={activeTab === "testimonials" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveTab("testimonials")}
-            className="gap-2"
-          >
-            <MessageSquare className="w-4 h-4" />
-            Rezensionen
-          </Button>
-          <Button
-            variant={activeTab === "pages" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setActiveTab("pages")}
-            className="gap-2"
-          >
-            <FileText className="w-4 h-4" />
-            Seiten
-          </Button>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: "stats", icon: BarChart3, label: "Statistiken" },
+            { key: "users", icon: Users, label: "Benutzer" },
+            { key: "videos", icon: Video, label: "Videos" },
+            { key: "payments", icon: CreditCard, label: "Zahlungen" },
+            { key: "product", icon: Package, label: "Produkt" },
+            { key: "coupons", icon: Ticket, label: "Gutscheine" },
+            { key: "testimonials", icon: MessageSquare, label: "Rezensionen" },
+            { key: "pages", icon: FileText, label: "Seiten" },
+            { key: "pixels", icon: Code, label: "Pixels" },
+          ].map((tab) => (
+            <Button
+              key={tab.key}
+              variant={activeTab === tab.key ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveTab(tab.key as typeof activeTab)}
+              className="gap-2"
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </Button>
+          ))}
         </div>
       </div>
 
       <main className="container mx-auto px-4 py-8">
-        {activeTab === "testimonials" ? (
+        {activeTab === "stats" ? (
+          <StatsOverview />
+        ) : activeTab === "users" ? (
+          <UsersManager />
+        ) : activeTab === "payments" ? (
+          <PaymentsManager />
+        ) : activeTab === "product" ? (
+          <ProductManager />
+        ) : activeTab === "coupons" ? (
+          <CouponsManager />
+        ) : activeTab === "testimonials" ? (
           <TestimonialsManager />
         ) : activeTab === "pages" ? (
           <PagesManager />
+        ) : activeTab === "pixels" ? (
+          <PixelsManager />
         ) : (
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Categories List */}

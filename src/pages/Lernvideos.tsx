@@ -50,7 +50,7 @@ const Lernvideos = () => {
   
   // Watch progress state - now tracks watch count
   const [videoWatchCounts, setVideoWatchCounts] = useState<Map<string, number>>(new Map());
-
+  const [posterUrls, setPosterUrls] = useState<Record<string, string | null>>({});
   const loadWatchProgress = async (userId: string) => {
     const { data } = await supabase
       .from("video_progress")
@@ -161,9 +161,10 @@ const Lernvideos = () => {
           .eq("category_id", loadedCategories[0].id)
           .eq("is_published", true)
           .order("sort_order", { ascending: true });
-        setVideos(videosData || []);
+        const initialVideos = videosData || [];
+        setVideos(initialVideos);
+        fetchPosters(initialVideos);
       }
-      
       setLoading(false);
     };
 
@@ -178,6 +179,21 @@ const Lernvideos = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const fetchPosters = async (vids: VideoItem[]) => {
+    if (vids.length === 0) return;
+    const videoIds = vids.map(v => v.vdocipher_video_id);
+    try {
+      const { data, error } = await supabase.functions.invoke("get-video-posters", {
+        body: { videoIds },
+      });
+      if (!error && data?.posters) {
+        setPosterUrls(prev => ({ ...prev, ...data.posters }));
+      }
+    } catch (err) {
+      console.error("Error fetching posters:", err);
+    }
+  };
+
   const loadVideosForCategory = async (category: Category) => {
     setSelectedCategory(category);
     const { data: videosData } = await supabase
@@ -186,7 +202,9 @@ const Lernvideos = () => {
       .eq("category_id", category.id)
       .eq("is_published", true)
       .order("sort_order", { ascending: true });
-    setVideos(videosData || []);
+    const loadedVideos = videosData || [];
+    setVideos(loadedVideos);
+    fetchPosters(loadedVideos);
   };
 
   const handleLogout = async () => {
@@ -543,12 +561,14 @@ const Lernvideos = () => {
                           <CardContent className="p-0">
                             {/* Video Thumbnail */}
                             <div className="relative aspect-video bg-muted overflow-hidden">
-                              <img
-                                src={`https://d1z78r8i505acl.cloudfront.net/poster/${video.vdocipher_video_id}/0000003.png`}
-                                alt={video.title}
-                                className="absolute inset-0 w-full h-full object-cover"
-                                loading="lazy"
-                              />
+                              {posterUrls[video.vdocipher_video_id] && (
+                                <img
+                                  src={posterUrls[video.vdocipher_video_id]!}
+                                  alt={video.title}
+                                  className="absolute inset-0 w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              )}
                               <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg bg-accent/90">
                                   <Play className="w-8 h-8 text-white ml-1" />

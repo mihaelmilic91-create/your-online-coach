@@ -1,14 +1,31 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Play, Clock, Video, Award, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import appMockup from "@/assets/app-mockup.png";
 import swissMadeSoftware from "@/assets/swiss-made-software.png";
 
 const Hero = () => {
+  const [videoCount, setVideoCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("videos")
+        .select("*", { count: "exact", head: true })
+        .eq("is_published", true);
+      setVideoCount(count ?? 0);
+    };
+    fetchCount();
+  }, []);
+
+  const displayCount = videoCount !== null ? `${videoCount}+` : "…";
+
   const features = [
     { icon: Clock, text: "Spare Zeit & Geld" },
-    { icon: Video, text: "Über 30 Lernvideos" },
+    { icon: Video, text: `Über ${videoCount !== null ? videoCount : 30} Lernvideos` },
     { icon: Award, text: "Bestehe sicher" },
   ];
 
@@ -136,7 +153,7 @@ const Hero = () => {
                     <Video className="w-6 h-6 text-accent" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">35+</p>
+                    <p className="font-semibold text-foreground">{displayCount}</p>
                     <p className="text-sm text-muted-foreground">Lernvideos</p>
                   </div>
                 </div>

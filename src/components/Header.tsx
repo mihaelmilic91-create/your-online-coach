@@ -48,8 +48,15 @@ const Header = () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
     } catch {
-      // Ignore errors - local state is already cleared
+      // Ignore errors
     }
+    
+    // Force-clear all Supabase auth tokens from localStorage
+    const keysToRemove = Object.keys(localStorage).filter(
+      (key) => key.startsWith('sb-') && key.endsWith('-auth-token')
+    );
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+    
     window.location.href = "/";
   };
 

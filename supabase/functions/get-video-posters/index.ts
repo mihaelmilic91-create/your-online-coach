@@ -31,6 +31,7 @@ serve(async (req) => {
           method: "GET",
           headers: {
             "Accept": "application/json",
+            "Authorization": `Apisecret ${VDOCIPHER_API_SECRET}`,
           },
         });
 

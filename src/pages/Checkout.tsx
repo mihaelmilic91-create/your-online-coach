@@ -666,22 +666,9 @@ const Checkout = () => {
                         <p className="text-xs text-muted-foreground">Direkt nach der Zahlung</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                        <Star className="w-5 h-5 text-accent" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">4.9/5 Bewertung</p>
-                        <p className="text-xs text-muted-foreground">Von über 1'000 Fahrschülern</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
-                {/* Guarantee */}
-                <div className="text-center text-xs text-muted-foreground p-3">
-                  <p>30 Tage Geld-zurück-Garantie</p>
-                </div>
               </div>
             </motion.div>
           </div>

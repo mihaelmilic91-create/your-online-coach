@@ -543,14 +543,14 @@ const Lernvideos = () => {
                           <CardContent className="p-0">
                             {/* Video Thumbnail */}
                             <div className="relative aspect-video bg-muted overflow-hidden">
-                              <div className={`absolute inset-0 flex items-center justify-center ${
-                                isWatched 
-                                  ? 'bg-gradient-to-br from-accent/20 to-primary/20' 
-                                  : 'bg-gradient-to-br from-accent/20 to-primary/20'
-                              }`}>
-                                <div className={`w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg ${
-                                  isWatched ? 'bg-accent/90' : 'bg-accent/90'
-                                }`}>
+                              <img
+                                src={`https://d1z78r8i505acl.cloudfront.net/poster/${video.vdocipher_video_id}/0000003.png`}
+                                alt={video.title}
+                                className="absolute inset-0 w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg bg-accent/90">
                                   <Play className="w-8 h-8 text-white ml-1" />
                                 </div>
                               </div>

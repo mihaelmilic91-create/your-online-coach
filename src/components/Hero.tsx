@@ -69,11 +69,13 @@ const Hero = () => {
               <Button variant="hero" size="xl" asChild>
                 <Link to="/zugang">Jetzt Registrieren</Link>
               </Button>
-              <Button variant="hero-outline" size="xl" className="gap-3">
-                <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-                  <Play className="w-4 h-4 text-accent-foreground ml-0.5" />
-                </div>
-                Video ansehen
+              <Button variant="hero-outline" size="xl" className="gap-3" asChild>
+                <a href="https://youtu.be/SpnRA-tiopA" target="_blank" rel="noopener noreferrer">
+                  <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
+                    <Play className="w-4 h-4 text-accent-foreground ml-0.5" />
+                  </div>
+                  Video ansehen
+                </a>
               </Button>
             </div>
 

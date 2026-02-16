@@ -87,7 +87,14 @@ const CallToAction = () => {
               ))}
             </ul>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            {/* Price */}
+            <div className="flex items-baseline gap-3">
+              <span className="text-xl text-muted-foreground line-through">CHF 129.–</span>
+              <span className="font-display text-3xl font-bold text-foreground">CHF 79.–</span>
+              <span className="text-sm text-muted-foreground">/ Jahr · kein Abo</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <Button variant="hero" size="xl" className="gap-2" asChild>
                 <a href="/zugang">
                   Jetzt Registrieren

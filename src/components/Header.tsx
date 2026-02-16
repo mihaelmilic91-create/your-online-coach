@@ -62,33 +62,20 @@ const Header = () => {
           />
         </a>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          {isLoggedIn ? (
-            <>
-              <a href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors font-medium flex items-center gap-2">
-                <LayoutDashboard className="w-4 h-4" />
-                Dashboard
-              </a>
-              <a href="/lernvideos" className="text-muted-foreground hover:text-foreground transition-colors font-medium flex items-center gap-2">
-                <Video className="w-4 h-4" />
-                Lernvideos
-              </a>
-            </>
-          ) : (
-            <>
-              <a href="#kurse" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-                Lernvideos
-              </a>
-              <a href="#vorteile" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-                Vorteile
-              </a>
-              <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-                Erfahrungen
-              </a>
-            </>
-          )}
-        </nav>
+        {/* Desktop Navigation - only for guests */}
+        {!isLoggedIn && (
+          <nav className="hidden md:flex items-center gap-8">
+            <a href="#kurse" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+              Lernvideos
+            </a>
+            <a href="#vorteile" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+              Vorteile
+            </a>
+            <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+              Erfahrungen
+            </a>
+          </nav>
+        )}
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
@@ -114,6 +101,11 @@ const Header = () => {
                   <DropdownMenuItem asChild>
                     <a href="/dashboard" className="flex items-center gap-2 cursor-pointer">
                       <LayoutDashboard className="w-4 h-4" /> Dashboard
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a href="/lernvideos" className="flex items-center gap-2 cursor-pointer">
+                      <Video className="w-4 h-4" /> Lernvideos
                     </a>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer text-destructive">

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Play, Clock, Lock, FolderOpen } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play, Clock, Lock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,23 +10,17 @@ interface CategoryWithCount {
   description: string | null;
   thumbnail_url: string | null;
   videoCount: number;
+  posterUrl: string | null;
 }
 
-// Fallback images for categories without thumbnails
-const fallbackImages: Record<string, string> = {
-  "Wilkommen": "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400&h=250&fit=crop",
-  "Start": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=250&fit=crop",
-  "Basics": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=250&fit=crop",
-  "Advanced": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&h=250&fit=crop",
-  "Expert": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&h=250&fit=crop",
-  "Manöver": "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=250&fit=crop",
-};
-
-const defaultImage = "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400&h=250&fit=crop";
+const WELCOME_VDOCIPHER_ID = "fbe405996ffd475393cd737d4a1bed37";
 
 const Courses = () => {
   const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showWelcomeVideo, setShowWelcomeVideo] = useState(false);
+  const [welcomeOtp, setWelcomeOtp] = useState<{ otp: string; playbackInfo: string } | null>(null);
+  const [loadingVideo, setLoadingVideo] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -42,19 +36,40 @@ const Courses = () => {
           return;
         }
 
-        const { data: counts } = await supabase
+        // Get video counts
+        const { data: videos } = await supabase
           .from("videos")
-          .select("category_id")
+          .select("category_id, vdocipher_video_id")
           .eq("is_published", true);
 
         const countMap: Record<string, number> = {};
-        counts?.forEach(v => {
+        const firstVideoMap: Record<string, string> = {};
+        videos?.forEach(v => {
           countMap[v.category_id] = (countMap[v.category_id] || 0) + 1;
+          if (!firstVideoMap[v.category_id]) {
+            firstVideoMap[v.category_id] = v.vdocipher_video_id;
+          }
         });
+
+        // Fetch poster thumbnails from VdoCipher
+        const vdoIds = Object.values(firstVideoMap);
+        let posterMap: Record<string, string | null> = {};
+
+        if (vdoIds.length > 0) {
+          try {
+            const { data: posterData } = await supabase.functions.invoke("get-video-posters", {
+              body: { videoIds: vdoIds },
+            });
+            posterMap = posterData?.posters || {};
+          } catch (err) {
+            console.error("Error fetching posters:", err);
+          }
+        }
 
         setCategories(cats.map(c => ({
           ...c,
           videoCount: countMap[c.id] || 0,
+          posterUrl: firstVideoMap[c.id] ? (posterMap[firstVideoMap[c.id]] || null) : null,
         })));
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -65,7 +80,23 @@ const Courses = () => {
     fetchCategories();
   }, []);
 
-  // Show max 4 categories for the landing page
+  const handlePlayWelcome = async () => {
+    setLoadingVideo(true);
+    setShowWelcomeVideo(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("get-public-video-otp", {
+        body: { videoId: WELCOME_VDOCIPHER_ID },
+      });
+      if (error || data?.error) throw new Error(data?.error || error?.message);
+      setWelcomeOtp(data);
+    } catch (err) {
+      console.error("Error loading welcome video:", err);
+      setShowWelcomeVideo(false);
+    } finally {
+      setLoadingVideo(false);
+    }
+  };
+
   const displayCategories = categories.slice(0, 4);
 
   return (
@@ -97,13 +128,11 @@ const Courses = () => {
                   <div className="p-5 space-y-3">
                     <div className="h-4 bg-muted rounded w-1/3" />
                     <div className="h-5 bg-muted rounded w-2/3" />
-                    <div className="h-4 bg-muted rounded w-full" />
                   </div>
                 </div>
               ))
             : displayCategories.map((category, index) => {
-                const isFirst = index === 0;
-                const image = category.thumbnail_url || fallbackImages[category.title] || defaultImage;
+                const isWelcome = index === 0;
 
                 return (
                   <motion.div
@@ -112,15 +141,22 @@ const Courses = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     viewport={{ once: true }}
-                    className="bg-card shadow-card rounded-2xl overflow-hidden group hover:shadow-elevated transition-all duration-300"
+                    className="bg-card shadow-card rounded-2xl overflow-hidden group hover:shadow-elevated transition-all duration-300 cursor-pointer"
+                    onClick={isWelcome ? handlePlayWelcome : undefined}
                   >
                     {/* Image */}
                     <div className="relative h-40 overflow-hidden">
-                      <img
-                        src={image}
-                        alt={category.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
+                      {category.posterUrl ? (
+                        <img
+                          src={category.posterUrl}
+                          alt={category.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <Play className="w-8 h-8 text-muted-foreground/40" />
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
                       {/* Play button */}
@@ -130,9 +166,9 @@ const Courses = () => {
                         </div>
                       </div>
 
-                      {/* Free/Premium badge */}
+                      {/* Badge */}
                       <div className="absolute top-3 left-3">
-                        {isFirst ? (
+                        {isWelcome ? (
                           <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full">
                             GRATIS
                           </span>
@@ -159,6 +195,9 @@ const Courses = () => {
                           <Play className="w-4 h-4" />
                           <span>{category.videoCount} Videos</span>
                         </div>
+                        {isWelcome && (
+                          <span className="text-accent font-medium text-xs">▶ Jetzt ansehen</span>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -189,6 +228,47 @@ const Courses = () => {
           </Button>
         </motion.div>
       </div>
+
+      {/* Welcome Video Modal */}
+      <AnimatePresence>
+        {showWelcomeVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            onClick={() => { setShowWelcomeVideo(false); setWelcomeOtp(null); }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-4xl aspect-video rounded-xl overflow-hidden bg-black"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => { setShowWelcomeVideo(false); setWelcomeOtp(null); }}
+                className="absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+
+              {loadingVideo || !welcomeOtp ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-accent" />
+                </div>
+              ) : (
+                <iframe
+                  src={`https://player.vdocipher.com/v2/?otp=${welcomeOtp.otp}&playbackInfo=${welcomeOtp.playbackInfo}&autoplay=true`}
+                  style={{ width: "100%", height: "100%", border: 0 }}
+                  allow="encrypted-media; fullscreen; picture-in-picture; autoplay"
+                  allowFullScreen
+                />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

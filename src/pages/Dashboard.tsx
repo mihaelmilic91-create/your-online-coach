@@ -233,42 +233,42 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid grid-cols-3 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4"
         >
           <Card className="bg-card shadow-soft">
-            <CardContent className="p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                <FolderOpen className="w-6 h-6 text-accent" />
+            <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                <FolderOpen className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{categoriesCount}</p>
-                <p className="text-sm text-muted-foreground">Kategorien</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-card shadow-soft">
-            <CardContent className="p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                <Video className="w-6 h-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{videosCount > 0 ? `${videosCount}+` : "30+"}</p>
-                <p className="text-sm text-muted-foreground">Lernvideos</p>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{categoriesCount}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Kategorien</p>
               </div>
             </CardContent>
           </Card>
           
           <Card className="bg-card shadow-soft">
-            <CardContent className="p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-6 h-6 text-primary" />
+            <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                <Video className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold text-foreground">{videosCount > 0 ? `${videosCount}+` : "30+"}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Lernvideos</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-card shadow-soft">
+            <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold text-foreground">
                   {accessInfo?.daysRemaining === 999 ? "∞" : accessInfo?.daysRemaining || 0}
                 </p>
-                <p className="text-sm text-muted-foreground">Tage verbleibend</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Tage verbleibend</p>
               </div>
             </CardContent>
           </Card>

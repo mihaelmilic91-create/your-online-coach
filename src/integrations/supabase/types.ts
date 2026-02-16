@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -199,6 +244,30 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }

@@ -136,7 +136,7 @@ const Hero = () => {
                     <Video className="w-6 h-6 text-accent" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">30+</p>
+                    <p className="font-semibold text-foreground">35+</p>
                     <p className="text-sm text-muted-foreground">Lernvideos</p>
                   </div>
                 </div>

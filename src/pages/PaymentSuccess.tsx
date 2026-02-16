@@ -50,6 +50,29 @@ const PaymentSuccess = () => {
 
   useEffect(() => {
     const verifyPayment = async () => {
+      // Check for free checkout (100% coupon)
+      const isFreeCheckout = searchParams.get("free") === "true";
+      
+      if (isFreeCheckout) {
+        // Free checkout - user is already created/updated, just show success
+        const { data: sessionData } = await supabase.auth.getSession();
+        const currentUser = sessionData.session?.user;
+        
+        const accessUntil = new Date();
+        accessUntil.setFullYear(accessUntil.getFullYear() + 1);
+        
+        setUserInfo({
+          email: currentUser?.email || "",
+          firstName: currentUser?.user_metadata?.display_name?.split(" ")[0] || "",
+          lastName: currentUser?.user_metadata?.display_name?.split(" ")[1] || "",
+          accessUntil: accessUntil.toISOString(),
+          isExistingUser: false,
+        });
+        setStatus("success");
+        setTimeout(triggerConfetti, 500);
+        return;
+      }
+
       // Check for PaymentIntent (embedded checkout)
       const paymentIntentId = searchParams.get("payment_intent");
       // Check for Checkout Session (legacy redirect)
@@ -96,7 +119,6 @@ const PaymentSuccess = () => {
             
             if (signInError) {
               console.error("Auto-login failed:", signInError);
-              // Don't show error - user can still log in manually
             } else {
               console.log("Auto-login successful!");
             }

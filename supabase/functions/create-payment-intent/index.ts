@@ -13,14 +13,12 @@ serve(async (req) => {
   }
 
   try {
-    const { email, firstName, lastName, billingAddress, password } = await req.json();
+    const { email, firstName, lastName, billingAddress, password, couponCode } = await req.json();
 
-    // Validate required fields
     if (!email || !firstName || !lastName || !password || !billingAddress) {
       throw new Error("Alle Pflichtfelder müssen ausgefüllt sein.");
     }
 
-    // Create Supabase admin client
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -59,6 +57,37 @@ serve(async (req) => {
       }
     }
 
+    // Validate coupon server-side if provided
+    const basePrice = 7900; // CHF 79.00 in cents
+    let finalAmount = basePrice;
+    let appliedCouponCode: string | null = null;
+
+    if (couponCode) {
+      const { data: coupon, error: couponError } = await supabaseAdmin
+        .from("coupons")
+        .select("*")
+        .eq("code", couponCode.toUpperCase())
+        .eq("is_active", true)
+        .single();
+
+      if (coupon && !couponError) {
+        const now = new Date();
+        const validFrom = coupon.valid_from ? new Date(coupon.valid_from) <= now : true;
+        const validUntil = coupon.valid_until ? new Date(coupon.valid_until) >= now : true;
+        const usesOk = !coupon.max_uses || coupon.current_uses < coupon.max_uses;
+
+        if (validFrom && validUntil && usesOk) {
+          if (coupon.discount_type === "percentage") {
+            finalAmount = Math.round(basePrice * (1 - coupon.discount_value / 100));
+          } else {
+            finalAmount = Math.max(0, basePrice - Math.round(coupon.discount_value * 100));
+          }
+          appliedCouponCode = coupon.code;
+          console.log(`Coupon ${coupon.code} applied: ${basePrice} -> ${finalAmount} cents`);
+        }
+      }
+    }
+
     // Initialize Stripe
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
     if (!stripeSecretKey) {
@@ -91,7 +120,6 @@ serve(async (req) => {
 
     // Only store pending registration for new users
     if (!isExistingUser) {
-      // Store pending registration - first delete any existing one with same email
       await supabaseAdmin
         .from("pending_registrations")
         .delete()
@@ -114,9 +142,9 @@ serve(async (req) => {
       }
     }
 
-    // Create PaymentIntent for CHF 79.00
+    // Create PaymentIntent with possibly discounted amount
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 7900, // CHF 79.00 in cents
+      amount: finalAmount,
       currency: "chf",
       customer: customer.id,
       automatic_payment_methods: {
@@ -128,11 +156,11 @@ serve(async (req) => {
         lastName,
         product: "Online Drivecoach - Jahreslizenz",
         existingUserId: existingUserId || "",
+        couponCode: appliedCouponCode || "",
       },
     });
 
-    // Determine which publishable key the frontend should use.
-    // Note: publishable keys are safe to send to the client.
+    // Determine which publishable key the frontend should use
     const publishableKey = paymentIntent.livemode
       ? (Deno.env.get("VITE_STRIPE_PUBLISHABLE_KEY_LIVE") || Deno.env.get("VITE_STRIPE_PUBLISHABLE_KEY") || "")
       : (Deno.env.get("VITE_STRIPE_PUBLISHABLE_KEY_TEST") || "");
@@ -157,8 +185,10 @@ serve(async (req) => {
       JSON.stringify({
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
-        livemode: paymentIntent.livemode, // true = live, false = test
+        livemode: paymentIntent.livemode,
         publishableKey,
+        finalAmount,
+        appliedCouponCode,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

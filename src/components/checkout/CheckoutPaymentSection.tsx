@@ -19,11 +19,12 @@ interface CheckoutPaymentSectionProps {
     canton: string;
   };
   onPaymentSuccess: () => void;
+  couponCode?: string;
 }
 
 type LoadingState = "idle" | "fetching" | "initializing-stripe" | "ready" | "error";
 
-const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentSectionProps) => {
+const CheckoutPaymentSection = ({ formData, onPaymentSuccess, couponCode }: CheckoutPaymentSectionProps) => {
   const { toast } = useToast();
   const [loadingState, setLoadingState] = useState<LoadingState>("idle");
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -68,6 +69,7 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
             canton: formData.canton,
           },
           password: formData.password,
+          couponCode: couponCode || undefined,
         }),
       });
 
@@ -121,7 +123,7 @@ const CheckoutPaymentSection = ({ formData, onPaymentSuccess }: CheckoutPaymentS
           : message,
       });
     }
-  }, [formData, toast]);
+  }, [formData, couponCode, toast]);
 
   useEffect(() => {
     initializePayment();

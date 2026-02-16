@@ -70,6 +70,19 @@ serve(async (req) => {
         throw new Error("Gutschein deckt nicht den vollen Betrag ab");
       }
 
+      // Atomically increment coupon usage with optimistic locking
+      const { data: updatedCoupon, error: incrementError } = await supabaseAdmin
+        .from("coupons")
+        .update({ current_uses: coupon.current_uses + 1 })
+        .eq("id", coupon.id)
+        .eq("current_uses", coupon.current_uses)
+        .select("id")
+        .single();
+
+      if (incrementError || !updatedCoupon) {
+        throw new Error("Gutschein wurde gerade von jemand anderem eingelöst. Bitte versuche es erneut.");
+      }
+
       // Create user account directly
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email,
@@ -102,11 +115,7 @@ serve(async (req) => {
           .eq("user_id", authData.user.id);
       }
 
-      // Increment coupon usage
-      await supabaseAdmin
-        .from("coupons")
-        .update({ current_uses: coupon.current_uses + 1 })
-        .eq("id", coupon.id);
+      // Coupon usage already incremented atomically above
 
       return new Response(JSON.stringify({
         success: true,

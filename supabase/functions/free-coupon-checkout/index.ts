@@ -74,6 +74,19 @@ serve(async (req) => {
       throw new Error("Gutschein deckt nicht den vollen Betrag ab");
     }
 
+    // Atomically increment coupon usage with optimistic locking to prevent race conditions
+    const { data: updatedCoupon, error: incrementError } = await supabaseAdmin
+      .from("coupons")
+      .update({ current_uses: coupon.current_uses + 1 })
+      .eq("id", coupon.id)
+      .eq("current_uses", coupon.current_uses) // Optimistic lock
+      .select("id")
+      .single();
+
+    if (incrementError || !updatedCoupon) {
+      throw new Error("Gutschein wurde gerade von jemand anderem eingelöst. Bitte versuche es erneut.");
+    }
+
     // Update access_until (1 year)
     const accessUntil = new Date();
     accessUntil.setFullYear(accessUntil.getFullYear() + 1);
@@ -84,15 +97,14 @@ serve(async (req) => {
       .eq("user_id", userId);
 
     if (updateError) {
+      // Rollback coupon usage on failure
+      await supabaseAdmin
+        .from("coupons")
+        .update({ current_uses: coupon.current_uses })
+        .eq("id", coupon.id);
       console.error("Error updating profile:", updateError);
       throw new Error("Fehler beim Aktualisieren des Zugangs");
     }
-
-    // Increment coupon usage
-    await supabaseAdmin
-      .from("coupons")
-      .update({ current_uses: coupon.current_uses + 1 })
-      .eq("id", coupon.id);
 
     return new Response(JSON.stringify({
       success: true,

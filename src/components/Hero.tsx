@@ -87,7 +87,7 @@ const Hero = () => {
               <img 
                 src={swissMadeSoftware} 
                 alt="Swiss Made Software" 
-                className="h-6 w-auto"
+                className="h-10 w-auto"
               />
             </motion.div>
 

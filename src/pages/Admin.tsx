@@ -12,7 +12,8 @@ import {
   ArrowLeft,
   Save,
   X,
-  Loader2
+  Loader2,
+  GripVertical
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,24 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
+
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Category {
   id: string;
@@ -44,6 +63,195 @@ interface VideoItem {
   sort_order: number;
   is_published: boolean;
 }
+
+// Sortable Category Item
+const SortableCategoryItem = ({
+  category,
+  isSelected,
+  onSelect,
+  onEdit,
+  onDelete,
+}: {
+  category: Category;
+  isSelected: boolean;
+  onSelect: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card
+        className={`cursor-pointer transition-all ${
+          isSelected
+            ? "ring-2 ring-accent shadow-elevated"
+            : "hover:shadow-soft"
+        }`}
+        onClick={onSelect}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <button
+                className="touch-none cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground"
+                {...attributes}
+                {...listeners}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <GripVertical className="w-4 h-4" />
+              </button>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-foreground truncate">
+                  {category.title}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                  {category.is_published ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                      Veröffentlicht
+                    </span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                      Entwurf
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+// Sortable Video Item
+const SortableVideoItem = ({
+  video,
+  onEdit,
+  onDelete,
+}: {
+  video: VideoItem;
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: video.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card className="hover:shadow-soft transition-all">
+        <CardContent className="p-4">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <button
+                className="touch-none cursor-grab active:cursor-grabbing p-1 mt-1 text-muted-foreground hover:text-foreground"
+                {...attributes}
+                {...listeners}
+              >
+                <GripVertical className="w-4 h-4" />
+              </button>
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                <Video className="w-5 h-5 text-accent" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-foreground">{video.title}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  {video.duration && (
+                    <span className="text-xs text-muted-foreground">
+                      {video.duration}
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground font-mono">
+                    ID: {video.vdocipher_video_id.substring(0, 12)}...
+                  </span>
+                  {video.is_published ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                      Veröffentlicht
+                    </span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                      Entwurf
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => onEdit()}
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive"
+                onClick={() => onDelete()}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -74,6 +282,15 @@ const Admin = () => {
   const [videoDuration, setVideoDuration] = useState("");
   const [vdocipherVideoId, setVdocipherVideoId] = useState("");
   const [videoIsPublished, setVideoIsPublished] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -349,6 +566,39 @@ const Admin = () => {
     fetchVideos(category.id);
   };
 
+  // Drag & Drop handlers
+  const handleCategoryDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = categories.findIndex((c) => c.id === active.id);
+    const newIndex = categories.findIndex((c) => c.id === over.id);
+    const reordered = arrayMove(categories, oldIndex, newIndex);
+    setCategories(reordered);
+
+    // Persist new sort_order
+    const updates = reordered.map((cat, i) => 
+      supabase.from("video_categories").update({ sort_order: i }).eq("id", cat.id)
+    );
+    await Promise.all(updates);
+  };
+
+  const handleVideoDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = videos.findIndex((v) => v.id === active.id);
+    const newIndex = videos.findIndex((v) => v.id === over.id);
+    const reordered = arrayMove(videos, oldIndex, newIndex);
+    setVideos(reordered);
+
+    // Persist new sort_order
+    const updates = reordered.map((vid, i) =>
+      supabase.from("videos").update({ sort_order: i }).eq("id", vid.id)
+    );
+    await Promise.all(updates);
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -394,57 +644,35 @@ const Admin = () => {
               </Button>
             </div>
             
-            <div className="space-y-2">
-              {categories.map((category) => (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <Card 
-                    className={`cursor-pointer transition-all ${
-                      selectedCategory?.id === category.id 
-                        ? 'ring-2 ring-accent shadow-elevated' 
-                        : 'hover:shadow-soft'
-                    }`}
-                    onClick={() => selectCategory(category)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-foreground truncate">{category.title}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            {category.is_published ? (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                                Veröffentlicht
-                              </span>
-                            ) : (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                                Entwurf
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); openCategoryForm(category); }}>
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); deleteCategory(category); }}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-              
-              {categories.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
-                  Noch keine Kategorien vorhanden
-                </p>
-              )}
-            </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleCategoryDragEnd}
+            >
+              <SortableContext
+                items={categories.map((c) => c.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {categories.map((category) => (
+                    <SortableCategoryItem
+                      key={category.id}
+                      category={category}
+                      isSelected={selectedCategory?.id === category.id}
+                      onSelect={() => selectCategory(category)}
+                      onEdit={() => openCategoryForm(category)}
+                      onDelete={() => deleteCategory(category)}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+
+            {categories.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                Noch keine Kategorien vorhanden
+              </p>
+            )}
           </div>
 
           {/* Videos List */}
@@ -462,71 +690,42 @@ const Admin = () => {
                   </Button>
                 </div>
                 
-                <div className="space-y-2">
-                  {videos.map((video, index) => (
-                    <motion.div
-                      key={video.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <Card className="hover:shadow-soft transition-all">
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                                <Video className="w-5 h-5 text-accent" />
-                              </div>
-                              <div className="min-w-0">
-                                <h3 className="font-semibold text-foreground">{video.title}</h3>
-                                <div className="flex items-center gap-2 mt-1">
-                                  {video.duration && (
-                                    <span className="text-xs text-muted-foreground">{video.duration}</span>
-                                  )}
-                                  <span className="text-xs text-muted-foreground font-mono">
-                                    ID: {video.vdocipher_video_id.substring(0, 12)}...
-                                  </span>
-                                  {video.is_published ? (
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                                      Veröffentlicht
-                                    </span>
-                                  ) : (
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                                      Entwurf
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex gap-1">
-                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openVideoForm(video)}>
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteVideo(video)}>
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                  
-                  {videos.length === 0 && (
-                    <Card className="border-dashed">
-                      <CardContent className="p-8 text-center">
-                        <Video className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">
-                          Noch keine Videos in dieser Kategorie
-                        </p>
-                        <Button variant="hero" size="sm" onClick={() => openVideoForm()} className="mt-4 gap-1">
-                          <Plus className="w-4 h-4" />
-                          Video hinzufügen
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleVideoDragEnd}
+                >
+                  <SortableContext
+                    items={videos.map((v) => v.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <div className="space-y-2">
+                      {videos.map((video) => (
+                        <SortableVideoItem
+                          key={video.id}
+                          video={video}
+                          onEdit={() => openVideoForm(video)}
+                          onDelete={() => deleteVideo(video)}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+
+                {videos.length === 0 && (
+                  <Card className="border-dashed">
+                    <CardContent className="p-8 text-center">
+                      <Video className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        Noch keine Videos in dieser Kategorie
+                      </p>
+                      <Button variant="hero" size="sm" onClick={() => openVideoForm()} className="mt-4 gap-1">
+                        <Plus className="w-4 h-4" />
+                        Video hinzufügen
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
               </>
             ) : (
               <Card className="border-dashed">

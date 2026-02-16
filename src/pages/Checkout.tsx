@@ -200,43 +200,24 @@ const Checkout = () => {
     setIsCheckingEmail(true);
     try {
       if (isLoggedIn && user) {
-        // For logged-in users: directly update access
-        const { error } = await supabase.functions.invoke("verify-payment", {
+        // For logged-in users with 100% coupon: call create-checkout which handles existing users too
+        // We use a dedicated edge function for free access
+        const { data, error } = await supabase.functions.invoke("free-coupon-checkout", {
           body: {
-            payment_intent_id: "FREE_COUPON",
-            registration_id: null,
-            session_id: null,
-          },
-        });
-        // For free checkout with existing user, just update access_until via admin-api
-        const accessUntil = new Date();
-        accessUntil.setFullYear(accessUntil.getFullYear() + 1);
-        
-        const { error: updateError } = await supabase.functions.invoke("admin-api", {
-          body: {
-            action: "update_profile_access",
-            userId: user.id,
-            accessUntil: accessUntil.toISOString(),
+            couponCode: appliedCoupon?.code,
           },
         });
 
-        if (updateError) {
-          toast({ variant: "destructive", title: "Fehler", description: "Zugang konnte nicht freigeschaltet werden." });
+        if (error || data?.error) {
+          toast({ variant: "destructive", title: "Fehler", description: data?.error || "Zugang konnte nicht freigeschaltet werden." });
           setIsCheckingEmail(false);
           return;
-        }
-
-        // Increment coupon usage
-        if (appliedCoupon) {
-          await supabase.rpc("has_role", { _role: "admin", _user_id: user.id }).then(() => {
-            // Just increment - best effort
-          });
         }
 
         toast({ title: "Zugang freigeschaltet!", description: "Dein Zugang wurde erfolgreich aktiviert." });
         navigate("/dashboard");
       } else {
-        // For new users with 100% coupon: create pending reg, then create user without payment
+        // For new users with 100% coupon: create user without payment
         const { data, error } = await supabase.functions.invoke("create-checkout", {
           body: {
             email: formData.email,
@@ -258,6 +239,14 @@ const Checkout = () => {
           toast({ variant: "destructive", title: "Fehler", description: data?.error || "Fehler bei der Registrierung" });
           setIsCheckingEmail(false);
           return;
+        }
+
+        // Auto-login with the temp password
+        if (data?.tempPassword && data?.email) {
+          await supabase.auth.signInWithPassword({
+            email: data.email,
+            password: data.tempPassword,
+          });
         }
 
         navigate("/payment-success?free=true");
@@ -736,6 +725,7 @@ const Checkout = () => {
                     <CheckoutPaymentSection
                       formData={formData}
                       onPaymentSuccess={handlePaymentSuccess}
+                      couponCode={appliedCoupon?.code}
                     />
                   </div>
 

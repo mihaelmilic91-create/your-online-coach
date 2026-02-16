@@ -1,30 +1,49 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, Video, LayoutDashboard } from "lucide-react";
+import { Menu, X, Video, LayoutDashboard, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profile, setProfile] = useState<{ display_name: string | null; avatar_url: string | null } | null>(null);
 
   useEffect(() => {
-    // Check initial session
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
+      if (session) fetchProfile(session.user.id);
     };
 
-    // Listen for auth changes
+    const fetchProfile = async (userId: string) => {
+      const { data } = await supabase.from("profiles").select("display_name, avatar_url").eq("user_id", userId).single();
+      if (data) setProfile(data);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
+      if (session) fetchProfile(session.user.id);
+      else setProfile(null);
     });
 
     checkSession();
-
     return () => subscription.unsubscribe();
   }, []);
+
+  const getInitials = (name: string | null) => {
+    if (!name) return "?";
+    const parts = name.trim().split(/\s+/);
+    return parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.substring(0, 2).toUpperCase();
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
 
   return (
     <motion.header
@@ -74,9 +93,35 @@ const Header = () => {
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
           {isLoggedIn ? (
-            <Button variant="hero" size="sm" asChild>
-              <a href="/lernvideos">Zu den Lernvideos</a>
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button variant="hero" size="sm" asChild>
+                <a href="/lernvideos">Zu den Lernvideos</a>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="focus:outline-none">
+                    <Avatar className="h-9 w-9 cursor-pointer ring-2 ring-border hover:ring-accent transition-all">
+                      {profile?.avatar_url ? (
+                        <AvatarImage src={profile.avatar_url} alt={profile.display_name || "User"} />
+                      ) : null}
+                      <AvatarFallback className="bg-gradient-to-br from-accent to-primary text-white text-xs font-semibold">
+                        {getInitials(profile?.display_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <a href="/dashboard" className="flex items-center gap-2 cursor-pointer">
+                      <LayoutDashboard className="w-4 h-4" /> Dashboard
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer text-destructive">
+                    <LogOut className="w-4 h-4" /> Abmelden
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>

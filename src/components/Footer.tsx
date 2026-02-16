@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
+import { Mail, MapPin, Facebook, Instagram, Youtube, Linkedin } from "lucide-react";
 import logo from "@/assets/logo.png";
 import swissMadeSoftware from "@/assets/swiss-made-software.png";
 
@@ -58,10 +58,6 @@ const Footer = () => {
             
             {/* Contact - Placeholder */}
             <div className="space-y-3">
-              <a href="tel:+41000000000" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
-                <Phone className="w-5 h-5" />
-                <span>+41 XX XXX XX XX</span>
-              </a>
               <a href="mailto:info@onlinedrivecoach.ch" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
                 <Mail className="w-5 h-5" />
                 <span>info@onlinedrivecoach.ch</span>

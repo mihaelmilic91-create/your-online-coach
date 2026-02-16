@@ -7,6 +7,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper: poll Stripe PaymentIntent until it leaves "processing" status
+async function waitForPaymentIntent(stripe: Stripe, paymentIntentId: string, maxAttempts = 10, delayMs = 2000) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+    console.log(`Poll attempt ${i + 1}: status = ${pi.status}`);
+    if (pi.status !== "processing") {
+      return pi;
+    }
+    if (i < maxAttempts - 1) {
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  }
+  // Return the last state even if still processing
+  return await stripe.paymentIntents.retrieve(paymentIntentId);
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -34,10 +50,12 @@ serve(async (req) => {
 
     // Handle PaymentIntent (embedded checkout)
     if (payment_intent_id) {
-      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+      // Poll for payment completion (handles async methods like TWINT)
+      const paymentIntent = await waitForPaymentIntent(stripe, payment_intent_id);
       
       if (paymentIntent.status !== "succeeded") {
-        throw new Error("Payment not completed");
+        console.error(`Payment not completed. Status: ${paymentIntent.status}`);
+        throw new Error(`Zahlung nicht abgeschlossen (Status: ${paymentIntent.status}). Bitte versuche es erneut.`);
       }
 
       email = paymentIntent.metadata.email;

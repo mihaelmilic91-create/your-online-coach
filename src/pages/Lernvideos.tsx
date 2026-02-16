@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, LogOut, User, Clock, Video, AlertTriangle, FolderOpen, X, ChevronLeft, ChevronRight, Home, CheckCircle2 } from "lucide-react";
+import { Play, LogOut, User, Clock, Video, AlertTriangle, FolderOpen, X, ChevronLeft, ChevronRight, Home, CheckCircle2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,6 +51,8 @@ const Lernvideos = () => {
   // Watch progress state - now tracks watch count
   const [videoWatchCounts, setVideoWatchCounts] = useState<Map<string, number>>(new Map());
   const [posterUrls, setPosterUrls] = useState<Record<string, string | null>>({});
+  const [favoriteVideoIds, setFavoriteVideoIds] = useState<Set<string>>(new Set());
+  const [isFavoritesCategory, setIsFavoritesCategory] = useState(false);
   const loadWatchProgress = async (userId: string) => {
     const { data } = await supabase
       .from("video_progress")
@@ -62,6 +64,76 @@ const Lernvideos = () => {
       data.forEach(p => counts.set(p.video_id, p.watch_count || 1));
       setVideoWatchCounts(counts);
     }
+  };
+
+  const loadFavorites = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_favorites")
+      .select("video_id")
+      .eq("user_id", userId);
+    
+    if (data) {
+      setFavoriteVideoIds(new Set(data.map(f => f.video_id)));
+    }
+  };
+
+  const toggleFavorite = async (e: React.MouseEvent, videoId: string) => {
+    e.stopPropagation();
+    if (!user) return;
+    
+    const isFav = favoriteVideoIds.has(videoId);
+    
+    if (isFav) {
+      await supabase
+        .from("user_favorites")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("video_id", videoId);
+      
+      setFavoriteVideoIds(prev => {
+        const next = new Set(prev);
+        next.delete(videoId);
+        return next;
+      });
+      
+      // If viewing favorites, remove from current list
+      if (isFavoritesCategory) {
+        setVideos(prev => prev.filter(v => v.id !== videoId));
+      }
+    } else {
+      await supabase
+        .from("user_favorites")
+        .insert({ user_id: user.id, video_id: videoId });
+      
+      setFavoriteVideoIds(prev => new Set(prev).add(videoId));
+    }
+  };
+
+  const loadFavoriteVideos = async () => {
+    if (!user) return;
+    setSelectedCategory(null);
+    setIsFavoritesCategory(true);
+    
+    const { data: favData } = await supabase
+      .from("user_favorites")
+      .select("video_id")
+      .eq("user_id", user.id);
+    
+    if (!favData || favData.length === 0) {
+      setVideos([]);
+      return;
+    }
+    
+    const videoIds = favData.map(f => f.video_id);
+    const { data: videosData } = await supabase
+      .from("videos")
+      .select("*")
+      .in("id", videoIds)
+      .eq("is_published", true);
+    
+    const loadedVideos = videosData || [];
+    setVideos(loadedVideos);
+    fetchPosters(loadedVideos);
   };
 
   const markVideoAsWatched = async (videoId: string) => {
@@ -99,8 +171,11 @@ const Lernvideos = () => {
 
       setUser(session.user);
 
-      // Load watch progress
-      await loadWatchProgress(session.user.id);
+      // Load watch progress and favorites
+      await Promise.all([
+        loadWatchProgress(session.user.id),
+        loadFavorites(session.user.id),
+      ]);
 
       // Check if user is admin
       const { data: roleData } = await supabase
@@ -196,6 +271,7 @@ const Lernvideos = () => {
 
   const loadVideosForCategory = async (category: Category) => {
     setSelectedCategory(category);
+    setIsFavoritesCategory(false);
     const { data: videosData } = await supabase
       .from("videos")
       .select("*")
@@ -504,6 +580,24 @@ const Lernvideos = () => {
                   </CardContent>
                 </Card>
               ))}
+
+              {/* Favoriten Category */}
+              <Card 
+                className={`cursor-pointer transition-all ${
+                  isFavoritesCategory 
+                    ? 'ring-2 ring-accent shadow-elevated bg-accent/5' 
+                    : 'hover:shadow-soft hover:bg-muted/50'
+                }`}
+                onClick={loadFavoriteVideos}
+              >
+                <CardContent className="p-4 flex items-center gap-2">
+                  <Heart className={`w-4 h-4 ${isFavoritesCategory ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
+                  <h3 className="font-semibold text-foreground">Favoriten</h3>
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    {favoriteVideoIds.size}
+                  </span>
+                </CardContent>
+              </Card>
               
               {categories.length === 0 && (
                 <p className="text-center text-muted-foreground py-8">
@@ -520,12 +614,16 @@ const Lernvideos = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="lg:col-span-3"
           >
-            {selectedCategory ? (
+            {(selectedCategory || isFavoritesCategory) ? (
               <>
                 <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                   <h2 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
-                    <Video className="w-5 h-5 text-accent" />
-                    {selectedCategory.title}
+                    {isFavoritesCategory ? (
+                      <Heart className="w-5 h-5 text-accent fill-accent" />
+                    ) : (
+                      <Video className="w-5 h-5 text-accent" />
+                    )}
+                    {isFavoritesCategory ? 'Favoriten' : selectedCategory?.title}
                     <span className="text-sm font-normal text-muted-foreground ml-2">
                       ({videos.length} {videos.length === 1 ? 'Video' : 'Videos'})
                     </span>
@@ -580,6 +678,13 @@ const Lernvideos = () => {
                                   {isWatched ? 'Erneut ansehen' : 'Jetzt ansehen'}
                                 </span>
                               </div>
+                              {/* Favorite button */}
+                              <button
+                                onClick={(e) => toggleFavorite(e, video.id)}
+                                className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors"
+                              >
+                                <Heart className={`w-4 h-4 ${favoriteVideoIds.has(video.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
+                              </button>
                             </div>
                             
                             <div className="p-4">

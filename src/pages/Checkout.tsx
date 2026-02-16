@@ -88,32 +88,12 @@ const Checkout = () => {
     setAppliedCoupon(null);
 
     try {
-      const { data, error } = await supabase
-        .from("coupons")
-        .select("code, discount_type, discount_value, is_active, max_uses, current_uses, valid_from, valid_until")
-        .eq("code", couponCode.trim().toUpperCase())
-        .eq("is_active", true)
-        .single();
+      const { data, error } = await supabase.functions.invoke("validate-coupon", {
+        body: { couponCode: couponCode.trim() },
+      });
 
-      if (error || !data) {
-        setCouponError("Ungültiger Gutscheincode");
-        setCouponLoading(false);
-        return;
-      }
-
-      const now = new Date();
-      if (data.valid_from && new Date(data.valid_from) > now) {
-        setCouponError("Dieser Gutschein ist noch nicht gültig");
-        setCouponLoading(false);
-        return;
-      }
-      if (data.valid_until && new Date(data.valid_until) < now) {
-        setCouponError("Dieser Gutschein ist abgelaufen");
-        setCouponLoading(false);
-        return;
-      }
-      if (data.max_uses && data.current_uses >= data.max_uses) {
-        setCouponError("Dieser Gutschein wurde bereits eingelöst");
+      if (error || !data?.valid) {
+        setCouponError(data?.error || "Ungültiger Gutscheincode");
         setCouponLoading(false);
         return;
       }

@@ -105,12 +105,32 @@ const TrackingPixels = () => {
           document.head.appendChild(newScript);
         });
 
-        // Find and add noscript elements
+        // Find and add noscript elements - only allow img tags with allowed domains
         const noscripts = container.querySelectorAll("noscript");
         noscripts.forEach((ns) => {
+          const sanitized = document.createElement("div");
+          sanitized.innerHTML = ns.innerHTML;
+          
+          // Only allow img elements from trusted domains
+          const imgs = sanitized.querySelectorAll("img");
+          if (imgs.length === 0) return;
+          
           const newNs = document.createElement("noscript");
-          newNs.innerHTML = ns.innerHTML;
-          document.head.appendChild(newNs);
+          imgs.forEach((img) => {
+            if (img.src && isAllowedScriptSrc(img.src)) {
+              const safeImg = document.createElement("img");
+              safeImg.src = img.src;
+              if (img.height) safeImg.height = img.height;
+              if (img.width) safeImg.width = img.width;
+              if (img.alt) safeImg.alt = img.alt;
+              safeImg.style.display = "none";
+              newNs.appendChild(safeImg);
+            }
+          });
+          
+          if (newNs.childNodes.length > 0) {
+            document.head.appendChild(newNs);
+          }
         });
       }
     });

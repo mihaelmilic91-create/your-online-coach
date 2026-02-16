@@ -41,7 +41,14 @@ const Header = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // If server-side signout fails, clear local session
+      await supabase.auth.signOut({ scope: 'local' });
+    }
+    setIsLoggedIn(false);
+    setProfile(null);
     window.location.href = "/";
   };
 

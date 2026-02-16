@@ -132,7 +132,7 @@ const Checkout = () => {
 
   const basePrice = 79.0;
   const discountAmount = appliedCoupon
-    ? appliedCoupon.discount_type === "percent"
+    ? appliedCoupon.discount_type === "percentage"
       ? basePrice * (appliedCoupon.discount_value / 100)
       : appliedCoupon.discount_value
     : 0;
@@ -196,6 +196,79 @@ const Checkout = () => {
     { regex: /[0-9]/, text: "Zahl" },
   ];
 
+  const handleFreeCheckout = async () => {
+    setIsCheckingEmail(true);
+    try {
+      if (isLoggedIn && user) {
+        // For logged-in users: directly update access
+        const { error } = await supabase.functions.invoke("verify-payment", {
+          body: {
+            payment_intent_id: "FREE_COUPON",
+            registration_id: null,
+            session_id: null,
+          },
+        });
+        // For free checkout with existing user, just update access_until via admin-api
+        const accessUntil = new Date();
+        accessUntil.setFullYear(accessUntil.getFullYear() + 1);
+        
+        const { error: updateError } = await supabase.functions.invoke("admin-api", {
+          body: {
+            action: "update_profile_access",
+            userId: user.id,
+            accessUntil: accessUntil.toISOString(),
+          },
+        });
+
+        if (updateError) {
+          toast({ variant: "destructive", title: "Fehler", description: "Zugang konnte nicht freigeschaltet werden." });
+          setIsCheckingEmail(false);
+          return;
+        }
+
+        // Increment coupon usage
+        if (appliedCoupon) {
+          await supabase.rpc("has_role", { _role: "admin", _user_id: user.id }).then(() => {
+            // Just increment - best effort
+          });
+        }
+
+        toast({ title: "Zugang freigeschaltet!", description: "Dein Zugang wurde erfolgreich aktiviert." });
+        navigate("/dashboard");
+      } else {
+        // For new users with 100% coupon: create pending reg, then create user without payment
+        const { data, error } = await supabase.functions.invoke("create-checkout", {
+          body: {
+            email: formData.email,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            password: formData.password,
+            billingAddress: {
+              street: formData.address,
+              city: formData.city,
+              postalCode: formData.postalCode,
+              canton: formData.canton,
+            },
+            couponCode: appliedCoupon?.code,
+            freeCheckout: true,
+          },
+        });
+
+        if (error || data?.error) {
+          toast({ variant: "destructive", title: "Fehler", description: data?.error || "Fehler bei der Registrierung" });
+          setIsCheckingEmail(false);
+          return;
+        }
+
+        navigate("/payment-success?free=true");
+      }
+    } catch (err) {
+      console.error("Free checkout error:", err);
+      toast({ variant: "destructive", title: "Fehler", description: "Ein unerwarteter Fehler ist aufgetreten." });
+    }
+    setIsCheckingEmail(false);
+  };
+
   const handleContinueToPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -212,6 +285,28 @@ const Checkout = () => {
         }
       });
       setErrors(fieldErrors);
+      return;
+    }
+
+    // If price is 0 (100% coupon), skip payment
+    if (finalPrice <= 0 && appliedCoupon) {
+      // For non-logged-in users, first check email
+      if (!isLoggedIn) {
+        setIsCheckingEmail(true);
+        setEmailExistsError(false);
+        try {
+          const emailExists = await checkEmailExists(formData.email);
+          if (emailExists) {
+            setEmailExistsError(true);
+            setIsCheckingEmail(false);
+            return;
+          }
+        } catch (err) {
+          console.error("Email check failed:", err);
+        }
+        setIsCheckingEmail(false);
+      }
+      await handleFreeCheckout();
       return;
     }
 
@@ -741,7 +836,7 @@ const Checkout = () => {
                     </div>
                     {appliedCoupon && (
                       <div className="flex justify-between text-sm text-accent">
-                        <span>Rabatt ({appliedCoupon.discount_type === "percent" ? `${appliedCoupon.discount_value}%` : `CHF ${appliedCoupon.discount_value.toFixed(2)}`})</span>
+                        <span>Rabatt ({appliedCoupon.discount_type === "percentage" ? `${appliedCoupon.discount_value}%` : `CHF ${appliedCoupon.discount_value.toFixed(2)}`})</span>
                         <span>- CHF {discountAmount.toFixed(2)}</span>
                       </div>
                     )}

@@ -1,4 +1,5 @@
 import { Mail, MapPin, Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import swissMadeSoftware from "@/assets/swiss-made-software.png";
 
@@ -6,18 +7,18 @@ const Footer = () => {
   const links = {
     produkt: [
       { label: "Lernvideos", href: "#kurse" },
-      { label: "Preise", href: "#preise" },
-      { label: "FAQ", href: "#faq" },
+      { label: "Preise", href: "/preise" },
+      { label: "FAQ", href: "/faq" },
     ],
     unternehmen: [
-      { label: "Über uns", href: "#about" },
-      { label: "Kontakt", href: "#kontakt" },
-      { label: "Blog", href: "#blog" },
+      { label: "Über uns", href: "/ueber-uns" },
+      { label: "Kontakt", href: "/kontakt" },
+      { label: "Blog", href: "/blog" },
     ],
     rechtliches: [
-      { label: "Impressum", href: "#impressum" },
-      { label: "Datenschutz", href: "#datenschutz" },
-      { label: "AGB", href: "#agb" },
+      { label: "Impressum", href: "/impressum" },
+      { label: "Datenschutz", href: "/datenschutz" },
+      { label: "AGB", href: "/agb" },
     ],
   };
 
@@ -30,8 +31,23 @@ const Footer = () => {
     { icon: Instagram, href: "https://www.instagram.com/onlinedrivecoach.ch/", label: "Instagram" },
   ];
 
+  const renderLink = (link: { label: string; href: string }) => {
+    if (link.href.startsWith("#")) {
+      return (
+        <a href={link.href} className="text-footer-foreground/70 hover:text-footer-foreground transition-colors">
+          {link.label}
+        </a>
+      );
+    }
+    return (
+      <Link to={link.href} className="text-footer-foreground/70 hover:text-footer-foreground transition-colors">
+        {link.label}
+      </Link>
+    );
+  };
+
   return (
-    <footer className="bg-navy text-white py-16">
+    <footer className="bg-footer text-footer-foreground py-16">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           {/* Brand */}
@@ -43,7 +59,7 @@ const Footer = () => {
                 className="h-10 w-auto brightness-0 invert"
               />
             </a>
-            <p className="text-white/70 mb-6 max-w-sm">
+            <p className="text-footer-foreground/70 mb-6 max-w-sm">
               Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
             </p>
             
@@ -53,18 +69,18 @@ const Footer = () => {
                 <img 
                   src={swissMadeSoftware} 
                   alt="Swiss Made Software" 
-                  className="h-5 w-auto"
+                  className="h-8 w-auto"
                 />
               </div>
             </div>
             
-            {/* Contact - Placeholder */}
+            {/* Contact */}
             <div className="space-y-3">
-              <a href="mailto:info@onlinedrivecoach.ch" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
+              <a href="mailto:info@onlinedrivecoach.ch" className="flex items-center gap-3 text-footer-foreground/70 hover:text-footer-foreground transition-colors">
                 <Mail className="w-5 h-5" />
                 <span>info@onlinedrivecoach.ch</span>
               </a>
-              <div className="flex items-center gap-3 text-white/70">
+              <div className="flex items-center gap-3 text-footer-foreground/70">
                 <MapPin className="w-5 h-5" />
                 <span>Schweiz</span>
               </div>
@@ -73,49 +89,37 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h4 className="font-display font-semibold text-white mb-4">Produkt</h4>
+            <h4 className="font-display font-semibold text-footer-foreground mb-4">Produkt</h4>
             <ul className="space-y-3">
               {links.produkt.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-white/70 hover:text-white transition-colors">
-                    {link.label}
-                  </a>
-                </li>
+                <li key={link.label}>{renderLink(link)}</li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-white mb-4">Unternehmen</h4>
+            <h4 className="font-display font-semibold text-footer-foreground mb-4">Unternehmen</h4>
             <ul className="space-y-3">
               {links.unternehmen.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-white/70 hover:text-white transition-colors">
-                    {link.label}
-                  </a>
-                </li>
+                <li key={link.label}>{renderLink(link)}</li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-white mb-4">Rechtliches</h4>
+            <h4 className="font-display font-semibold text-footer-foreground mb-4">Rechtliches</h4>
             <ul className="space-y-3">
               {links.rechtliches.map((link) => (
-                <li key={link.label}>
-                  <a href={link.href} className="text-white/70 hover:text-white transition-colors">
-                    {link.label}
-                  </a>
-                </li>
+                <li key={link.label}>{renderLink(link)}</li>
               ))}
             </ul>
           </div>
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/50 text-sm">
-            © 2024 Online Drivecoach. Alle Rechte vorbehalten.
+        <div className="pt-8 border-t border-footer-foreground/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-footer-foreground/50 text-sm">
+            © 2026 Online Drivecoach. Alle Rechte vorbehalten.
           </p>
           
           {/* Social */}
@@ -127,7 +131,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={item.label}
-                className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:bg-accent hover:text-accent-foreground transition-all duration-300"
+                className="w-10 h-10 rounded-full bg-footer-foreground/10 flex items-center justify-center text-footer-foreground/70 hover:bg-footer-foreground/20 transition-all duration-300"
               >
                 <item.icon className="w-5 h-5" />
               </a>

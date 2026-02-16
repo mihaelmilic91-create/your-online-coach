@@ -142,10 +142,15 @@ const Courses = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
           viewport={{ once: true }}
-          className="text-center mt-12"
+          className="text-center mt-12 space-y-4"
         >
+          <div className="flex items-baseline justify-center gap-3">
+            <span className="text-lg text-muted-foreground line-through">CHF 129.–</span>
+            <span className="font-display text-2xl font-bold text-foreground">CHF 79.–</span>
+            <span className="text-sm text-muted-foreground">/ Jahr</span>
+          </div>
           <Button variant="hero" size="lg" asChild>
-            <a href="/register">Alle Kurse ansehen</a>
+            <a href="/zugang">Alle Kurse freischalten</a>
           </Button>
         </motion.div>
       </div>

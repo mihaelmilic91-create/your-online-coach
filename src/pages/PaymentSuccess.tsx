@@ -241,7 +241,7 @@ const PaymentSuccess = () => {
                 transition={{ delay: 0.4 }}
                 className="text-muted-foreground mb-8"
               >
-                Willkommen bei Online DriveCoach, {userInfo?.firstName}!
+                Willkommen bei Online Drivecoach, {userInfo?.firstName}!
               </motion.p>
 
               {/* Access Info Card */}
@@ -314,16 +314,6 @@ const PaymentSuccess = () => {
                 </Button>
               </motion.div>
 
-              {/* Trust Badge */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="flex items-center justify-center gap-2 mt-6 text-xs text-muted-foreground"
-              >
-                <Shield className="w-4 h-4" />
-                <span>30 Tage Geld-zurück-Garantie</span>
-              </motion.div>
             </div>
           </div>
 

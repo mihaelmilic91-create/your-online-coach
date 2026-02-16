@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Eye, EyeOff, CheckCircle, Shield, Lock, Clock, Star, Loader2, AlertCircle, User } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, CheckCircle, Shield, Lock, Clock, Star, Loader2, AlertCircle, User, Tag } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -76,6 +76,68 @@ const Checkout = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailExistsError, setEmailExistsError] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount_type: string; discount_value: number } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    setAppliedCoupon(null);
+
+    try {
+      const { data, error } = await supabase
+        .from("coupons")
+        .select("code, discount_type, discount_value, is_active, max_uses, current_uses, valid_from, valid_until")
+        .eq("code", couponCode.trim().toUpperCase())
+        .eq("is_active", true)
+        .single();
+
+      if (error || !data) {
+        setCouponError("Ungültiger Gutscheincode");
+        setCouponLoading(false);
+        return;
+      }
+
+      const now = new Date();
+      if (data.valid_from && new Date(data.valid_from) > now) {
+        setCouponError("Dieser Gutschein ist noch nicht gültig");
+        setCouponLoading(false);
+        return;
+      }
+      if (data.valid_until && new Date(data.valid_until) < now) {
+        setCouponError("Dieser Gutschein ist abgelaufen");
+        setCouponLoading(false);
+        return;
+      }
+      if (data.max_uses && data.current_uses >= data.max_uses) {
+        setCouponError("Dieser Gutschein wurde bereits eingelöst");
+        setCouponLoading(false);
+        return;
+      }
+
+      setAppliedCoupon({
+        code: data.code,
+        discount_type: data.discount_type,
+        discount_value: data.discount_value,
+      });
+      toast({ title: "Gutschein angewendet!", description: `Code "${data.code}" wurde erfolgreich eingelöst.` });
+    } catch {
+      setCouponError("Fehler beim Prüfen des Gutscheins");
+    }
+    setCouponLoading(false);
+  };
+
+  const basePrice = 79.0;
+  const discountAmount = appliedCoupon
+    ? appliedCoupon.discount_type === "percent"
+      ? basePrice * (appliedCoupon.discount_value / 100)
+      : appliedCoupon.discount_value
+    : 0;
+  const finalPrice = Math.max(0, basePrice - discountAmount);
+  const taxAmount = finalPrice * 0.077 / 1.077; // 7.7% MwSt included
 
   // Check if user is logged in
   const isLoggedIn = !!user;
@@ -628,19 +690,68 @@ const Checkout = () => {
                     </div>
                   </div>
                   
+                  {/* Coupon Code */}
+                  <div className="pt-4 border-t border-border">
+                    {appliedCoupon ? (
+                      <div className="flex items-center justify-between p-3 bg-accent/10 rounded-xl border border-accent/20">
+                        <div className="flex items-center gap-2">
+                          <Tag className="w-4 h-4 text-accent" />
+                          <span className="text-sm font-medium text-accent">{appliedCoupon.code}</span>
+                        </div>
+                        <button
+                          onClick={() => { setAppliedCoupon(null); setCouponCode(""); setCouponError(null); }}
+                          className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                        >
+                          Entfernen
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-muted-foreground">Gutscheincode</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Code eingeben"
+                            value={couponCode}
+                            onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(null); }}
+                            className="h-10 text-sm uppercase"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-10 px-4 whitespace-nowrap"
+                            onClick={handleApplyCoupon}
+                            disabled={couponLoading || !couponCode.trim()}
+                          >
+                            {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Einlösen"}
+                          </Button>
+                        </div>
+                        {couponError && (
+                          <p className="text-xs text-destructive">{couponError}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Pricing */}
-                  <div className="pt-5 space-y-2">
+                  <div className="pt-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Zwischensumme</span>
-                      <span>CHF 79.00</span>
+                      <span>CHF {basePrice.toFixed(2)}</span>
                     </div>
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-sm text-accent">
+                        <span>Rabatt ({appliedCoupon.discount_type === "percent" ? `${appliedCoupon.discount_value}%` : `CHF ${appliedCoupon.discount_value.toFixed(2)}`})</span>
+                        <span>- CHF {discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">MwSt. (inkl.)</span>
-                      <span>CHF 5.76</span>
+                      <span>CHF {taxAmount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between pt-3 border-t border-border">
                       <span className="font-semibold text-foreground">Gesamtsumme</span>
-                      <span className="font-display text-xl font-bold text-foreground">CHF 79.00</span>
+                      <span className="font-display text-xl font-bold text-foreground">CHF {finalPrice.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

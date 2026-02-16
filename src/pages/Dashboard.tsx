@@ -10,6 +10,8 @@ import OrdersWidget from "@/components/dashboard/OrdersWidget";
 import UserAvatar from "@/components/dashboard/UserAvatar";
 import AccessProgressBar from "@/components/dashboard/AccessProgressBar";
 import LearningProgressWidget from "@/components/dashboard/LearningProgressWidget";
+import WatchCompletionChart from "@/components/dashboard/WatchCompletionChart";
+import SelfAssessmentChart from "@/components/dashboard/SelfAssessmentChart";
 import logo from "@/assets/logo.png";
 
 interface AccessInfo {
@@ -308,11 +310,22 @@ const Dashboard = () => {
           <LearningProgressWidget userId={user?.id} totalVideos={videosCount || 30} />
         </motion.div>
 
-        {/* Bottom Widgets Row - Profile, Orders */}
+        {/* Charts Row - Watch Completion & Self-Assessment */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
+          <WatchCompletionChart userId={user?.id} totalVideos={videosCount || 30} />
+          <SelfAssessmentChart userId={user?.id} />
+        </motion.div>
+
+        {/* Bottom Widgets Row - Profile, Orders */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
           <ProfileWidget 

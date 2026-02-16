@@ -19,18 +19,24 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Get user from token
+    // Get user from token using getClaims
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
     
-    if (userError || !userData.user?.email) {
-      throw new Error("User not authenticated");
+    if (claimsError || !claimsData?.claims?.email) {
+      // Fallback to getUser if getClaims fails
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+      if (userError || !userData.user?.email) {
+        throw new Error("User not authenticated");
+      }
+      var userEmail = userData.user.email;
+    } else {
+      var userEmail = claimsData.claims.email as string;
     }
-
-    const userEmail = userData.user.email;
     console.log("Fetching billing info for:", userEmail);
 
     // Initialize Stripe

@@ -1,32 +1,31 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
-import testimonial1 from "@/assets/testimonial-1.jpg";
-import testimonial2 from "@/assets/testimonial-2.jpg";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Testimonial {
+  id: string;
+  name: string;
+  location: string | null;
+  image_url: string | null;
+  rating: number;
+  text: string;
+}
 
 const Testimonials = () => {
-  const testimonials = [
-    {
-      name: "Lara K.",
-      location: "Olten",
-      image: testimonial1,
-      rating: 5,
-      text: "Die Videos sind genau das, was ich gebraucht habe, um mich zwischen den Fahrstunden sicher zu fühlen. Ich konnte gezielt mit meinen Eltern üben und wusste immer, worauf ich achten muss. Mein Fahrlehrer war beeindruckt, wie schnell ich Fortschritte gemacht habe!",
-    },
-    {
-      name: "Giulia T.",
-      location: "Baar",
-      image: testimonial2,
-      rating: 5,
-      text: "Endlich versteht man, was wirklich wichtig ist! Die Erklärungen sind super klar und praxisnah. So konnten meine Eltern mir viel besser helfen, weil sie auch gesehen haben, wie es richtig geht.",
-    },
-    {
-      name: "Adam D.",
-      location: "Wädenswil",
-      image: testimonial1,
-      rating: 5,
-      text: "Ich konnte mir mehrere Fahrlektionen sparen, weil ich mit den Videos schon so viel gelernt habe. Die echten Aufnahmen von Schweizer Strassen haben mir enorm geholfen, mich auf die Prüfung vorzubereiten.",
-    },
-  ];
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("testimonials")
+        .select("id, name, location, image_url, rating, text")
+        .eq("is_published", true)
+        .order("sort_order", { ascending: true });
+      if (data) setTestimonials(data);
+    };
+    fetch();
+  }, []);
 
   const stats = [
     { value: "9/10", label: "verstehen den praktischen Teil schneller" },
@@ -80,7 +79,7 @@ const Testimonials = () => {
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {testimonials.map((testimonial, index) => (
             <motion.div
-              key={testimonial.name}
+              key={testimonial.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
@@ -103,14 +102,24 @@ const Testimonials = () => {
 
               {/* Author */}
               <div className="flex items-center gap-3">
-                <img
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
+                {testimonial.image_url ? (
+                  <img
+                    src={testimonial.image_url}
+                    alt={testimonial.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                    <span className="text-accent font-semibold text-sm">
+                      {testimonial.name.charAt(0)}
+                    </span>
+                  </div>
+                )}
                 <div>
                   <p className="font-semibold text-foreground text-sm">{testimonial.name}</p>
-                  <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                  {testimonial.location && (
+                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                  )}
                 </div>
               </div>
             </motion.div>

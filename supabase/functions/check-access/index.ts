@@ -23,13 +23,24 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
     
-    if (userError || !userData.user) {
-      throw new Error("User not authenticated");
+    // Try getClaims first, fallback to getUser
+    let userId: string;
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    if (!claimsError && claimsData?.claims?.sub) {
+      userId = claimsData.claims.sub as string;
+    } else {
+      const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+      if (userError || !userData.user) {
+        throw new Error("User not authenticated");
+      }
+      userId = userData.user.id;
     }
-
-    const userId = userData.user.id;
 
     // Get profile with access_until
     const { data: profile, error: profileError } = await supabaseAdmin

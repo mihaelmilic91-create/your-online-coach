@@ -33,6 +33,32 @@ const VideoPage = () => {
   const [hasAccess, setHasAccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const markVideoAsWatched = async (uid: string, vid: string) => {
+    // Get current progress
+    const { data: existing } = await supabase
+      .from("video_progress")
+      .select("watch_count")
+      .eq("user_id", uid)
+      .eq("video_id", vid)
+      .maybeSingle();
+
+    const newCount = (existing?.watch_count || 0) + 1;
+
+    await supabase
+      .from("video_progress")
+      .upsert({
+        user_id: uid,
+        video_id: vid,
+        watched_at: new Date().toISOString(),
+        progress_percent: 100,
+        watch_count: newCount,
+      }, {
+        onConflict: "user_id,video_id"
+      });
+  };
+
   useEffect(() => {
     const loadVideo = async () => {
       // Check auth
@@ -41,6 +67,7 @@ const VideoPage = () => {
         navigate("/login");
         return;
       }
+      setUserId(session.user.id);
 
       // Check if admin
       const { data: roleData } = await supabase
@@ -105,6 +132,10 @@ const VideoPage = () => {
         .order("sort_order", { ascending: true });
 
       setAllVideos(allVideosData || []);
+      
+      // Mark video as watched when it starts playing
+      await markVideoAsWatched(session.user.id, videoId!);
+      
       setLoading(false);
     };
 

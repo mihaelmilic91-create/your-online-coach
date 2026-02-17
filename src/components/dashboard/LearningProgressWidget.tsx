@@ -137,14 +137,18 @@ const LearningProgressWidget = ({ userId, totalVideos }: LearningProgressWidgetP
               </div>
               <div className="flex-1 space-y-1">
                 <p className="text-3xl font-bold text-foreground">
-                  {daysSinceLogin !== null ? daysSinceLogin : "–"}
+                  {daysSinceLogin === 0
+                    ? "Heute"
+                    : daysSinceLogin === 1
+                    ? "Gestern"
+                    : daysSinceLogin !== null
+                    ? `vor ${daysSinceLogin} Tagen`
+                    : "–"}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {daysSinceLogin === 0
                     ? "Heute eingeloggt"
-                    : daysSinceLogin === 1
-                    ? "Tag seit dem letzten Login"
-                    : "Tage seit dem letzten Login"}
+                    : "Letzter Login"}
                 </p>
               </div>
             </div>

@@ -59,6 +59,25 @@ serve(async (req) => {
       existingUserId = paymentIntent.metadata.existingUserId || null;
       paymentStatus = paymentIntent.status;
 
+      // Increment coupon usage if a coupon was applied
+      const couponCode = paymentIntent.metadata.couponCode;
+      if (couponCode) {
+        const { data: coupon } = await supabaseAdmin
+          .from("coupons")
+          .select("id, current_uses")
+          .eq("code", couponCode)
+          .single();
+
+        if (coupon) {
+          await supabaseAdmin
+            .from("coupons")
+            .update({ current_uses: coupon.current_uses + 1 })
+            .eq("id", coupon.id)
+            .eq("current_uses", coupon.current_uses);
+          console.log(`Coupon ${couponCode} usage incremented`);
+        }
+      }
+
       console.log("PaymentIntent verified:", { email, firstName, existingUserId });
 
     // Handle legacy Checkout Session

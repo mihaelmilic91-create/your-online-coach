@@ -498,19 +498,19 @@ const Lernvideos = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 flex flex-col"
+            className="fixed inset-0 z-50 bg-black/95 overflow-y-auto"
           >
-            {/* Player Header */}
-            <div className="bg-black/50 backdrop-blur-sm border-b border-white/10 px-4 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <img src={logo} alt="Online DriveCoach" className="h-8" />
-                <div className="hidden sm:block">
-                  <p className="text-white/60 text-sm">{selectedCategory?.title}</p>
-                  <h2 className="text-white font-semibold truncate max-w-md flex items-center gap-2">
+            {/* Player Header - compact in landscape */}
+            <div className="bg-black/50 backdrop-blur-sm border-b border-white/10 px-3 py-2 sm:px-4 sm:py-3 flex items-center justify-between sticky top-0 z-10">
+              <div className="flex items-center gap-3 min-w-0">
+                <img src={logo} alt="Online DriveCoach" className="h-6 sm:h-8" />
+                <div className="min-w-0">
+                  <p className="text-white/60 text-xs sm:text-sm truncate">{selectedCategory?.title}</p>
+                  <h2 className="text-white font-semibold text-sm sm:text-base truncate max-w-[50vw] sm:max-w-md flex items-center gap-2">
                     {playingVideo.title}
                     {videoWatchCounts.has(playingVideo.id) && (
-                      <span className="flex items-center gap-1 text-green-400 text-sm font-normal">
-                        <CheckCircle2 className="w-4 h-4" />
+                      <span className="flex items-center gap-1 text-green-400 text-xs font-normal">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                         {videoWatchCounts.get(playingVideo.id)}x
                       </span>
                     )}
@@ -521,14 +521,14 @@ const Lernvideos = () => {
                 variant="ghost" 
                 size="icon" 
                 onClick={handleClosePlayer}
-                className="text-white hover:bg-white/10"
+                className="text-white hover:bg-white/10 flex-shrink-0"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </Button>
             </div>
 
             {/* Video Player */}
-            <div className="flex-1 flex items-center justify-center p-4">
+            <div className="flex items-center justify-center p-2 sm:p-4">
               <div className="w-full max-w-6xl">
                 <VdoCipherPlayer
                   videoId={playingVideo.vdocipher_video_id}
@@ -538,55 +538,40 @@ const Lernvideos = () => {
               </div>
             </div>
 
-            {/* Player Footer with Navigation */}
-            <div className="bg-black/50 backdrop-blur-sm border-t border-white/10 px-4 py-4">
+            {/* Player Footer with Navigation - always visible via scroll */}
+            <div className="bg-black/50 backdrop-blur-sm border-t border-white/10 px-3 py-3 sm:px-4 sm:py-4">
               <div className="max-w-6xl mx-auto">
-                {/* Mobile title */}
-                <div className="sm:hidden mb-3">
-                  <p className="text-white/60 text-sm">{selectedCategory?.title}</p>
-                  <h2 className="text-white font-semibold flex items-center gap-2">
-                    {playingVideo.title}
-                    {videoWatchCounts.has(playingVideo.id) && (
-                      <span className="flex items-center gap-1 text-green-400 text-sm font-normal">
-                        <CheckCircle2 className="w-4 h-4" />
-                        {videoWatchCounts.get(playingVideo.id)}x
-                      </span>
-                    )}
-                  </h2>
-                </div>
-                
                 {playingVideo.description && (
-                  <p className="text-white/70 text-sm mb-4 line-clamp-2">{playingVideo.description}</p>
+                  <p className="text-white/70 text-xs sm:text-sm mb-3 line-clamp-1 sm:line-clamp-2">{playingVideo.description}</p>
                 )}
                 
-                {/* Self-assessment in player */}
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-white/60 text-sm">Wie gut bist du in der Praxis?</span>
-                  <StarRating videoId={playingVideo.id} size="md" />
-                </div>
-
-                <div className="flex items-center justify-between">
+                {/* Self-assessment + Navigation in one compact row on mobile landscape */}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <Button
                     onClick={handlePrevVideo}
                     disabled={!hasPrevVideo}
-                    className="gap-2 bg-white/10 border border-white/30 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                    size="sm"
+                    className="gap-1.5 bg-white/10 border border-white/30 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    <span className="hidden sm:inline">Vorheriges Video</span>
-                    <span className="sm:hidden">Zurück</span>
+                    <span className="hidden sm:inline">Vorheriges</span>
                   </Button>
-                  
-                  <span className="text-white/60 text-sm">
-                    {currentVideoIndex + 1} / {videos.length}
-                  </span>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-white/60 text-xs sm:text-sm">Praxis:</span>
+                    <StarRating videoId={playingVideo.id} size="md" />
+                    <span className="text-white/40 text-xs">
+                      {currentVideoIndex + 1}/{videos.length}
+                    </span>
+                  </div>
 
                   <Button
                     onClick={handleNextVideo}
                     disabled={!hasNextVideo}
-                    className="gap-2 bg-white/10 border border-white/30 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                    size="sm"
+                    className="gap-1.5 bg-white/10 border border-white/30 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    <span className="hidden sm:inline">Nächstes Video</span>
-                    <span className="sm:hidden">Weiter</span>
+                    <span className="hidden sm:inline">Nächstes</span>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>

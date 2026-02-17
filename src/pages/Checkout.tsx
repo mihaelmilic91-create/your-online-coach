@@ -373,7 +373,7 @@ const Checkout = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="lg:col-span-3"
+              className="lg:col-span-3 order-2 lg:order-1"
             >
               {!showPayment ? (
                 <form onSubmit={handleContinueToPayment} className="space-y-6">
@@ -728,7 +728,7 @@ const Checkout = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="lg:col-span-2"
+              className="lg:col-span-2 order-1 lg:order-2"
             >
               <div className="lg:sticky lg:top-24 space-y-4">
                 {/* Product Card */}

@@ -325,6 +325,8 @@ const Lernvideos = () => {
 
   const handlePlayVideo = (video: VideoItem) => {
     setPlayingVideo(video);
+    // Mark as watched immediately when user starts playing
+    markVideoAsWatched(video.id);
   };
 
   const handleClosePlayer = () => {

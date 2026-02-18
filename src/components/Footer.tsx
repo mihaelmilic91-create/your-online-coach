@@ -65,13 +65,13 @@ const Footer = () => {
             
             {/* Swiss Made Software Badge */}
             <div className="mb-6">
-              <div className="inline-block rounded px-2 py-1 bg-white/90">
+            <a href="https://www.swissmadesoftware.org" target="_blank" rel="noopener noreferrer" className="inline-block rounded px-2 py-1 bg-white/90 hover:opacity-80 transition-opacity">
                 <img 
                   src={swissMadeSoftware} 
                   alt="Swiss Made Software" 
                   className="h-8 w-auto"
                 />
-              </div>
+              </a>
             </div>
             
             {/* Contact */}

@@ -94,15 +94,12 @@ const CallToAction = () => {
               <span className="text-sm text-muted-foreground">/ Jahr</span>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+            <div className="pt-2">
               <Button variant="hero" size="xl" className="gap-2" asChild>
                 <a href="/zugang">
                   Jetzt Registrieren
                   <ArrowRight className="w-5 h-5" />
                 </a>
-              </Button>
-              <Button variant="hero-outline" size="xl">
-                Mehr erfahren
               </Button>
             </div>
           </motion.div>

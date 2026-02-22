@@ -35,11 +35,9 @@ const Hero = () => {
               Nutze private Lernfahrten gezielt – statt Erklärzeit im Auto zu bezahlen.
             </p>
 
-            <div className="inline-block bg-accent/10 border border-accent/20 rounded-xl px-5 py-3">
-              <p className="text-xl font-bold text-accent">
-                nur CHF 79.– <span className="text-base font-medium text-muted-foreground">– 1 Jahr Zugriff. Kein Abo.</span>
-              </p>
-            </div>
+            <p className="text-xl font-bold text-foreground">
+              nur CHF 79.– <span className="text-base font-normal text-muted-foreground">– 1 Jahr Zugriff. Kein Abo.</span>
+            </p>
 
             <div className="pt-1">
               <Button variant="hero" size="xl" asChild>

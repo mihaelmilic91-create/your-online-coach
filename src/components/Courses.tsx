@@ -207,7 +207,7 @@ const Courses = () => {
 
         {categories.length > 4 && (
           <p className="text-center text-muted-foreground mt-4 text-sm">
-            + {categories.length - 4} weitere Kategorien
+            + weitere Kategorien
           </p>
         )}
 

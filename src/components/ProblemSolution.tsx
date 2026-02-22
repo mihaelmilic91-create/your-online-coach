@@ -3,15 +3,17 @@ import { AlertTriangle, CheckCircle, XCircle, DollarSign, HelpCircle, Zap, Light
 
 const ProblemSolution = () => {
   const problems = [
-    { icon: DollarSign, text: "Fahrstunden sind teuer, eine Fahrlektion kostet durchschnittlich CHF 90.-" },
-    { icon: HelpCircle, text: "Privatfahrten mit Begleitpersonen sind oft nicht effektiv - man weiss nicht genau, was man üben soll." },
-    { icon: AlertTriangle, text: "Viele Lernfahrer fühlen sich vor der praktischen Prüfung unsicher." },
+    { icon: DollarSign, text: "Jedes neue Thema wird zuerst im Auto erklärt." },
+    { icon: HelpCircle, text: "Diese Erklärzeit geht von deiner Fahrlektion ab." },
+    { icon: AlertTriangle, text: "Über 30 Themen summieren sich schnell." },
+    { icon: AlertTriangle, text: "Wertvolle Praxiszeit geht verloren." },
   ];
 
   const solutions = [
-    { icon: Lightbulb, text: "Unsere App erklärt dir alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde." },
-    { icon: Target, text: "So kannst du gezielt mit deinen Begleitpersonen üben und bist optimal vorbereitet." },
-    { icon: Zap, text: "Spare mind. 4+ Fahrstunden – das entspricht über CHF 360.-!" },
+    { icon: Lightbulb, text: "Lerne alle prüfungsrelevanten Themen digital vorab." },
+    { icon: Target, text: "Steige vorbereitet ins Auto." },
+    { icon: Zap, text: "Nutze Fahrstunden gezielt für Praxis." },
+    { icon: CheckCircle, text: "Reduziere Erklärzeit – und spare mehrere Fahrstunden." },
   ];
 
   return (
@@ -25,10 +27,11 @@ const ProblemSolution = () => {
           className="text-center mb-16"
         >
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Das Problem & Die Lösung
+            Warum viele unnötige Fahrstunden bezahlen
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Wir verstehen die Herausforderungen beim Fahren lernen und bieten die perfekte Lösung
+            In der Schweiz gibt es keine Pflichtfahrstunden –
+            trotzdem wird wertvolle Fahrzeit oft fürs Erklären genutzt.
           </p>
         </motion.div>
 
@@ -99,6 +102,18 @@ const ProblemSolution = () => {
             </ul>
           </motion.div>
         </div>
+
+        {/* Zusatztext */}
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="text-center text-sm text-muted-foreground mt-8 max-w-2xl mx-auto"
+        >
+          💡 Allein die reine Erklärzeit entspricht rund 4 Fahrstunden.
+          Wenn du zusätzlich Manöver privat vorbereitest, kannst du noch mehr einsparen.
+        </motion.p>
       </div>
     </section>
   );

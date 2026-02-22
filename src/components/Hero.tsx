@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Play, Clock, Video, Award, Tag, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { Clock, Video, Award, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import swissMadeSoftware from "@/assets/swiss-made-software.png";
 
 const Hero = () => {
   const [videoCount, setVideoCount] = useState<number | null>(null);
-  const [showVideo, setShowVideo] = useState(false);
+  
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -45,36 +45,31 @@ const Hero = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="space-y-8"
           >
-            <div className="space-y-6">
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium"
-              >
-                Willkommen bei Online Drivecoach
-              </motion.span>
-              
+            <div className="space-y-5">
               <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-                Mach dich bereit für die{" "}
-                <span className="text-gradient">Autoprüfung</span> – mit der App, die dir Fahrstunden spart!
+                Dein Fahrlehrer.{" "}
+                <span className="text-gradient">Immer dabei.</span>
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
-                Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
+                Über 30 strukturierte Praxis-Videos für die Schweizer Autoprüfung –
+                bereit, bevor du ins Auto steigst.
+              </p>
+
+              <p className="text-base text-muted-foreground/80 max-w-lg">
+                In der Schweiz gibt es keine Pflichtfahrstunden.
+                Nutze private Lernfahrten gezielt – statt Erklärzeit im Auto zu bezahlen.
+              </p>
+
+              <p className="text-lg font-semibold text-foreground">
+                CHF 79 – 1 Jahr Zugriff. Kein Abo.
               </p>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* CTA Button */}
+            <div>
               <Button variant="hero" size="xl" asChild>
-                <Link to="/zugang">Jetzt Registrieren</Link>
-              </Button>
-              <Button variant="hero-outline" size="xl" className="gap-3" onClick={() => setShowVideo(true)}>
-                <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-                  <Play className="w-4 h-4 text-accent-foreground ml-0.5" />
-                </div>
-                Video ansehen
+                <Link to="/zugang">Jetzt clever vorbereiten</Link>
               </Button>
             </div>
 
@@ -166,39 +161,6 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* YouTube Video Modal */}
-      <AnimatePresence>
-        {showVideo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
-            onClick={() => setShowVideo(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl aspect-video rounded-xl overflow-hidden bg-black"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setShowVideo(false)}
-                className="absolute -top-12 right-0 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              >
-                <X className="w-5 h-5 text-white" />
-              </button>
-              <iframe
-                src="https://www.youtube.com/embed/SpnRA-tiopA?autoplay=1"
-                style={{ width: "100%", height: "100%", border: 0 }}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };

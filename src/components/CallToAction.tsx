@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import instructor from "@/assets/instructor.jpg";
+import instructorCar from "@/assets/instructor-car.jpg";
 
 const CallToAction = () => {
   const features = [
@@ -29,7 +29,7 @@ const CallToAction = () => {
           >
             <div className="relative rounded-3xl overflow-hidden shadow-elevated">
               <img
-                src={instructor}
+                src={instructorCar}
                 alt="Schweizer Fahrlehrer"
                 className="w-full aspect-square object-cover"
               />

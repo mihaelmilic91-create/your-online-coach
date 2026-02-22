@@ -15,7 +15,7 @@ const Index = () => {
       <ProblemSolution />
       <Benefits />
       <Courses />
-      <Testimonials />
+      {/* <Testimonials /> – temporarily hidden, re-add in ~1 month */}
       <CallToAction />
       <Footer />
     </main>

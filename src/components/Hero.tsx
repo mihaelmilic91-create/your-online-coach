@@ -1,32 +1,13 @@
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Clock, Video, Award, Tag } from "lucide-react";
+import { Clock, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import appMockup from "@/assets/app-mockup.png";
 import swissMadeSoftware from "@/assets/swiss-made-software.png";
 
 const Hero = () => {
-  const [videoCount, setVideoCount] = useState<number | null>(null);
-  
-
-  useEffect(() => {
-    const fetchCount = async () => {
-      const { count } = await supabase
-        .from("videos")
-        .select("*", { count: "exact", head: true })
-        .eq("is_published", true);
-      setVideoCount(count ?? 0);
-    };
-    fetchCount();
-  }, []);
-
-  const displayCount = videoCount !== null ? `${videoCount}+` : "…";
-
   const features = [
     { icon: Clock, text: "Spare Zeit & Geld" },
-    { icon: Video, text: `Über ${videoCount !== null ? videoCount : 30} Lernvideos` },
     { icon: Award, text: "Bestehe sicher" },
   ];
 
@@ -61,9 +42,11 @@ const Hero = () => {
                 Nutze private Lernfahrten gezielt – statt Erklärzeit im Auto zu bezahlen.
               </p>
 
-              <p className="text-lg font-semibold text-foreground">
-                CHF 79 – 1 Jahr Zugriff. Kein Abo.
-              </p>
+              <div className="inline-block bg-accent/10 border border-accent/20 rounded-xl px-5 py-3">
+                <p className="text-xl font-bold text-accent">
+                  CHF 79 <span className="text-base font-medium text-muted-foreground">– 1 Jahr Zugriff. Kein Abo.</span>
+                </p>
+              </div>
             </div>
 
             {/* CTA Button */}
@@ -121,41 +104,6 @@ const Hero = () => {
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               />
-              
-              {/* Floating cards */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-                className="absolute -left-8 top-1/4 bg-card shadow-elevated rounded-2xl p-4 hidden lg:block"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                    <Tag className="w-6 h-6 text-accent" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">nur CHF 79.–</p>
-                    <p className="text-sm text-muted-foreground">Jahreslizenz</p>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 1 }}
-                className="absolute -right-4 bottom-1/4 bg-card shadow-elevated rounded-2xl p-4 hidden lg:block"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                    <Video className="w-6 h-6 text-accent" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{displayCount}</p>
-                    <p className="text-sm text-muted-foreground">Lernvideos</p>
-                  </div>
-                </div>
-              </motion.div>
             </div>
           </motion.div>
         </div>

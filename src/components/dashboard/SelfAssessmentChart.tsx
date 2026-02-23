@@ -49,37 +49,45 @@ const SelfAssessmentChart = ({ userId }: SelfAssessmentChartProps) => {
         const categoryIds = [...new Set(videos.map(v => v.category_id))];
         const { data: categories, error: cErr } = await supabase
           .from("video_categories")
-          .select("id, title")
-          .in("id", categoryIds);
+          .select("id, title, sort_order")
+          .in("id", categoryIds)
+          .order("sort_order", { ascending: true });
 
         if (cErr || !categories) {
           setLoading(false);
           return;
         }
 
+        // Filter out "Favoriten" category
+        const filteredCategories = categories.filter(c => c.title.toLowerCase() !== "favoriten");
+
         // Build category map
-        const catMap = new Map(categories.map(c => [c.id, c.title]));
+        const catMap = new Map(filteredCategories.map(c => [c.id, c.title]));
         const videoCatMap = new Map(videos.map(v => [v.id, v.category_id]));
+        // Keep sort order for ordering
+        const catSortMap = new Map(filteredCategories.map(c => [c.id, c.sort_order ?? 999]));
 
         // Group ratings by category
-        const grouped: Record<string, { total: number; count: number; name: string }> = {};
+        const grouped: Record<string, { total: number; count: number; name: string; sortOrder: number }> = {};
         let totalRating = 0;
 
         assessments.forEach(a => {
           const catId = videoCatMap.get(a.video_id);
-          if (!catId) return;
+          if (!catId || !catMap.has(catId)) return;
           const catName = catMap.get(catId) || "Unbekannt";
-          if (!grouped[catId]) grouped[catId] = { total: 0, count: 0, name: catName };
+          if (!grouped[catId]) grouped[catId] = { total: 0, count: 0, name: catName, sortOrder: catSortMap.get(catId) ?? 999 };
           grouped[catId].total += a.rating;
           grouped[catId].count += 1;
           totalRating += a.rating;
         });
 
-        const result: CategoryRating[] = Object.values(grouped).map(g => ({
-          name: g.name.length > 12 ? g.name.substring(0, 12) + "…" : g.name,
-          avgRating: Math.round((g.total / g.count) * 10) / 10,
-          count: g.count,
-        }));
+        const result: CategoryRating[] = Object.values(grouped)
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map(g => ({
+            name: g.name.length > 12 ? g.name.substring(0, 12) + "…" : g.name,
+            avgRating: Math.round((g.total / g.count) * 10) / 10,
+            count: g.count,
+          }));
 
         setData(result);
         setOverallAvg(Math.round((totalRating / assessments.length) * 10) / 10);

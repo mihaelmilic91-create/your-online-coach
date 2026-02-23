@@ -117,7 +117,7 @@ const Checkout = () => {
       : appliedCoupon.discount_value
     : 0;
   const finalPrice = Math.max(0, basePrice - discountAmount);
-  const taxAmount = finalPrice * 0.077 / 1.077; // 7.7% MwSt included
+  
 
   // Check if user is logged in
   const isLoggedIn = !!user;
@@ -810,10 +810,6 @@ const Checkout = () => {
                         <span>- CHF {discountAmount.toFixed(2)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">MwSt. (inkl.)</span>
-                      <span>CHF {taxAmount.toFixed(2)}</span>
-                    </div>
                     <div className="flex justify-between pt-3 border-t border-border">
                       <span className="font-semibold text-foreground">Gesamtsumme</span>
                       <span className="font-display text-xl font-bold text-foreground">CHF {finalPrice.toFixed(2)}</span>

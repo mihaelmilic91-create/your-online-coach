@@ -146,6 +146,14 @@ const VideoPage = () => {
   const prevVideo = currentIndex > 0 ? allVideos[currentIndex - 1] : null;
   const nextVideo = currentIndex < allVideos.length - 1 ? allVideos[currentIndex + 1] : null;
 
+  const handleNavigate = async (targetVideoId: string) => {
+    // Mark current video as watched before navigating away
+    if (userId && videoId) {
+      await markVideoAsWatched(userId, videoId);
+    }
+    navigate(`/video/${targetVideoId}`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -221,7 +229,7 @@ const VideoPage = () => {
             className="mb-6"
             onEnded={() => {
               if (nextVideo) {
-                navigate(`/video/${nextVideo.id}`);
+                handleNavigate(nextVideo.id);
               }
             }}
           />
@@ -241,7 +249,7 @@ const VideoPage = () => {
             {prevVideo ? (
               <Button 
                 variant="outline" 
-                onClick={() => navigate(`/video/${prevVideo.id}`)}
+                onClick={() => handleNavigate(prevVideo.id)}
                 className="gap-2"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -255,7 +263,7 @@ const VideoPage = () => {
             {nextVideo ? (
               <Button 
                 variant="hero" 
-                onClick={() => navigate(`/video/${nextVideo.id}`)}
+                onClick={() => handleNavigate(nextVideo.id)}
                 className="gap-2"
               >
                 <span className="hidden sm:inline">{nextVideo.title}</span>

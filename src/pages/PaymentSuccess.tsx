@@ -70,6 +70,14 @@ const PaymentSuccess = () => {
         });
         setStatus("success");
         setTimeout(triggerConfetti, 500);
+
+        // Fire Meta & TikTok conversion events for free checkout
+        if (typeof (window as any).fbq === 'function') {
+          (window as any).fbq('track', 'Purchase', { value: 79.00, currency: 'CHF' });
+        }
+        if (typeof (window as any).ttq !== 'undefined' && typeof (window as any).ttq.track === 'function') {
+          (window as any).ttq.track('CompletePayment', { value: 79.00, currency: 'CHF' });
+        }
         return;
       }
 
@@ -108,6 +116,14 @@ const PaymentSuccess = () => {
           
           // Trigger confetti animation
           setTimeout(triggerConfetti, 500);
+
+          // Fire Meta & TikTok conversion events
+          if (typeof (window as any).fbq === 'function') {
+            (window as any).fbq('track', 'Purchase', { value: 79.00, currency: 'CHF' });
+          }
+          if (typeof (window as any).ttq !== 'undefined' && typeof (window as any).ttq.track === 'function') {
+            (window as any).ttq.track('CompletePayment', { value: 79.00, currency: 'CHF' });
+          }
 
           // Auto-login for new users using the temp password from pending registration
           if (!data.isExistingUser && data.tempPassword) {

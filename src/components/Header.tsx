@@ -86,9 +86,9 @@ const Header = () => {
             <a href="#vorteile" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
               Vorteile
             </a>
-            <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+            {/* <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
               Erfahrungen
-            </a>
+            </a> – temporarily hidden, re-add with Testimonials */}
           </nav>
         )}
 

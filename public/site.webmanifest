@@ -1,0 +1,19 @@
+{
+  "name": "Online Drivecoach",
+  "short_name": "Drivecoach",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#4bbfb4",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}

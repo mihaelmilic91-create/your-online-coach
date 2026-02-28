@@ -13,6 +13,7 @@ import LearningProgressWidget from "@/components/dashboard/LearningProgressWidge
 import WatchCompletionChart from "@/components/dashboard/WatchCompletionChart";
 import SelfAssessmentChart from "@/components/dashboard/SelfAssessmentChart";
 import logo from "@/assets/logo.png";
+import { useSessionEnforcement } from "@/hooks/useSessionEnforcement";
 
 interface AccessInfo {
   hasAccess: boolean;
@@ -39,6 +40,9 @@ const Dashboard = () => {
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [displayName, setDisplayName] = useState("");
+
+  // Enforce single active session
+  useSessionEnforcement(user?.id, !isAdmin);
 
   useEffect(() => {
     const checkAuth = async () => {

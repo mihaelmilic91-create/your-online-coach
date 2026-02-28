@@ -220,6 +220,7 @@ export type Database = {
       profiles: {
         Row: {
           access_until: string | null
+          active_session_id: string | null
           avatar_url: string | null
           created_at: string
           display_name: string | null
@@ -229,6 +230,7 @@ export type Database = {
         }
         Insert: {
           access_until?: string | null
+          active_session_id?: string | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -238,6 +240,7 @@ export type Database = {
         }
         Update: {
           access_until?: string | null
+          active_session_id?: string | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null

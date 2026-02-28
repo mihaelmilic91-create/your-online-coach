@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import { registerSession } from "@/hooks/useSessionEnforcement";
 
 const loginSchema = z.object({
   email: z.string()
@@ -75,6 +76,12 @@ const Login = () => {
           description: "E-Mail oder Passwort ist falsch.",
         });
         return;
+      }
+
+      // Register this device as the active session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await registerSession(session.user.id);
       }
 
       toast({

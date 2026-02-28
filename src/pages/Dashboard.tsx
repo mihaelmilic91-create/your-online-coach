@@ -44,6 +44,20 @@ const Dashboard = () => {
   // Enforce single active session
   useSessionEnforcement(user?.id, !isAdmin);
 
+  // Refresh session when tab becomes visible again (prevents infinite loading after tab switch)
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === "visible" && user) {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!session || error) {
+          navigate("/login");
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [user, navigate]);
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();

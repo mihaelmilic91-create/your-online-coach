@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import NotFound from "./NotFound";
 
 const StaticPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const [page, setPage] = useState<{ title: string; content: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     const fetchPage = async () => {
       setLoading(true);
+      setNotFound(false);
       const { data, error } = await supabase
         .from("pages")
         .select("title, content")
@@ -22,14 +24,15 @@ const StaticPage = () => {
         .maybeSingle();
 
       if (error || !data) {
-        navigate("/404");
+        setNotFound(true);
+        setLoading(false);
         return;
       }
       setPage(data);
       setLoading(false);
     };
     fetchPage();
-  }, [slug, navigate]);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -39,7 +42,7 @@ const StaticPage = () => {
     );
   }
 
-  if (!page) return null;
+  if (notFound) return <NotFound />;
 
   return (
     <main className="min-h-screen">

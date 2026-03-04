@@ -13,10 +13,27 @@ interface UserItem {
   email: string;
   created_at: string;
   last_sign_in_at: string | null;
+  last_active_at: string | null;
   display_name: string | null;
   access_until: string | null;
   role: string;
 }
+
+const formatRelativeTime = (dateStr: string | null) => {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  if (diffMinutes < 5) return "Gerade eben";
+  if (diffMinutes < 60) return `Vor ${diffMinutes} Min.`;
+  if (diffHours < 24) return `Vor ${diffHours} Std.`;
+  if (diffDays === 1) return "Gestern";
+  if (diffDays < 7) return `Vor ${diffDays} Tagen`;
+  return date.toLocaleDateString("de-CH");
+};
 
 const UsersManager = () => {
   const { toast } = useToast();
@@ -107,10 +124,14 @@ const UsersManager = () => {
                         <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">Admin</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground flex-wrap">
                       {u.display_name && <span>{u.display_name}</span>}
                       <span>Registriert: {new Date(u.created_at).toLocaleDateString("de-CH")}</span>
-                      {u.last_sign_in_at && <span>Letzter Login: {new Date(u.last_sign_in_at).toLocaleDateString("de-CH")}</span>}
+                      {u.last_active_at && (
+                        <span className="text-accent font-medium">
+                          Letzte Aktivität: {formatRelativeTime(u.last_active_at)}
+                        </span>
+                      )}
                       <span className={hasAccess ? "text-accent" : "text-destructive"}>
                         {hasAccess ? `Zugang bis ${new Date(u.access_until!).toLocaleDateString("de-CH")}` : "Kein Zugang"}
                       </span>

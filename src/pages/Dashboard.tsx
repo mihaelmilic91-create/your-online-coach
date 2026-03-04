@@ -69,6 +69,9 @@ const Dashboard = () => {
 
       setUser(session.user);
 
+      // Update last_active_at silently
+      supabase.from("profiles").update({ last_active_at: new Date().toISOString() }).eq("user_id", session.user.id).then(() => {});
+
       // Check if user is admin
       const { data: roleData } = await supabase
         .from("user_roles")

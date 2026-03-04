@@ -49,7 +49,7 @@ serve(async (req) => {
       const { data: { users }, error } = await supabase.auth.admin.listUsers({ perPage: 1000 });
       if (error) throw error;
 
-      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name, access_until");
+      const { data: profiles } = await supabase.from("profiles").select("user_id, display_name, access_until, last_active_at");
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
       const { data: roles } = await supabase.from("user_roles").select("user_id, role");
       const roleMap = new Map(roles?.map(r => [r.user_id, r.role]) || []);
@@ -59,6 +59,7 @@ serve(async (req) => {
         email: u.email,
         created_at: u.created_at,
         last_sign_in_at: u.last_sign_in_at,
+        last_active_at: profileMap.get(u.id)?.last_active_at || null,
         display_name: profileMap.get(u.id)?.display_name || null,
         access_until: profileMap.get(u.id)?.access_until || null,
         role: roleMap.get(u.id) || "user",

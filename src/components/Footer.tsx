@@ -55,8 +55,8 @@ const Footer = () => {
             <a href="/" className="flex items-center mb-4">
               <img 
                 src={logo} 
-                alt="Online DriveCoach" 
-                className="h-10 w-auto brightness-0 invert"
+                alt="Online Drivecoach" 
+                className="h-14 w-auto brightness-0 invert"
               />
             </a>
             <p className="text-footer-foreground/70 mb-6 max-w-sm">

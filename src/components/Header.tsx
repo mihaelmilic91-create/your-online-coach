@@ -67,28 +67,25 @@ const Header = () => {
       transition={{ duration: 0.5 }}
       className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-b border-border/50"
     >
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between relative">
         {/* Logo */}
-        <a href="/" className="flex items-center">
+        <a href="/" className="flex items-center shrink-0">
           <img 
             src={logo} 
-            alt="Online DriveCoach" 
-            className="h-10 md:h-12 w-auto"
+            alt="Online Drivecoach" 
+            className="h-12 md:h-14 w-auto"
           />
         </a>
 
         {/* Desktop Navigation - only for guests */}
         {!isLoggedIn && (
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             <a href="#kurse" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
               Lernvideos
             </a>
             <a href="#vorteile" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
               Vorteile
             </a>
-            {/* <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-              Erfahrungen
-            </a> – temporarily hidden, re-add with Testimonials */}
           </nav>
         )}
 

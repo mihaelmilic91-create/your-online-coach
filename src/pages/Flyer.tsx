@@ -39,29 +39,20 @@ const Flyer = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Minimal top bar with logo only */}
-      <div className="py-4 px-4 flex justify-center">
-        <img src={logo} alt="Online Drivecoach" className="h-10 w-auto" />
+      <div className="py-5 px-4 flex justify-center">
+        <img src={logo} alt="Online Drivecoach" className="h-14 w-auto" />
       </div>
 
       {/* SECTION 1 – HERO */}
       <section className="px-4 pt-8 pb-16">
         <div className="max-w-lg mx-auto text-center space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-block rounded-full bg-accent/10 px-4 py-1.5 text-sm font-semibold text-accent"
-          >
-            Exklusiv für Flyer-Leser
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-display text-3xl sm:text-4xl font-bold leading-tight"
           >
-            Lernfahrer/innen Rabatt{" "}
+            CHF 20.– Rabatt{" "}
             <span className="text-gradient">freigeschaltet</span>
           </motion.h1>
 
@@ -97,7 +88,7 @@ const Flyer = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <Button variant="hero" size="xl" asChild>
-              <Link to="/zugang">Jetzt Zugang freischalten</Link>
+              <Link to="/zugang">Jetzt CHF 20.– sparen</Link>
             </Button>
           </motion.div>
         </div>
@@ -193,7 +184,7 @@ const Flyer = () => {
             transition={{ duration: 0.5 }}
             className="font-display text-2xl sm:text-3xl font-bold"
           >
-            Dein Lernfahrer/innen Rabatt
+            Dein CHF 20.– Rabatt
           </motion.h2>
 
           <motion.p
@@ -203,7 +194,7 @@ const Flyer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-muted-foreground text-base"
           >
-            Nutze diesen Rabattcode aus deinem Flyer.
+            Nutze diesen Rabattcode aus deinem Flyer und spare CHF 20.– auf deinen Zugang.
           </motion.p>
 
           <motion.div
@@ -268,7 +259,7 @@ const Flyer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-muted-foreground text-base leading-relaxed"
           >
-            Nutze deinen Lernfahrer/innen Rabattcode und erhalte sofort Zugriff
+            Nutze deinen CHF 20.– Rabattcode und erhalte sofort Zugriff
             auf alle Lernvideos.
           </motion.p>
 
@@ -279,7 +270,7 @@ const Flyer = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Button variant="hero" size="xl" asChild>
-              <Link to="/zugang">Jetzt Zugang freischalten</Link>
+              <Link to="/zugang">Jetzt CHF 20.– sparen</Link>
             </Button>
           </motion.div>
         </div>

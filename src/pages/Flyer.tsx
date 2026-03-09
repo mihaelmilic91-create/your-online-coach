@@ -52,7 +52,7 @@ const Flyer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="font-display text-3xl sm:text-4xl font-bold leading-tight"
           >
-            Lernfahrer/innen Rabatt{" "}
+            CHF 20.– Rabatt{" "}
             <span className="text-gradient">freigeschaltet</span>
           </motion.h1>
 

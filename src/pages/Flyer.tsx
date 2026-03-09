@@ -184,7 +184,7 @@ const Flyer = () => {
             transition={{ duration: 0.5 }}
             className="font-display text-2xl sm:text-3xl font-bold"
           >
-            Dein Lernfahrer/innen Rabatt
+            Dein CHF 20.– Rabatt
           </motion.h2>
 
           <motion.p
@@ -194,7 +194,7 @@ const Flyer = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-muted-foreground text-base"
           >
-            Nutze diesen Rabattcode aus deinem Flyer.
+            Nutze diesen Rabattcode aus deinem Flyer und spare CHF 20.– auf deinen Zugang.
           </motion.p>
 
           <motion.div

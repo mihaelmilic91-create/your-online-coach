@@ -18,6 +18,7 @@ import CoursePage from "./pages/Course";
 import LessonPage from "./pages/Lesson";
 import VideoPage from "./pages/Video";
 import Lernvideos from "./pages/Lernvideos";
+import Flyer from "./pages/Flyer";
 import StaticPage from "./pages/StaticPage";
 import NotFound from "./pages/NotFound";
 

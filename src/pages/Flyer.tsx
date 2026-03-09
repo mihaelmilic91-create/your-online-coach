@@ -88,7 +88,7 @@ const Flyer = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <Button variant="hero" size="xl" asChild>
-              <Link to="/zugang">Jetzt CHF 20.– sparen</Link>
+              <Link to="/checkout">Jetzt CHF 20.– sparen</Link>
             </Button>
           </motion.div>
         </div>
@@ -270,7 +270,7 @@ const Flyer = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Button variant="hero" size="xl" asChild>
-              <Link to="/zugang">Jetzt CHF 20.– sparen</Link>
+              <Link to="/checkout">Jetzt CHF 20.– sparen</Link>
             </Button>
           </motion.div>
         </div>

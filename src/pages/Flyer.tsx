@@ -82,10 +82,41 @@ const Flyer = () => {
             Dein Fahrlehrer in der Hosentasche.
           </motion.p>
 
+          {/* Coupon code inline */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
+            className="space-y-3"
+          >
+            <p className="text-sm text-muted-foreground">Dein Rabattcode:</p>
+            <div className="inline-flex items-center gap-3 border-2 border-dashed border-accent/40 rounded-xl px-5 py-3 bg-background">
+              <span className="font-display text-xl sm:text-2xl font-bold tracking-widest text-accent">
+                {COUPON_CODE}
+              </span>
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-accent transition-colors"
+              >
+                {copied ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-accent" />
+                    <span className="text-accent">Kopiert!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>Kopieren</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
           >
             <Button variant="hero" size="xl" asChild>
               <Link to="/checkout">Jetzt CHF 20.– sparen</Link>

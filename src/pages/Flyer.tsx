@@ -127,13 +127,13 @@ const Flyer = () => {
 
       {/* SECTION 2 – PROBLEM */}
       <section className="px-4 py-16 bg-secondary/50">
-        <div className="max-w-lg mx-auto space-y-5">
+        <div className="max-w-lg mx-auto space-y-5 text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="font-display text-2xl sm:text-3xl font-bold text-center leading-tight"
+            className="font-display text-2xl sm:text-3xl font-bold leading-tight"
           >
             Warum viele Fahrschüler/innen unnötig Fahrstunden bezahlen
           </motion.h2>

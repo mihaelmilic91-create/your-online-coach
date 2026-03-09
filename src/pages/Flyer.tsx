@@ -39,22 +39,13 @@ const Flyer = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Minimal top bar with logo only */}
-      <div className="py-4 px-4 flex justify-center">
-        <img src={logo} alt="Online Drivecoach" className="h-10 w-auto" />
+      <div className="py-5 px-4 flex justify-center">
+        <img src={logo} alt="Online Drivecoach" className="h-14 w-auto" />
       </div>
 
       {/* SECTION 1 – HERO */}
       <section className="px-4 pt-8 pb-16">
         <div className="max-w-lg mx-auto text-center space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-block rounded-full bg-accent/10 px-4 py-1.5 text-sm font-semibold text-accent"
-          >
-            Exklusiv für Flyer-Leser
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

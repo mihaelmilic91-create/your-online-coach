@@ -373,6 +373,15 @@ const Dashboard = () => {
           <OrdersWidget />
         </motion.div>
       </main>
+
+      {/* Review Popup */}
+      {showReviewPopup && user && (
+        <ReviewPopup
+          userId={user.id}
+          onClose={() => setShowReviewPopup(false)}
+          onComplete={() => setShowReviewPopup(false)}
+        />
+      )}
     </div>
   );
 };

@@ -14,6 +14,8 @@ import WatchCompletionChart from "@/components/dashboard/WatchCompletionChart";
 import SelfAssessmentChart from "@/components/dashboard/SelfAssessmentChart";
 import logo from "@/assets/logo.png";
 import { useSessionEnforcement } from "@/hooks/useSessionEnforcement";
+import { useReviewPopup } from "@/hooks/useReviewPopup";
+import ReviewPopup from "@/components/dashboard/ReviewPopup";
 
 interface AccessInfo {
   hasAccess: boolean;

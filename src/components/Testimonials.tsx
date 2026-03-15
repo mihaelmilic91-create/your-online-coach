@@ -3,33 +3,82 @@ import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Testimonial {
+interface ApprovedReview {
   id: string;
-  name: string;
-  location: string | null;
-  image_url: string | null;
-  rating: number;
-  text: string;
+  first_name: string | null;
+  city: string | null;
+  star_rating: number | null;
+  review_text: string | null;
+  saved_lessons: string | null;
 }
 
 const Testimonials = () => {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [reviews, setReviews] = useState<ApprovedReview[]>([]);
+  const [stats, setStats] = useState({ avgRating: 0, totalReviews: 0, avgSavedLessons: 0 });
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchReviews = async () => {
+      // Fetch approved reviews with publish permission
       const { data } = await supabase
-        .from("testimonials")
-        .select("id, name, location, image_url, rating, text")
-        .eq("is_published", true)
-        .order("sort_order", { ascending: true });
-      if (data) setTestimonials(data);
+        .from("user_reviews")
+        .select("id, first_name, city, star_rating, review_text, saved_lessons")
+        .eq("is_approved", true)
+        .eq("publish_permission", true)
+        .eq("flow_type", "review")
+        .not("star_rating", "is", null)
+        .order("review_date", { ascending: false });
+
+      if (data && data.length > 0) {
+        setReviews(data);
+
+        // Calculate stats
+        const ratings = data.filter(r => r.star_rating).map(r => r.star_rating!);
+        const avgRating = ratings.length > 0
+          ? ratings.reduce((s, r) => s + r, 0) / ratings.length
+          : 0;
+
+        const lessonsMap: Record<string, number> = { "0–1": 0.5, "2–3": 2.5, "4–5": 4.5, "6+": 7 };
+        const savedArr = data.filter(r => r.saved_lessons).map(r => lessonsMap[r.saved_lessons!] || 0);
+        const avgSaved = savedArr.length > 0
+          ? savedArr.reduce((s, v) => s + v, 0) / savedArr.length
+          : 0;
+
+        setStats({
+          avgRating: Math.round(avgRating * 10) / 10,
+          totalReviews: data.length,
+          avgSavedLessons: Math.round(avgSaved * 10) / 10,
+        });
+      } else {
+        // Fallback: load old testimonials table
+        const { data: oldData } = await supabase
+          .from("testimonials")
+          .select("id, name, location, image_url, rating, text")
+          .eq("is_published", true)
+          .order("sort_order", { ascending: true });
+        if (oldData && oldData.length > 0) {
+          setReviews(oldData.map(t => ({
+            id: t.id,
+            first_name: t.name,
+            city: t.location,
+            star_rating: t.rating,
+            review_text: t.text,
+            saved_lessons: null,
+          })));
+          const avg = oldData.reduce((s, t) => s + t.rating, 0) / oldData.length;
+          setStats({ avgRating: Math.round(avg * 10) / 10, totalReviews: oldData.length, avgSavedLessons: 0 });
+        }
+      }
     };
-    fetch();
+    fetchReviews();
   }, []);
 
-  const stats = [
-    { value: "9/10", label: "verstehen den praktischen Teil schneller" },
-    { value: "85%", label: "fühlen sich sicherer auf der Strasse" },
+  if (reviews.length === 0) return null;
+
+  const statsDisplay = [
+    { value: `⭐ ${stats.avgRating} / 5`, label: `aus ${stats.totalReviews} Bewertungen` },
+    ...(stats.avgSavedLessons > 0
+      ? [{ value: `${stats.avgSavedLessons}`, label: "Ø gesparte Fahrstunden" }]
+      : [{ value: "85%", label: "fühlen sich sicherer auf der Strasse" }]),
     { value: "4+", label: "Fahrstunden gespart im Durchschnitt" },
   ];
 
@@ -56,7 +105,7 @@ const Testimonials = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto mb-16">
-          {stats.map((stat, index) => (
+          {statsDisplay.map((stat, index) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
@@ -75,11 +124,11 @@ const Testimonials = () => {
           ))}
         </div>
 
-        {/* Testimonials */}
+        {/* Reviews */}
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {testimonials.map((testimonial, index) => (
+          {reviews.slice(0, 6).map((review, index) => (
             <motion.div
-              key={testimonial.id}
+              key={review.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
@@ -87,38 +136,41 @@ const Testimonials = () => {
               className="bg-card shadow-card rounded-3xl p-6 relative"
             >
               <Quote className="absolute top-4 right-4 w-8 h-8 text-primary/10" />
-              
+
               {/* Rating */}
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: testimonial.rating }).map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
+              {review.star_rating && (
+                <div className="flex gap-1 mb-4">
+                  {Array.from({ length: review.star_rating }).map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+              )}
 
               {/* Text */}
-              <p className="text-foreground text-sm leading-relaxed mb-6">
-                "{testimonial.text}"
-              </p>
+              {review.review_text && (
+                <p className="text-foreground text-sm leading-relaxed mb-2">
+                  „{review.review_text}"
+                </p>
+              )}
+
+              {/* Saved lessons */}
+              {review.saved_lessons && (
+                <p className="text-xs text-accent font-medium mb-4">
+                  ~{review.saved_lessons} Fahrstunden gespart
+                </p>
+              )}
 
               {/* Author */}
-              <div className="flex items-center gap-3">
-                {testimonial.image_url ? (
-                  <img
-                    src={testimonial.image_url}
-                    alt={testimonial.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                    <span className="text-accent font-semibold text-sm">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
-                )}
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                  <span className="text-accent font-semibold text-sm">
+                    {(review.first_name || "?").charAt(0)}
+                  </span>
+                </div>
                 <div>
-                  <p className="font-semibold text-foreground text-sm">{testimonial.name}</p>
-                  {testimonial.location && (
-                    <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                  <p className="font-semibold text-foreground text-sm">{review.first_name || "Anonym"}</p>
+                  {review.city && (
+                    <p className="text-xs text-muted-foreground">{review.city}</p>
                   )}
                 </div>
               </div>

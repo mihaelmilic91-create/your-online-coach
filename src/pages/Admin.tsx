@@ -34,6 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
+import ReviewsManager from "@/components/admin/ReviewsManager";
 import PagesManager from "@/components/admin/PagesManager";
 import UsersManager from "@/components/admin/UsersManager";
 import CouponsManager from "@/components/admin/CouponsManager";

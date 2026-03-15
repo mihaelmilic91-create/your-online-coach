@@ -42,9 +42,19 @@ const Dashboard = () => {
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [displayName, setDisplayName] = useState("");
+  const [showReviewPopup, setShowReviewPopup] = useState(false);
 
   // Enforce single active session
   useSessionEnforcement(user?.id, !isAdmin);
+
+  // Review popup logic
+  const { shouldShow: shouldShowReview } = useReviewPopup(user?.id);
+  
+  useEffect(() => {
+    if (shouldShowReview && !loading && !checkingAccess && accessInfo?.hasAccess) {
+      setShowReviewPopup(true);
+    }
+  }, [shouldShowReview, loading, checkingAccess, accessInfo?.hasAccess]);
 
   // Refresh session when tab becomes visible again (prevents infinite loading after tab switch)
   useEffect(() => {

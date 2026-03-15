@@ -690,6 +690,8 @@ const Admin = () => {
           <CouponsManager />
         ) : activeTab === "testimonials" ? (
           <TestimonialsManager />
+        ) : activeTab === "reviews" ? (
+          <ReviewsManager />
         ) : activeTab === "pages" ? (
           <PagesManager />
         ) : activeTab === "pixels" ? (

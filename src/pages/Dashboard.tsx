@@ -14,6 +14,8 @@ import WatchCompletionChart from "@/components/dashboard/WatchCompletionChart";
 import SelfAssessmentChart from "@/components/dashboard/SelfAssessmentChart";
 import logo from "@/assets/logo.png";
 import { useSessionEnforcement } from "@/hooks/useSessionEnforcement";
+import { useReviewPopup } from "@/hooks/useReviewPopup";
+import ReviewPopup from "@/components/dashboard/ReviewPopup";
 
 interface AccessInfo {
   hasAccess: boolean;
@@ -40,9 +42,19 @@ const Dashboard = () => {
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [displayName, setDisplayName] = useState("");
+  const [showReviewPopup, setShowReviewPopup] = useState(false);
 
   // Enforce single active session
   useSessionEnforcement(user?.id, !isAdmin);
+
+  // Review popup logic
+  const { shouldShow: shouldShowReview } = useReviewPopup(user?.id);
+  
+  useEffect(() => {
+    if (shouldShowReview && !loading && !checkingAccess && accessInfo?.hasAccess) {
+      setShowReviewPopup(true);
+    }
+  }, [shouldShowReview, loading, checkingAccess, accessInfo?.hasAccess]);
 
   // Refresh session when tab becomes visible again (prevents infinite loading after tab switch)
   useEffect(() => {
@@ -361,6 +373,15 @@ const Dashboard = () => {
           <OrdersWidget />
         </motion.div>
       </main>
+
+      {/* Review Popup */}
+      {showReviewPopup && user && (
+        <ReviewPopup
+          userId={user.id}
+          onClose={() => setShowReviewPopup(false)}
+          onComplete={() => setShowReviewPopup(false)}
+        />
+      )}
     </div>
   );
 };

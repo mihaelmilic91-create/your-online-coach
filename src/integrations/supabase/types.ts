@@ -253,6 +253,33 @@ export type Database = {
         }
         Relationships: []
       }
+      review_popup_tracking: {
+        Row: {
+          created_at: string
+          dismiss_count: number | null
+          id: string
+          last_completed_at: string | null
+          last_dismissed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dismiss_count?: number | null
+          id?: string
+          last_completed_at?: string | null
+          last_dismissed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dismiss_count?: number | null
+          id?: string
+          last_completed_at?: string | null
+          last_dismissed_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           description: string | null
@@ -344,6 +371,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_reviews: {
+        Row: {
+          city: string | null
+          created_at: string
+          feedback_improve: string | null
+          feedback_missing: string | null
+          feedback_missing_other: string | null
+          first_name: string | null
+          flow_type: string
+          helpfulness: string
+          id: string
+          is_approved: boolean | null
+          publish_permission: boolean | null
+          registration_date: string | null
+          review_date: string
+          review_text: string | null
+          saved_lessons: string | null
+          star_rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          feedback_improve?: string | null
+          feedback_missing?: string | null
+          feedback_missing_other?: string | null
+          first_name?: string | null
+          flow_type?: string
+          helpfulness: string
+          id?: string
+          is_approved?: boolean | null
+          publish_permission?: boolean | null
+          registration_date?: string | null
+          review_date?: string
+          review_text?: string | null
+          saved_lessons?: string | null
+          star_rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          feedback_improve?: string | null
+          feedback_missing?: string | null
+          feedback_missing_other?: string | null
+          first_name?: string | null
+          flow_type?: string
+          helpfulness?: string
+          id?: string
+          is_approved?: boolean | null
+          publish_permission?: boolean | null
+          registration_date?: string | null
+          review_date?: string
+          review_text?: string | null
+          saved_lessons?: string | null
+          star_rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

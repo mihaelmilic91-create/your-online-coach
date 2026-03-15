@@ -21,7 +21,8 @@ import {
   CreditCard,
   Code,
   BarChart3,
-  Package
+  Package,
+  Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import logo from "@/assets/logo.png";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
+import ReviewsManager from "@/components/admin/ReviewsManager";
 import PagesManager from "@/components/admin/PagesManager";
 import UsersManager from "@/components/admin/UsersManager";
 import CouponsManager from "@/components/admin/CouponsManager";
@@ -279,7 +281,7 @@ const Admin = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages" | "users" | "coupons" | "payments" | "pixels" | "stats" | "product">("stats");
+  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages" | "users" | "coupons" | "payments" | "pixels" | "stats" | "product" | "reviews">("stats");
   
   // Form states
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -657,6 +659,7 @@ const Admin = () => {
             { key: "product", icon: Package, label: "Produkt" },
             { key: "coupons", icon: Ticket, label: "Gutscheine" },
             { key: "testimonials", icon: MessageSquare, label: "Rezensionen" },
+            { key: "reviews", icon: Star, label: "Bewertungen" },
             { key: "pages", icon: FileText, label: "Seiten" },
             { key: "pixels", icon: Code, label: "Pixels" },
           ].map((tab) => (
@@ -687,6 +690,8 @@ const Admin = () => {
           <CouponsManager />
         ) : activeTab === "testimonials" ? (
           <TestimonialsManager />
+        ) : activeTab === "reviews" ? (
+          <ReviewsManager />
         ) : activeTab === "pages" ? (
           <PagesManager />
         ) : activeTab === "pixels" ? (

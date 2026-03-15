@@ -38,21 +38,41 @@ const ResetPassword = () => {
   });
   const [errors, setErrors] = useState<Partial<Record<keyof ResetPasswordFormData, string>>>({});
 
-  useEffect(() => {
-    // Check if user has a valid session from the reset link
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          variant: "destructive",
-          title: "Ungültiger Link",
-          description: "Der Reset-Link ist ungültig oder abgelaufen.",
-        });
-        navigate("/forgot-password");
-      }
-    };
+  const [isReady, setIsReady] = useState(false);
 
-    checkSession();
+  useEffect(() => {
+    // Listen for the PASSWORD_RECOVERY event from the reset link
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsReady(true);
+      } else if (event === "SIGNED_IN" && session) {
+        // Also allow if user is already signed in via recovery token
+        setIsReady(true);
+      }
+    });
+
+    // Check if there's already a session (e.g. page was refreshed)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsReady(true);
+      } else {
+        // Give the auth state change listener time to process the hash
+        setTimeout(() => {
+          supabase.auth.getSession().then(({ data: { session: s } }) => {
+            if (!s) {
+              toast({
+                variant: "destructive",
+                title: "Ungültiger Link",
+                description: "Der Reset-Link ist ungültig oder abgelaufen.",
+              });
+              navigate("/forgot-password");
+            }
+          });
+        }, 2000);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate, toast]);
 
   const handleChange = (field: keyof ResetPasswordFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {

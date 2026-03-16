@@ -405,7 +405,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Feedback Flow: Thank You */}
             {step === "feedback_thanks" && (
-              <StepContainer key="feedback_thanks">
+              <StepContainer key="feedback_thanks" direction={direction}>
                 <div className="text-center py-4">
                   <CheckCircle2 className="w-16 h-16 text-accent mx-auto mb-4" />
                   <h3 className="font-display text-2xl font-bold text-foreground mb-2">

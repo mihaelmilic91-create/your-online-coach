@@ -75,6 +75,17 @@ const Hero = () => {
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               fetchPriority="high"
             />
+            
+            {/* Floating badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="absolute -bottom-4 left-4 sm:left-8 lg:left-0 bg-card shadow-elevated rounded-2xl p-4 sm:p-5"
+            >
+              <p className="font-display text-xl sm:text-2xl font-bold text-accent">CHF 400+</p>
+              <p className="text-sm text-muted-foreground">durchschnittlich gespart</p>
+            </motion.div>
           </motion.div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Star, ChevronRight, CheckCircle2 } from "lucide-react";
+import { X, Star, ChevronRight, ChevronLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -59,8 +59,21 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
     onClose();
   };
 
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
+
+  const goForward = (nextStep: Step) => {
+    setDirection(1);
+    setStep(nextStep);
+  };
+
+  const goBack = (prevStep: Step) => {
+    setDirection(-1);
+    setStep(prevStep);
+  };
+
   const handleHelpfulness = (answer: string) => {
     setHelpfulness(answer);
+    setDirection(1);
     if (answer === "Sehr hilfreich") {
       setFlowType("review");
       setStep("saved_lessons");
@@ -152,7 +165,23 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 pb-0">
-          <div className="w-8" />
+          {step !== "helpfulness" && step !== "thank_you" && step !== "feedback_thanks" ? (
+            <button
+              onClick={() => {
+                if (step === "saved_lessons") goBack("helpfulness");
+                else if (step === "star_rating") goBack("saved_lessons");
+                else if (step === "review_text") goBack("star_rating");
+                else if (step === "permission") goBack("review_text");
+                else if (step === "feedback_missing") goBack("helpfulness");
+                else if (step === "feedback_improve") goBack("feedback_missing");
+              }}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          ) : (
+            <div className="w-8" />
+          )}
           <button onClick={handleDismiss} className="text-muted-foreground hover:text-foreground transition-colors">
             <X className="w-5 h-5" />
           </button>
@@ -163,7 +192,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
           <AnimatePresence mode="wait">
             {/* Step: Helpfulness */}
             {step === "helpfulness" && (
-              <StepContainer key="helpfulness">
+              <StepContainer key="helpfulness" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Wie hilfreich ist Online Drivecoach bisher für dich?
                 </h3>
@@ -187,7 +216,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Saved Lessons */}
             {step === "saved_lessons" && (
-              <StepContainer key="saved_lessons">
+              <StepContainer key="saved_lessons" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Wie viele Fahrstunden glaubst du, sparst du mit Online Drivecoach ungefähr?
                 </h3>
@@ -195,7 +224,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                   {["0–1", "2–3", "4–5", "6+"].map((opt) => (
                     <button
                       key={opt}
-                      onClick={() => { setSavedLessons(opt); setStep("star_rating"); }}
+                      onClick={() => { setSavedLessons(opt); goForward("star_rating"); }}
                       className={`px-5 py-4 rounded-xl border text-center font-medium transition-all ${
                         savedLessons === opt
                           ? "border-accent bg-accent/10 text-accent"
@@ -211,7 +240,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Star Rating */}
             {step === "star_rating" && (
-              <StepContainer key="star_rating">
+              <StepContainer key="star_rating" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Wie würdest du Online Drivecoach insgesamt bewerten?
                 </h3>
@@ -238,7 +267,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                   variant="hero"
                   className="w-full gap-2"
                   disabled={starRating === 0}
-                  onClick={() => setStep("review_text")}
+                  onClick={() => goForward("review_text")}
                 >
                   Weiter <ChevronRight className="w-4 h-4" />
                 </Button>
@@ -247,7 +276,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Text */}
             {step === "review_text" && (
-              <StepContainer key="review_text">
+              <StepContainer key="review_text" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Was hat dir am meisten geholfen?
                 </h3>
@@ -261,7 +290,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                 <Button
                   variant="hero"
                   className="w-full gap-2"
-                  onClick={() => setStep("permission")}
+                  onClick={() => goForward("permission")}
                 >
                   Weiter <ChevronRight className="w-4 h-4" />
                 </Button>
@@ -270,7 +299,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Permission */}
             {step === "permission" && (
-              <StepContainer key="permission">
+              <StepContainer key="permission" direction={direction}>
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 mb-6">
                   <Checkbox
                     id="publish"
@@ -295,7 +324,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Thank You */}
             {step === "thank_you" && (
-              <StepContainer key="thank_you">
+              <StepContainer key="thank_you" direction={direction}>
                 <div className="text-center py-4">
                   <CheckCircle2 className="w-16 h-16 text-accent mx-auto mb-4" />
                   <h3 className="font-display text-2xl font-bold text-foreground mb-2">
@@ -311,7 +340,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Feedback Flow: Missing */}
             {step === "feedback_missing" && (
-              <StepContainer key="feedback_missing">
+              <StepContainer key="feedback_missing" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Was fehlt dir aktuell am meisten?
                 </h3>
@@ -322,7 +351,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                       onClick={() => {
                         setFeedbackMissing(opt);
                         if (opt === "Sonstiges") return; // stay to show text field
-                        setStep("feedback_improve");
+                        goForward("feedback_improve");
                       }}
                       className={`w-full text-left px-5 py-3 rounded-xl border transition-all text-sm font-medium ${
                         feedbackMissing === opt
@@ -341,7 +370,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                         placeholder="Beschreibe, was dir fehlt..."
                         rows={3}
                       />
-                      <Button variant="hero" className="w-full gap-2" onClick={() => setStep("feedback_improve")}>
+                      <Button variant="hero" className="w-full gap-2" onClick={() => goForward("feedback_improve")}>
                         Weiter <ChevronRight className="w-4 h-4" />
                       </Button>
                     </>
@@ -352,7 +381,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Feedback Flow: Improve */}
             {step === "feedback_improve" && (
-              <StepContainer key="feedback_improve">
+              <StepContainer key="feedback_improve" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Was könnten wir verbessern?
                 </h3>
@@ -376,7 +405,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Feedback Flow: Thank You */}
             {step === "feedback_thanks" && (
-              <StepContainer key="feedback_thanks">
+              <StepContainer key="feedback_thanks" direction={direction}>
                 <div className="text-center py-4">
                   <CheckCircle2 className="w-16 h-16 text-accent mx-auto mb-4" />
                   <h3 className="font-display text-2xl font-bold text-foreground mb-2">
@@ -396,11 +425,11 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
   );
 };
 
-const StepContainer = ({ children }: { children: React.ReactNode }) => (
+const StepContainer = ({ children, direction = 1 }: { children: React.ReactNode; direction?: number }) => (
   <motion.div
-    initial={{ opacity: 0, x: 20 }}
+    initial={{ opacity: 0, x: direction * 20 }}
     animate={{ opacity: 1, x: 0 }}
-    exit={{ opacity: 0, x: -20 }}
+    exit={{ opacity: 0, x: direction * -20 }}
     transition={{ duration: 0.2 }}
   >
     {children}

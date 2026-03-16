@@ -351,7 +351,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                       onClick={() => {
                         setFeedbackMissing(opt);
                         if (opt === "Sonstiges") return; // stay to show text field
-                        setStep("feedback_improve");
+                        goForward("feedback_improve");
                       }}
                       className={`w-full text-left px-5 py-3 rounded-xl border transition-all text-sm font-medium ${
                         feedbackMissing === opt

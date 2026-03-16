@@ -59,8 +59,21 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
     onClose();
   };
 
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
+
+  const goForward = (nextStep: Step) => {
+    setDirection(1);
+    setStep(nextStep);
+  };
+
+  const goBack = (prevStep: Step) => {
+    setDirection(-1);
+    setStep(prevStep);
+  };
+
   const handleHelpfulness = (answer: string) => {
     setHelpfulness(answer);
+    setDirection(1);
     if (answer === "Sehr hilfreich") {
       setFlowType("review");
       setStep("saved_lessons");

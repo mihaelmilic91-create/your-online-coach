@@ -192,7 +192,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
           <AnimatePresence mode="wait">
             {/* Step: Helpfulness */}
             {step === "helpfulness" && (
-              <StepContainer key="helpfulness">
+              <StepContainer key="helpfulness" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Wie hilfreich ist Online Drivecoach bisher für dich?
                 </h3>

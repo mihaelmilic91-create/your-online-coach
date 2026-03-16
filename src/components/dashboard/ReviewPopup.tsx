@@ -340,7 +340,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Feedback Flow: Missing */}
             {step === "feedback_missing" && (
-              <StepContainer key="feedback_missing">
+              <StepContainer key="feedback_missing" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Was fehlt dir aktuell am meisten?
                 </h3>

@@ -216,7 +216,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Saved Lessons */}
             {step === "saved_lessons" && (
-              <StepContainer key="saved_lessons">
+              <StepContainer key="saved_lessons" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Wie viele Fahrstunden glaubst du, sparst du mit Online Drivecoach ungefähr?
                 </h3>

@@ -6,6 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import TrackingPixels from "@/components/TrackingPixels";
 import Index from "./pages/Index";
+import {
+  EinparkenFahrpruefung,
+  DreipunktWenden,
+  ManoeverFahrpruefung,
+  LernfristSchweiz,
+  KontrollfahrtSchweiz,
+} from "./pages/SEOPages";
 
 const Register = lazy(() => import("./pages/Register"));
 const Login = lazy(() => import("./pages/Login"));
@@ -50,6 +57,11 @@ const App = () => (
             <Route path="/video/:videoId" element={<VideoPage />} />
             <Route path="/lernvideos" element={<Lernvideos />} />
             <Route path="/flyer" element={<Flyer />} />
+            <Route path="/einparken-fahrpruefung-schweiz" element={<EinparkenFahrpruefung />} />
+            <Route path="/dreipunkt-wenden-schweiz" element={<DreipunktWenden />} />
+            <Route path="/manoever-fahrpruefung-kat-b" element={<ManoeverFahrpruefung />} />
+            <Route path="/lernfrist-schweiz" element={<LernfristSchweiz />} />
+            <Route path="/kontrollfahrt-schweiz" element={<KontrollfahrtSchweiz />} />
             <Route path="/:slug" element={<StaticPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

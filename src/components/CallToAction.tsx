@@ -44,8 +44,8 @@ const CallToAction = () => {
               viewport={{ once: true }}
               className="absolute -bottom-6 -right-6 bg-card shadow-elevated rounded-2xl p-5"
             >
-              <p className="font-display text-2xl font-bold text-accent">CHF 400+</p>
-              <p className="text-muted-foreground">durchschnittlich gespart</p>
+              <p className="font-display text-2xl font-bold text-accent">+6700</p>
+              <p className="text-muted-foreground">Fahrstunden Erfahrung</p>
             </motion.div>
           </motion.div>
 

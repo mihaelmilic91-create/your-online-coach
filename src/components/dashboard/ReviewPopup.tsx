@@ -267,7 +267,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                   variant="hero"
                   className="w-full gap-2"
                   disabled={starRating === 0}
-                  onClick={() => setStep("review_text")}
+                  onClick={() => goForward("review_text")}
                 >
                   Weiter <ChevronRight className="w-4 h-4" />
                 </Button>

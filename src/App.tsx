@@ -60,6 +60,7 @@ const App = () => (
             <Route path="/lernvideos" element={<Lernvideos />} />
             <Route path="/flyer" element={<Flyer />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/einparken-fahrpruefung-schweiz" element={<EinparkenFahrpruefung />} />
             <Route path="/dreipunkt-wenden-schweiz" element={<DreipunktWenden />} />
             <Route path="/manoever-fahrpruefung-kat-b" element={<ManoeverFahrpruefung />} />

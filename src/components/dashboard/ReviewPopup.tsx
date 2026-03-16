@@ -276,7 +276,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Text */}
             {step === "review_text" && (
-              <StepContainer key="review_text">
+              <StepContainer key="review_text" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Was hat dir am meisten geholfen?
                 </h3>

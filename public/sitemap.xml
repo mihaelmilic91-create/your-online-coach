@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
+  <!-- Hauptseiten -->
   <url>
     <loc>https://www.onlinedrivecoach.ch/</loc>
     <lastmod>2026-03-16</lastmod>
@@ -23,20 +23,7 @@
     <priority>0.8</priority>
   </url>
 
-  <url>
-    <loc>https://www.onlinedrivecoach.ch/login</loc>
-    <lastmod>2026-03-16</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
-  <url>
-    <loc>https://www.onlinedrivecoach.ch/register</loc>
-    <lastmod>2026-03-16</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
+  <!-- SEO-Inhaltsseiten -->
   <url>
     <loc>https://www.onlinedrivecoach.ch/einparken-fahrpruefung-schweiz</loc>
     <lastmod>2026-03-16</lastmod>

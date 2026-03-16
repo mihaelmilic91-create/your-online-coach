@@ -224,7 +224,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                   {["0–1", "2–3", "4–5", "6+"].map((opt) => (
                     <button
                       key={opt}
-                      onClick={() => { setSavedLessons(opt); setStep("star_rating"); }}
+                      onClick={() => { setSavedLessons(opt); goForward("star_rating"); }}
                       className={`px-5 py-4 rounded-xl border text-center font-medium transition-all ${
                         savedLessons === opt
                           ? "border-accent bg-accent/10 text-accent"

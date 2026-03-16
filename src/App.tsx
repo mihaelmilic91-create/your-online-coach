@@ -29,6 +29,7 @@ const VideoPage = lazy(() => import("./pages/Video"));
 const Lernvideos = lazy(() => import("./pages/Lernvideos"));
 const Flyer = lazy(() => import("./pages/Flyer"));
 const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 const StaticPage = lazy(() => import("./pages/StaticPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 

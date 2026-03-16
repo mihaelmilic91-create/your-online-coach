@@ -5,5 +5,10 @@ Disallow: /dashboard
 Disallow: /checkout
 Disallow: /payment-success
 Disallow: /reset-password
+Disallow: /lernvideos
+Disallow: /course/
+Disallow: /video/
+Disallow: /forgot-password
+Disallow: /flyer
 
 Sitemap: https://www.onlinedrivecoach.ch/sitemap.xml

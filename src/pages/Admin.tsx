@@ -661,6 +661,7 @@ const Admin = () => {
             { key: "coupons", icon: Ticket, label: "Gutscheine" },
             { key: "testimonials", icon: MessageSquare, label: "Rezensionen" },
             { key: "reviews", icon: Star, label: "Bewertungen" },
+            { key: "blog", icon: BookOpen, label: "Blog" },
             { key: "pages", icon: FileText, label: "Seiten" },
             { key: "pixels", icon: Code, label: "Pixels" },
           ].map((tab) => (

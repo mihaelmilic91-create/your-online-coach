@@ -381,7 +381,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Feedback Flow: Improve */}
             {step === "feedback_improve" && (
-              <StepContainer key="feedback_improve">
+              <StepContainer key="feedback_improve" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Was könnten wir verbessern?
                 </h3>

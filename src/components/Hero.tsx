@@ -83,7 +83,7 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.8 }}
               className="absolute -bottom-2 right-0 sm:right-4 lg:-right-4 bg-card shadow-elevated rounded-2xl px-5 py-3"
             >
-              <p className="font-display text-lg sm:text-xl font-bold text-accent">CHF 400+</p>
+              <p className="font-display text-lg sm:text-xl font-bold text-accent">+CHF 400.–</p>
               <p className="text-xs sm:text-sm text-muted-foreground">durchschnittlich gespart</p>
             </motion.div>
           </motion.div>

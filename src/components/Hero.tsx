@@ -73,6 +73,7 @@ const Hero = () => {
               className="w-full max-w-xs sm:max-w-sm lg:max-w-md drop-shadow-2xl"
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              fetchPriority="high"
             />
           </motion.div>
         </div>

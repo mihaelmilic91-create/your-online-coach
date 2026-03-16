@@ -370,7 +370,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
                         placeholder="Beschreibe, was dir fehlt..."
                         rows={3}
                       />
-                      <Button variant="hero" className="w-full gap-2" onClick={() => setStep("feedback_improve")}>
+                      <Button variant="hero" className="w-full gap-2" onClick={() => goForward("feedback_improve")}>
                         Weiter <ChevronRight className="w-4 h-4" />
                       </Button>
                     </>

@@ -299,7 +299,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Permission */}
             {step === "permission" && (
-              <StepContainer key="permission">
+              <StepContainer key="permission" direction={direction}>
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 mb-6">
                   <Checkbox
                     id="publish"

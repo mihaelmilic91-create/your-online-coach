@@ -29,6 +29,7 @@ const VideoPage = lazy(() => import("./pages/Video"));
 const Lernvideos = lazy(() => import("./pages/Lernvideos"));
 const Flyer = lazy(() => import("./pages/Flyer"));
 const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
 const StaticPage = lazy(() => import("./pages/StaticPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/lernvideos" element={<Lernvideos />} />
             <Route path="/flyer" element={<Flyer />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/einparken-fahrpruefung-schweiz" element={<EinparkenFahrpruefung />} />
             <Route path="/dreipunkt-wenden-schweiz" element={<DreipunktWenden />} />
             <Route path="/manoever-fahrpruefung-kat-b" element={<ManoeverFahrpruefung />} />

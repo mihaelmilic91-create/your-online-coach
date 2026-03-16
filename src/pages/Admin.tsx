@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
+import {
   Plus, 
   Video, 
   FolderOpen, 
@@ -22,7 +22,8 @@ import {
   Code,
   BarChart3,
   Package,
-  Star
+  Star,
+  BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,7 @@ import PixelsManager from "@/components/admin/PixelsManager";
 import StatsOverview from "@/components/admin/StatsOverview";
 import PaymentsManager from "@/components/admin/PaymentsManager";
 import ProductManager from "@/components/admin/ProductManager";
+import BlogManager from "@/components/admin/BlogManager";
 
 import {
   DndContext,
@@ -281,7 +283,7 @@ const Admin = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages" | "users" | "coupons" | "payments" | "pixels" | "stats" | "product" | "reviews">("stats");
+  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages" | "users" | "coupons" | "payments" | "pixels" | "stats" | "product" | "reviews" | "blog">("stats");
   
   // Form states
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -660,6 +662,7 @@ const Admin = () => {
             { key: "coupons", icon: Ticket, label: "Gutscheine" },
             { key: "testimonials", icon: MessageSquare, label: "Rezensionen" },
             { key: "reviews", icon: Star, label: "Bewertungen" },
+            { key: "blog", icon: BookOpen, label: "Blog" },
             { key: "pages", icon: FileText, label: "Seiten" },
             { key: "pixels", icon: Code, label: "Pixels" },
           ].map((tab) => (
@@ -692,6 +695,8 @@ const Admin = () => {
           <TestimonialsManager />
         ) : activeTab === "reviews" ? (
           <ReviewsManager />
+        ) : activeTab === "blog" ? (
+          <BlogManager />
         ) : activeTab === "pages" ? (
           <PagesManager />
         ) : activeTab === "pixels" ? (

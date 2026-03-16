@@ -282,7 +282,7 @@ const Admin = () => {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages" | "users" | "coupons" | "payments" | "pixels" | "stats" | "product" | "reviews">("stats");
+  const [activeTab, setActiveTab] = useState<"videos" | "testimonials" | "pages" | "users" | "coupons" | "payments" | "pixels" | "stats" | "product" | "reviews" | "blog">("stats");
   
   // Form states
   const [showCategoryForm, setShowCategoryForm] = useState(false);

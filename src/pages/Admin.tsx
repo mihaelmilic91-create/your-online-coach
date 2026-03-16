@@ -43,6 +43,7 @@ import PixelsManager from "@/components/admin/PixelsManager";
 import StatsOverview from "@/components/admin/StatsOverview";
 import PaymentsManager from "@/components/admin/PaymentsManager";
 import ProductManager from "@/components/admin/ProductManager";
+import BlogManager from "@/components/admin/BlogManager";
 
 import {
   DndContext,

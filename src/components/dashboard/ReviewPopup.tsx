@@ -240,7 +240,7 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
 
             {/* Review Flow: Star Rating */}
             {step === "star_rating" && (
-              <StepContainer key="star_rating">
+              <StepContainer key="star_rating" direction={direction}>
                 <h3 className="font-display text-xl font-bold text-foreground text-center mb-6">
                   Wie würdest du Online Drivecoach insgesamt bewerten?
                 </h3>

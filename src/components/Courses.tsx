@@ -25,22 +25,22 @@ const Courses = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data: cats } = await supabase
-          .from("video_categories")
-          .select("id, title, description, thumbnail_url")
-          .eq("is_published", true)
-          .order("sort_order", { ascending: true });
+        const [{ data: cats }, { data: videos }] = await Promise.all([
+          supabase
+            .from("video_categories")
+            .select("id, title, description, thumbnail_url")
+            .eq("is_published", true)
+            .order("sort_order", { ascending: true }),
+          supabase
+            .from("videos")
+            .select("category_id, vdocipher_video_id")
+            .eq("is_published", true),
+        ]);
 
         if (!cats || cats.length === 0) {
           setLoading(false);
           return;
         }
-
-        // Get video counts
-        const { data: videos } = await supabase
-          .from("videos")
-          .select("category_id, vdocipher_video_id")
-          .eq("is_published", true);
 
         const countMap: Record<string, number> = {};
         const firstVideoMap: Record<string, string> = {};

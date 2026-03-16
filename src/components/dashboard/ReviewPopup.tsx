@@ -165,7 +165,23 @@ const ReviewPopup = ({ userId, onClose, onComplete }: ReviewPopupProps) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 pb-0">
-          <div className="w-8" />
+          {step !== "helpfulness" && step !== "thank_you" && step !== "feedback_thanks" ? (
+            <button
+              onClick={() => {
+                if (step === "saved_lessons") goBack("helpfulness");
+                else if (step === "star_rating") goBack("saved_lessons");
+                else if (step === "review_text") goBack("star_rating");
+                else if (step === "permission") goBack("review_text");
+                else if (step === "feedback_missing") goBack("helpfulness");
+                else if (step === "feedback_improve") goBack("feedback_missing");
+              }}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          ) : (
+            <div className="w-8" />
+          )}
           <button onClick={handleDismiss} className="text-muted-foreground hover:text-foreground transition-colors">
             <X className="w-5 h-5" />
           </button>

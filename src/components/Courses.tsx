@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Clock, Lock, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -226,7 +227,7 @@ const Courses = () => {
             <span className="text-sm text-muted-foreground">/ Jahr</span>
           </div>
           <Button variant="hero" size="lg" asChild>
-            <a href="/zugang">Alle Kurse freischalten</a>
+            <Link to="/zugang">Alle Kurse freischalten</Link>
           </Button>
         </motion.div>
       </div>

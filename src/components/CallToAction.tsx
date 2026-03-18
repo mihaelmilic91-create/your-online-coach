@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import instructorCar from "@/assets/instructor-car.jpg";
 
 const CallToAction = () => {
   const features = [
     "Über 30 professionelle Lernvideos",
-    "Von einem erfahrenen Schweizer Fahrlehrer erstellt",
+    "Von einem eidg. dipl. Fahrlehrer erstellt",
     "Echte Aufnahmen von Schweizer Strassen",
     "Alle prüfungsrelevanten Themen der Kat. B",
     "Jederzeit und überall verfügbar",
@@ -44,8 +45,9 @@ const CallToAction = () => {
               viewport={{ once: true }}
               className="absolute -bottom-6 -right-6 bg-card shadow-elevated rounded-2xl p-5"
             >
-              <p className="font-display text-2xl font-bold text-accent">+6700</p>
-              <p className="text-muted-foreground">Fahrstunden Erfahrung</p>
+              <p className="font-bold text-foreground text-sm">Mihael Milic</p>
+              <p className="text-xs text-muted-foreground">Eidg. dipl. Fahrlehrer</p>
+              <p className="text-xs text-accent font-medium">Gründer von Online Drivecoach</p>
             </motion.div>
           </motion.div>
 
@@ -68,6 +70,7 @@ const CallToAction = () => {
             <p className="text-lg text-muted-foreground">
               Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
             </p>
+
 
             <ul className="space-y-3">
               {features.map((feature, index) => (
@@ -96,10 +99,10 @@ const CallToAction = () => {
 
             <div className="pt-2">
               <Button variant="hero" size="xl" className="gap-2" asChild>
-                <a href="/zugang">
+                <Link to="/zugang">
                   Jetzt Registrieren
                   <ArrowRight className="w-5 h-5" />
-                </a>
+                </Link>
               </Button>
             </div>
           </motion.div>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEOMeta from "@/components/SEOMeta";
 
 const SEOLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -46,6 +47,11 @@ const RelatedLinks = ({ links }: { links: { to: string; label: string }[] }) => 
 // ─────────────────────────────────────────────────────────────
 export const EinparkenFahrpruefung = () => (
   <SEOLayout>
+    <SEOMeta
+      title="Einparken Fahrprüfung Schweiz – Tipps & Technik | Online Drivecoach"
+      description="Einparken in der Fahrprüfung Kat. B Schweiz: Längs, quer, rückwärts. Häufige Fehler vermeiden und mit POV-Lernvideos vom Fahrlehrer sicher bestehen."
+      canonical="https://www.onlinedrivecoach.ch/einparken-fahrpruefung-schweiz"
+    />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Einparken Fahrprüfung Schweiz – So klappt es beim ersten Versuch
     </h1>
@@ -99,6 +105,11 @@ export const EinparkenFahrpruefung = () => (
 // ─────────────────────────────────────────────────────────────
 export const DreipunktWenden = () => (
   <SEOLayout>
+    <SEOMeta
+      title="Dreipunkt-Wenden Fahrprüfung Schweiz – Schritt für Schritt | Online Drivecoach"
+      description="Dreipunkt-Wenden in der Fahrprüfung Kat. B Schweiz: Schritt-für-Schritt-Anleitung, häufige Fehler und Tipps vom ausgebildeten Fahrlehrer."
+      canonical="https://www.onlinedrivecoach.ch/dreipunkt-wenden-schweiz"
+    />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Dreipunkt-Wenden Fahrprüfung Schweiz – Schritt für Schritt erklärt
     </h1>
@@ -157,6 +168,11 @@ export const DreipunktWenden = () => (
 // ─────────────────────────────────────────────────────────────
 export const ManoeverFahrpruefung = () => (
   <SEOLayout>
+    <SEOMeta
+      title="Manöver Fahrprüfung Kat. B Schweiz – Vollständige Übersicht | Online Drivecoach"
+      description="Alle Manöver der praktischen Fahrprüfung Kat. B Schweiz: Einparken, Dreipunkt-Wenden, Rückwärtsfahren, Bergfahrt und mehr – mit Tipps vom Fahrlehrer."
+      canonical="https://www.onlinedrivecoach.ch/manoever-fahrpruefung-kat-b"
+    />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Manöver Fahrprüfung Kat. B Schweiz – Vollständige Übersicht
     </h1>
@@ -216,6 +232,11 @@ export const ManoeverFahrpruefung = () => (
 // ─────────────────────────────────────────────────────────────
 export const LernfristSchweiz = () => (
   <SEOLayout>
+    <SEOMeta
+      title="Lernfrist Schweiz – Was bedeutet das & wie nutzt du sie richtig? | Online Drivecoach"
+      description="Lernfrist Schweiz erklärt: Wer sie absolvieren muss, wie lange sie dauert und wie du die 12 Monate optimal für die Fahrprüfung Kat. B nutzt."
+      canonical="https://www.onlinedrivecoach.ch/lernfrist-schweiz"
+    />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Lernfrist Schweiz – Was bedeutet das und wie nutzt du sie richtig?
     </h1>
@@ -274,6 +295,11 @@ export const LernfristSchweiz = () => (
 // ─────────────────────────────────────────────────────────────
 export const KontrollfahrtSchweiz = () => (
   <SEOLayout>
+    <SEOMeta
+      title="Kontrollfahrt Schweiz – Vorbereitung, Ablauf & Tipps | Online Drivecoach"
+      description="Kontrollfahrt Schweiz: Was sie ist, wer sie absolvieren muss und wie du dich mit Lernvideos vom ausgebildeten Fahrlehrer optimal vorbereitest."
+      canonical="https://www.onlinedrivecoach.ch/kontrollfahrt-schweiz"
+    />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Kontrollfahrt Schweiz – Vorbereitung, Ablauf & Tipps
     </h1>

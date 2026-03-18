@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Header from "@/components/Header";
+import SEOMeta from "@/components/SEOMeta";
 
 const Zugang = () => {
   const benefits = [
@@ -34,6 +35,11 @@ const Zugang = () => {
 
   return (
     <div className="min-h-screen gradient-hero pt-20">
+      <SEOMeta
+        title="Zugang kaufen – CHF 79.– Jahreslizenz | Online Drivecoach"
+        description="Jetzt Zugang sichern: Über 30 Lernvideos für die praktische Fahrprüfung Kat. B in der Schweiz. Einmalige Zahlung CHF 79.– – günstiger als eine Fahrstunde."
+        canonical="https://www.onlinedrivecoach.ch/zugang"
+      />
       <Header />
 
       {/* Main Content */}

@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import SEOMeta from "@/components/SEOMeta";
 
 interface BlogPost {
   id: string;
@@ -33,6 +34,11 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <SEOMeta
+        title="Ratgeber Fahrprüfung Schweiz – Tipps vom Fahrlehrer | Online Drivecoach"
+        description="Tipps und Erklärungen zur praktischen Fahrprüfung Kat. B in der Schweiz — von einem ausgebildeten Schweizer Fahrlehrer. Manöver, Lernfrist, Kontrollfahrt."
+        canonical="https://www.onlinedrivecoach.ch/blog"
+      />
       <Header />
       <main className="flex-1 pt-28 pb-16">
         <div className="container mx-auto px-4 max-w-3xl">

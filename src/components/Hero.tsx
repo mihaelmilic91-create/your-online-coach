@@ -21,8 +21,8 @@ const Hero = () => {
             className="space-y-5"
           >
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-              Dein Fahrlehrer.{" "}
-              <span className="text-gradient">Immer dabei.</span>
+              Fahrprüfung Kat. B —{" "}
+              <span className="text-gradient">lern, bevor du fährst.</span>
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
@@ -85,6 +85,7 @@ const Hero = () => {
             >
               <p className="font-display text-lg sm:text-xl font-bold text-accent">+CHF 400.–</p>
               <p className="text-xs sm:text-sm text-muted-foreground">durchschnittlich gespart</p>
+              <p className="text-xs text-muted-foreground/60 mt-0.5">~5 Erklär-Lektionen à CHF 90.–</p>
             </motion.div>
           </motion.div>
         </div>

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NotFound from "./NotFound";
+import SEOMeta from "@/components/SEOMeta";
 
 const CTABox = () => (
   <div className="bg-accent/10 border border-accent/20 rounded-2xl p-6 my-10">
@@ -27,7 +28,7 @@ const CTABox = () => (
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<{ title: string; content: string; tag: string; image_url: string | null } | null>(null);
+  const [post, setPost] = useState<{ title: string; content: string; tag: string; excerpt: string; image_url: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -37,7 +38,7 @@ const BlogPost = () => {
       setNotFound(false);
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("title, content, tag, image_url")
+        .select("title, content, tag, excerpt, image_url")
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();
@@ -65,6 +66,11 @@ const BlogPost = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <SEOMeta
+        title={`${post.title} | Online Drivecoach`}
+        description={post.excerpt || post.title}
+        canonical={`https://www.onlinedrivecoach.ch/blog/${slug}`}
+      />
       <Header />
       <main className="flex-1 pt-28 pb-16">
         <div className="container mx-auto px-4 max-w-3xl">

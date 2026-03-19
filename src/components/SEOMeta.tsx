@@ -4,9 +4,10 @@ interface SEOMetaProps {
   title: string;
   description: string;
   canonical?: string;
+  schema?: object;
 }
 
-const SEOMeta = ({ title, description, canonical }: SEOMetaProps) => {
+const SEOMeta = ({ title, description, canonical, schema }: SEOMetaProps) => {
   useEffect(() => {
     document.title = title;
 
@@ -28,10 +29,20 @@ const SEOMeta = ({ title, description, canonical }: SEOMetaProps) => {
       canonicalTag.setAttribute("href", canonical);
     }
 
+    let schemaTag: HTMLScriptElement | null = null;
+    if (schema) {
+      schemaTag = document.createElement("script");
+      schemaTag.setAttribute("type", "application/ld+json");
+      schemaTag.setAttribute("data-dynamic-schema", "true");
+      schemaTag.textContent = JSON.stringify(schema);
+      document.head.appendChild(schemaTag);
+    }
+
     return () => {
       document.title = "Fahrprüfung Kat. B Schweiz vorbereiten | Online Drivecoach";
+      if (schemaTag) schemaTag.remove();
     };
-  }, [title, description, canonical]);
+  }, [title, description, canonical, schema]);
 
   return null;
 };

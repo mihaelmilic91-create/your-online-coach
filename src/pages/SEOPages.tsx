@@ -51,6 +51,16 @@ export const EinparkenFahrpruefung = () => (
       title="Einparken Fahrprüfung Schweiz – Tipps & Technik | Online Drivecoach"
       description="Einparken in der Fahrprüfung Kat. B Schweiz: Längs, quer, rückwärts. Häufige Fehler vermeiden und mit POV-Lernvideos vom Fahrlehrer sicher bestehen."
       canonical="https://www.onlinedrivecoach.ch/einparken-fahrpruefung-schweiz"
+      schema={{
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Einparken Fahrprüfung Schweiz – So klappt es beim ersten Versuch",
+        "description": "Einparken in der Fahrprüfung Kat. B Schweiz: Längs, quer, rückwärts. Häufige Fehler vermeiden und sicher bestehen.",
+        "author": { "@type": "Person", "name": "Mihael Milic", "jobTitle": "Eidg. dipl. Fahrlehrer" },
+        "publisher": { "@type": "Organization", "name": "Online Drivecoach", "url": "https://www.onlinedrivecoach.ch" },
+        "url": "https://www.onlinedrivecoach.ch/einparken-fahrpruefung-schweiz",
+        "inLanguage": "de-CH"
+      }}
     />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Einparken Fahrprüfung Schweiz – So klappt es beim ersten Versuch
@@ -109,6 +119,20 @@ export const DreipunktWenden = () => (
       title="Dreipunkt-Wenden Fahrprüfung Schweiz – Schritt für Schritt | Online Drivecoach"
       description="Dreipunkt-Wenden in der Fahrprüfung Kat. B Schweiz: Schritt-für-Schritt-Anleitung, häufige Fehler und Tipps vom ausgebildeten Fahrlehrer."
       canonical="https://www.onlinedrivecoach.ch/dreipunkt-wenden-schweiz"
+      schema={{
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "Dreipunkt-Wenden Fahrprüfung Schweiz – Schritt für Schritt",
+        "description": "Anleitung für das Dreipunkt-Wenden in der Fahrprüfung Kat. B Schweiz.",
+        "author": { "@type": "Person", "name": "Mihael Milic", "jobTitle": "Eidg. dipl. Fahrlehrer" },
+        "step": [
+          { "@type": "HowToStep", "name": "Beobachten", "text": "Blick in alle Spiegel, Schulterblick — sicherstellen dass kein Verkehr kommt." },
+          { "@type": "HowToStep", "name": "Rechts ran", "text": "Langsam an den rechten Strassenrand heranfahren, kurz vor dem Randstein stoppen." },
+          { "@type": "HowToStep", "name": "Volleinschlag links, vorwärts", "text": "Lenkrad voll nach links einschlagen, langsam vorwärts fahren. Kurz vor dem linken Randstein stoppen." },
+          { "@type": "HowToStep", "name": "Volleinschlag rechts, rückwärts", "text": "Lenkrad voll nach rechts, langsam rückwärts fahren. Kurz vor dem rechten Randstein stoppen." },
+          { "@type": "HowToStep", "name": "Weiterfahren", "text": "Lenkrad geradeaus stellen, Verkehr beobachten, weiterfahren." }
+        ]
+      }}
     />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Dreipunkt-Wenden Fahrprüfung Schweiz – Schritt für Schritt erklärt
@@ -172,6 +196,16 @@ export const ManoeverFahrpruefung = () => (
       title="Manöver Fahrprüfung Kat. B Schweiz – Vollständige Übersicht | Online Drivecoach"
       description="Alle Manöver der praktischen Fahrprüfung Kat. B Schweiz: Einparken, Dreipunkt-Wenden, Rückwärtsfahren, Bergfahrt und mehr – mit Tipps vom Fahrlehrer."
       canonical="https://www.onlinedrivecoach.ch/manoever-fahrpruefung-kat-b"
+      schema={{
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Manöver Fahrprüfung Kat. B Schweiz – Vollständige Übersicht",
+        "description": "Alle Manöver der praktischen Fahrprüfung Kat. B Schweiz mit Schwierigkeitsgrad und Tipps vom Fahrlehrer.",
+        "author": { "@type": "Person", "name": "Mihael Milic", "jobTitle": "Eidg. dipl. Fahrlehrer" },
+        "publisher": { "@type": "Organization", "name": "Online Drivecoach", "url": "https://www.onlinedrivecoach.ch" },
+        "url": "https://www.onlinedrivecoach.ch/manoever-fahrpruefung-kat-b",
+        "inLanguage": "de-CH"
+      }}
     />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Manöver Fahrprüfung Kat. B Schweiz – Vollständige Übersicht
@@ -236,6 +270,16 @@ export const LernfristSchweiz = () => (
       title="Lernfrist Schweiz – Was bedeutet das & wie nutzt du sie richtig? | Online Drivecoach"
       description="Lernfrist Schweiz erklärt: Wer sie absolvieren muss, wie lange sie dauert und wie du die 12 Monate optimal für die Fahrprüfung Kat. B nutzt."
       canonical="https://www.onlinedrivecoach.ch/lernfrist-schweiz"
+      schema={{
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Lernfrist Schweiz – Was bedeutet das und wie nutzt du sie richtig?",
+        "description": "Lernfrist Schweiz erklärt: Wer sie absolvieren muss, wie lange sie dauert und wie du die 12 Monate optimal nutzt.",
+        "author": { "@type": "Person", "name": "Mihael Milic", "jobTitle": "Eidg. dipl. Fahrlehrer" },
+        "publisher": { "@type": "Organization", "name": "Online Drivecoach", "url": "https://www.onlinedrivecoach.ch" },
+        "url": "https://www.onlinedrivecoach.ch/lernfrist-schweiz",
+        "inLanguage": "de-CH"
+      }}
     />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Lernfrist Schweiz – Was bedeutet das und wie nutzt du sie richtig?
@@ -299,6 +343,16 @@ export const KontrollfahrtSchweiz = () => (
       title="Kontrollfahrt Schweiz – Vorbereitung, Ablauf & Tipps | Online Drivecoach"
       description="Kontrollfahrt Schweiz: Was sie ist, wer sie absolvieren muss und wie du dich mit Lernvideos vom ausgebildeten Fahrlehrer optimal vorbereitest."
       canonical="https://www.onlinedrivecoach.ch/kontrollfahrt-schweiz"
+      schema={{
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Kontrollfahrt Schweiz – Vorbereitung, Ablauf & Tipps",
+        "description": "Kontrollfahrt Schweiz: Was sie ist, wer sie absolvieren muss und wie du dich optimal vorbereitest.",
+        "author": { "@type": "Person", "name": "Mihael Milic", "jobTitle": "Eidg. dipl. Fahrlehrer" },
+        "publisher": { "@type": "Organization", "name": "Online Drivecoach", "url": "https://www.onlinedrivecoach.ch" },
+        "url": "https://www.onlinedrivecoach.ch/kontrollfahrt-schweiz",
+        "inLanguage": "de-CH"
+      }}
     />
     <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
       Kontrollfahrt Schweiz – Vorbereitung, Ablauf & Tipps

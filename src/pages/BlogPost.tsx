@@ -14,7 +14,7 @@ const CTABox = () => (
     </h3>
     <p className="text-muted-foreground mb-4">
       Über 30 Lernvideos für die praktische Fahrprüfung Kat. B in der Schweiz.
-      Von einem ausgebildeten Schweizer Fahrlehrer. POV-Aufnahmen aus der Fahrerperspektive.
+      Von einem eidg. dipl. Fahrlehrer. POV-Aufnahmen aus der Fahrerperspektive.
       CHF 79.– einmalig — günstiger als eine einzige Fahrstunde (ca. CHF 90.–).
     </p>
     <Link
@@ -28,7 +28,15 @@ const CTABox = () => (
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [post, setPost] = useState<{ title: string; content: string; tag: string; excerpt: string; image_url: string | null } | null>(null);
+  const [post, setPost] = useState<{
+    title: string;
+    content: string;
+    tag: string;
+    excerpt: string;
+    image_url: string | null;
+    updated_at: string;
+    created_at: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -38,7 +46,7 @@ const BlogPost = () => {
       setNotFound(false);
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("title, content, tag, excerpt, image_url")
+        .select("title, content, tag, excerpt, image_url, updated_at, created_at")
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();
@@ -64,12 +72,42 @@ const BlogPost = () => {
 
   if (notFound) return <NotFound />;
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.title,
+    "description": post.excerpt,
+    "datePublished": post.created_at,
+    "dateModified": post.updated_at,
+    "author": {
+      "@type": "Person",
+      "name": "Mihael Milic",
+      "jobTitle": "Eidg. dipl. Fahrlehrer",
+      "url": "https://www.onlinedrivecoach.ch"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Online Drivecoach",
+      "url": "https://www.onlinedrivecoach.ch",
+      "logo": "https://www.onlinedrivecoach.ch/favicon.png"
+    },
+    "url": `https://www.onlinedrivecoach.ch/blog/${slug}`,
+    "inLanguage": "de-CH"
+  };
+
+  const formattedDate = new Date(post.updated_at).toLocaleDateString("de-CH", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <SEOMeta
         title={`${post.title} | Online Drivecoach`}
         description={post.excerpt || post.title}
         canonical={`https://www.onlinedrivecoach.ch/blog/${slug}`}
+        schema={articleSchema}
       />
       <Header />
       <main className="flex-1 pt-28 pb-16">
@@ -79,9 +117,16 @@ const BlogPost = () => {
               {post.tag}
             </span>
           )}
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
             {post.title}
           </h1>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-8">
+            <span className="font-medium text-foreground">Mihael Milic</span>
+            <span>·</span>
+            <span>Eidg. dipl. Fahrlehrer</span>
+            <span>·</span>
+            <span>Aktualisiert: {formattedDate}</span>
+          </div>
           {post.image_url && (
             <img src={post.image_url} alt={post.title} className="w-full h-64 md:h-80 object-cover rounded-2xl mb-8" />
           )}

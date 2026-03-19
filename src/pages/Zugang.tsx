@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,15 +52,6 @@ const Zugang = () => {
         >
           {/* Pricing Card */}
           <div className="bg-card shadow-elevated rounded-3xl p-8 md:p-10">
-            {/* Promo Badge */}
-            <div className="flex justify-center mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
-                <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-accent font-medium text-sm">
-                  Einführungspreis: CHF 79.– statt 129.–
-                </span>
-              </div>
-            </div>
 
             {/* Title */}
             <h1 className="font-display text-2xl md:text-3xl font-bold text-accent text-center mb-4">
@@ -96,9 +87,6 @@ const Zugang = () => {
 
             {/* Price */}
             <div className="text-center mb-8">
-              <span className="text-xl text-muted-foreground line-through mr-3">
-                CHF 129.–
-              </span>
               <span className="text-3xl font-bold text-foreground">
                 CHF 79.–
               </span>

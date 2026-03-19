@@ -92,7 +92,6 @@ const CallToAction = () => {
 
             {/* Price */}
             <div className="flex items-baseline gap-3">
-              <span className="text-xl text-muted-foreground line-through">CHF 129.–</span>
               <span className="font-display text-3xl font-bold text-foreground">CHF 79.–</span>
               <span className="text-sm text-muted-foreground">/ Jahr</span>
             </div>

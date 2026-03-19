@@ -222,7 +222,6 @@ const Courses = () => {
           className="text-center mt-12 space-y-4"
         >
           <div className="flex items-baseline justify-center gap-3">
-            <span className="text-lg text-muted-foreground line-through">CHF 129.–</span>
             <span className="font-display text-2xl font-bold text-foreground">CHF 79.–</span>
             <span className="text-sm text-muted-foreground">/ Jahr</span>
           </div>

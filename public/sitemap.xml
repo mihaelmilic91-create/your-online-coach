@@ -66,4 +66,40 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- Blog-Artikel -->
+  <url>
+    <loc>https://www.onlinedrivecoach.ch/blog/wie-viele-fahrstunden-schweiz</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.onlinedrivecoach.ch/blog/kosten-fahrpruefung-schweiz</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.onlinedrivecoach.ch/blog/pruefungsangst-fahrpruefung-schweiz</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.onlinedrivecoach.ch/blog/lernfahrausweis-schweiz</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.onlinedrivecoach.ch/blog/fahrpruefung-checkliste-schweiz</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>

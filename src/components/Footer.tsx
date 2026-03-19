@@ -9,6 +9,7 @@ const Footer = () => {
       { label: "Lernvideos", href: "#kurse" },
       { label: "Preise", href: "/preise" },
       { label: "FAQ", href: "/faq" },
+      { label: "Fahrstunden-Rechner", href: "https://fahrstundensparen.ch" },
     ],
     unternehmen: [
       { label: "Über uns", href: "/ueber-uns" },
@@ -32,6 +33,13 @@ const Footer = () => {
   ];
 
   const renderLink = (link: { label: string; href: string }) => {
+    if (link.href.startsWith("http")) {
+      return (
+        <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-footer-foreground/70 hover:text-footer-foreground transition-colors">
+          {link.label}
+        </a>
+      );
+    }
     if (link.href.startsWith("#")) {
       return (
         <a href={link.href} className="text-footer-foreground/70 hover:text-footer-foreground transition-colors">

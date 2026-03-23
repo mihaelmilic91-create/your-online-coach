@@ -30,8 +30,8 @@ const ProblemSolution = () => {
             Warum viele unnötige Fahrstunden bezahlen
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            In der Schweiz gibt es keine Pflichtfahrstunden –
-            trotzdem wird wertvolle Fahrzeit oft fürs Erklären genutzt.
+            In der Schweiz gibt es keine Pflichtfahrstunden – trotzdem erklären Fahrlehrer
+            in jeder Fahrlektion Dinge, die du vorher hättest lernen können. Das kostet dich Geld.
           </p>
         </motion.div>
 

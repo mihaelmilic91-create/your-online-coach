@@ -64,7 +64,7 @@ const CallToAction = () => {
             </span>
             
             <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
-              Lern Autofahren – <span className="text-gradient">wann und wo du willst</span>
+              Bereit für die Prüfung – <span className="text-gradient">ohne unnötige Fahrstunden.</span>
             </h2>
             
             <p className="text-lg text-muted-foreground">
@@ -99,7 +99,7 @@ const CallToAction = () => {
             <div className="pt-2">
               <Button variant="hero" size="xl" className="gap-2" asChild>
                 <Link to="/zugang">
-                  Jetzt Registrieren
+                  Jetzt Zugang kaufen – CHF 79.–
                   <ArrowRight className="w-5 h-5" />
                 </Link>
               </Button>

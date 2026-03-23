@@ -36,7 +36,7 @@ const Benefits = () => {
           className="text-center mb-16"
         >
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Warum Online Drivecoach anders ist
+            Was du bekommst – und was du sparst.
           </h2>
         </motion.div>
 

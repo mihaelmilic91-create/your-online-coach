@@ -22,17 +22,17 @@ const Hero = () => {
           >
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
               Fahrprüfung Kat. B —{" "}
-              <span className="text-gradient">lern, bevor du fährst.</span>
+              <span className="text-gradient">spare dir mind. 4 Fahrstunden.</span>
             </h1>
-            
+
             <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
-              Über 30 strukturierte Praxis-Videos für die Schweizer Autoprüfung –
-              bereit, bevor du ins Auto steigst.
+              Steig vorbereitet ins Auto. Über 30 Lernvideos vom diplomierten Fahrlehrer –
+              speziell für die Schweizer Fahrprüfung.
             </p>
 
             <p className="text-base text-muted-foreground/80 max-w-lg leading-relaxed">
-              In der Schweiz gibt es keine Pflichtfahrstunden.
-              Nutze private Lernfahrten gezielt – statt Erklärzeit im Auto zu bezahlen.
+              Jede Fahrstunde kostet CHF 85–110. Wer unvorbereitet einsteigt, zahlt drauf.
+              Mit Online Drivecoach lernst du die Theorie vorab – und nutzt jede Fahrminute für Praxis.
             </p>
 
             <p className="text-xl font-bold text-foreground">
@@ -41,7 +41,7 @@ const Hero = () => {
 
             <div className="pt-1">
               <Button variant="hero" size="xl" asChild>
-                <Link to="/zugang">Jetzt clever vorbereiten</Link>
+                <Link to="/zugang">Jetzt Zugang holen – CHF 79.–</Link>
               </Button>
             </div>
 

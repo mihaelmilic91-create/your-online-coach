@@ -85,7 +85,7 @@ const Hero = () => {
             >
               <p className="font-display text-lg sm:text-xl font-bold text-accent">+CHF 400.–</p>
               <p className="text-xs sm:text-sm text-muted-foreground">durchschnittlich gespart</p>
-              <p className="text-xs text-muted-foreground/60 mt-0.5">~5 Erklär-Lektionen à CHF 90.–</p>
+              <p className="text-xs text-muted-foreground/60 mt-0.5">~5 Fahrlektionen à CHF 90.–</p>
             </motion.div>
           </motion.div>
         </div>

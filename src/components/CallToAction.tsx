@@ -45,7 +45,7 @@ const CallToAction = () => {
               viewport={{ once: true }}
               className="absolute -bottom-6 -right-6 bg-card shadow-elevated rounded-2xl p-5"
             >
-              <p className="font-bold text-foreground text-sm">Mihael Milic</p>
+              <p className="font-bold text-foreground text-sm">Michi</p>
               <p className="text-xs text-muted-foreground">Eidg. dipl. Fahrlehrer</p>
               <p className="text-xs text-accent font-medium">Gründer von Online Drivecoach</p>
             </motion.div>

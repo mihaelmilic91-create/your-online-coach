@@ -201,7 +201,9 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error("Error creating checkout session:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    const userFacingPrefixes = ["Missing required", "Diese E-Mail", "Ungültiger Gutschein", "Dieser Gutschein", "Gutschein deckt", "Gutschein wurde gerade", "Fehler beim"];
+    const isSafe = userFacingPrefixes.some(p => errorMessage.startsWith(p));
+    return new Response(JSON.stringify({ error: isSafe ? errorMessage : "Ein interner Fehler ist aufgetreten. Bitte versuche es erneut." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

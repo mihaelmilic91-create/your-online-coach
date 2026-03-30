@@ -139,8 +139,7 @@ serve(async (req) => {
 
   } catch (error: unknown) {
     console.error("Error fetching billing info:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ error: "Ein interner Fehler ist aufgetreten." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

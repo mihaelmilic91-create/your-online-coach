@@ -110,11 +110,11 @@ const Courses = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium mb-4">
+          <p className="text-accent text-sm font-bold uppercase tracking-widest mb-3">
             Lernvideos
-          </span>
+          </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Alle prüfungsrelevanten Themen der Kat. B
+            Alle <span className="text-accent">prüfungsrelevanten</span> Themen der Kat. B
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Professionelle Lernvideos für jeden Schritt deiner Fahrausbildung – von einem erfahrenen Schweizer Fahrlehrer erstellt

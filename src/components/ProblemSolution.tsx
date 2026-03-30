@@ -28,11 +28,11 @@ const ProblemSolution = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-4 py-2 bg-destructive/10 text-destructive rounded-full text-sm font-medium mb-4">
+          <p className="text-accent text-sm font-bold uppercase tracking-widest mb-3">
             Das Problem
-          </span>
+          </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Warum so viele unnötig durchfallen
+            Warum so viele <span className="text-accent">unnötig</span> durchfallen
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Jede dritte praktische Fahrprüfung in der Schweiz wird nicht bestanden. Nicht weil die Leute schlecht fahren — sondern weil sie nicht wussten was der Experte bewertet.

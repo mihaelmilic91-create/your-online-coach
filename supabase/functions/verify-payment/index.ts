@@ -210,7 +210,10 @@ serve(async (req) => {
   } catch (error: unknown) {
     console.error("Error verifying payment:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    // Return user-facing validation errors, sanitize system errors
+    const userFacingPrefixes = ["Zahlung nicht abgeschlossen", "Registrierung nicht gefunden", "Fehler beim"];
+    const isSafe = userFacingPrefixes.some(p => errorMessage.startsWith(p));
+    return new Response(JSON.stringify({ error: isSafe ? errorMessage : "Ein interner Fehler ist aufgetreten. Bitte versuche es erneut." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

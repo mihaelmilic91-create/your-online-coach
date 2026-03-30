@@ -98,7 +98,14 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({ error: "Unknown action" }), { status: 400, headers: corsHeaders });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } catch (error: unknown) {
+    console.error("Admin API error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    // Only return known validation errors, not system errors
+    const safeMessages = [
+      "Unauthorized", "Forbidden", "Unknown action",
+    ];
+    const clientMessage = safeMessages.includes(errorMessage) ? errorMessage : "Ein interner Fehler ist aufgetreten.";
+    return new Response(JSON.stringify({ error: clientMessage }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });

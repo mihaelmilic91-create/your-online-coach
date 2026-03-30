@@ -70,8 +70,7 @@ serve(async (req) => {
     });
   } catch (error: unknown) {
     console.error("Error checking access:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
-    return new Response(JSON.stringify({ error: errorMessage, hasAccess: false }), {
+    return new Response(JSON.stringify({ error: "Zugriffsprüfung fehlgeschlagen.", hasAccess: false }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 401,
     });

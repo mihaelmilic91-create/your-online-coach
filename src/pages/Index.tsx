@@ -25,8 +25,8 @@ const Index = () => {
       <Courses />
       <FounderSection />
       <CallToAction />
-      <UrgencyBanner />
       <FAQ />
+      <UrgencyBanner />
       <FinalCTA />
       <Footer />
     </main>

@@ -43,7 +43,7 @@ const FounderSection = () => {
             </h2>
 
             <blockquote className="text-background/80 text-lg md:text-xl italic leading-relaxed border-l-4 border-accent pl-6">
-              "Als Fahrlehrer habe ich tausende von Fahrstunden erteilt. Und ich habe immer wieder dasselbe gesehen: Fahrschüler die gut fahren können — aber nicht wussten was der Experte wirklich bewertet. Das hat mich gestört. Also habe ich Online Drivecoach gebaut."
+              "Als Fahrlehrer habe ich tausende von Fahrstunden erteilt. Und ich habe immer wieder dasselbe gedacht: Wie kann man Fahrstunden optimieren/minimieren. Das wollte ich ändern, also habe ich Online Drivecoach erstellt."
             </blockquote>
 
             <p className="text-background/60 text-sm">

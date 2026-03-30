@@ -39,7 +39,7 @@ const Benefits = () => {
             Was du bekommst
           </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Vorbereitet in jede Fahrstunde — <span className="text-accent">weniger bezahlen.</span>
+            Der Unterschied beginnt <span className="text-accent">vor der ersten Fahrstunde.</span>
           </h2>
         </motion.div>
 

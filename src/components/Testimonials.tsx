@@ -149,7 +149,7 @@ const Testimonials = () => {
               {/* Text */}
               {review.review_text && (
                 <p className="text-foreground text-sm leading-relaxed mb-2">
-                  „{review.review_text}"
+                  „{review.review_text.length > 150 ? review.review_text.slice(0, 150).trimEnd() + '…' : review.review_text}"
                 </p>
               )}
 

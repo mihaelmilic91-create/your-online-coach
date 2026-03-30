@@ -58,7 +58,7 @@ const CallToAction = () => {
                   <span className="font-display text-4xl font-bold text-foreground">CHF 79.–</span>
                   <span className="text-sm text-muted-foreground">einmalig · 1 Jahr Zugang</span>
                 </div>
-                <p className="text-sm text-accent font-medium">= weniger als eine einzige Fahrstunde</p>
+                <p className="text-xl md:text-2xl font-display font-bold text-accent mt-2">= weniger als eine einzige Fahrstunde</p>
               </div>
 
               <Button variant="hero" size="xl" className="gap-2 w-full" asChild>

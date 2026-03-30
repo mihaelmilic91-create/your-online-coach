@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const UrgencyBanner = () => {
   return (
-    <section className="py-14 bg-accent">
+    <section className="py-20 bg-accent">
       <div className="container mx-auto px-4 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

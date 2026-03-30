@@ -18,7 +18,7 @@ const FounderSection = () => {
               <img
                 src={instructorImg}
                 alt="Michi — Diplomierter Fahrlehrer & Gründer Online Drivecoach"
-                className="w-full aspect-square object-cover object-top"
+                className="w-full aspect-square object-cover object-top scale-125"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 

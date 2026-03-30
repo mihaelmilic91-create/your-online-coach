@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 const FinalCTA = () => {
   return (
-    <section className="py-28 bg-foreground">
+    <section className="py-28 bg-background">
       <div className="container mx-auto px-4 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -14,10 +14,10 @@ const FinalCTA = () => {
           viewport={{ once: true }}
           className="space-y-6 max-w-3xl mx-auto"
         >
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-background leading-tight">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
             Werde Teil der grössten Online-Fahrschule der Schweiz.
           </h2>
-          <p className="text-background/70 text-lg md:text-xl">
+          <p className="text-muted-foreground text-lg md:text-xl">
             Starte heute und bereite dich richtig vor — für weniger als eine Fahrstunde kostet.
           </p>
           <div className="pt-4">
@@ -28,7 +28,7 @@ const FinalCTA = () => {
               </Link>
             </Button>
           </div>
-          <p className="text-background/40 text-sm">
+          <p className="text-muted-foreground/60 text-sm">
             🇨🇭 Swiss made · Sofortiger Zugang nach Kauf · 1 Jahr Zugang
           </p>
         </motion.div>

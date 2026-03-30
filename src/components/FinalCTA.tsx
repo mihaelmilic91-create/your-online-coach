@@ -28,7 +28,7 @@ const FinalCTA = () => {
               </Link>
             </Button>
           </div>
-          <p className="text-footer-foreground/40 text-sm">
+          <p className="text-background/40 text-sm">
             🇨🇭 Swiss made · Sofortiger Zugang nach Kauf · 1 Jahr Zugang
           </p>
         </motion.div>

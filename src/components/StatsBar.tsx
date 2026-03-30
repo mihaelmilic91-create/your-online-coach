@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 const stats = [
-  { value: "33%", label: "aller praktischen Fahrprüfungen werden nicht bestanden" },
+  { value: "33%*", label: "der Prüfungen werden nicht beim ersten Mal bestanden" },
   { value: "CHF 360.–", label: "durchschnittliche Ersparnis bei Fahrstunden" },
   { value: "CHF 90.–", label: "kostet eine einzige Fahrstunde in der Schweiz" },
 ];

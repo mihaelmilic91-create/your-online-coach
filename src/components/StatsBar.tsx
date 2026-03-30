@@ -8,7 +8,7 @@ const stats = [
 
 const StatsBar = () => {
   return (
-    <section className="bg-primary py-12">
+    <section className="bg-accent py-14">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4 max-w-4xl mx-auto text-center">
           {stats.map((stat, index) => (
@@ -20,14 +20,14 @@ const StatsBar = () => {
               viewport={{ once: true }}
               className="px-4"
             >
-              <p className="font-display text-4xl md:text-5xl font-bold text-accent mb-2">
+              <p className="font-display text-4xl md:text-5xl font-bold text-accent-foreground mb-2">
                 {stat.value}
               </p>
-              <p className="text-background/70 text-sm leading-relaxed">{stat.label}</p>
+              <p className="text-accent-foreground/80 text-sm leading-relaxed">{stat.label}</p>
             </motion.div>
           ))}
         </div>
-        <p className="text-center text-background/40 text-xs mt-8">
+        <p className="text-center text-accent-foreground/60 text-xs mt-8">
           *Quelle: Strassenverkehrsamt Schweiz 2025
         </p>
       </div>

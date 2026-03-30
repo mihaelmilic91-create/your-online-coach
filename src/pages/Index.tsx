@@ -6,7 +6,7 @@ import Benefits from "@/components/Benefits";
 import HowItWorks from "@/components/HowItWorks";
 import Courses from "@/components/Courses";
 import FounderSection from "@/components/FounderSection";
-import Testimonials from "@/components/Testimonials";
+
 import UrgencyBanner from "@/components/UrgencyBanner";
 import CallToAction from "@/components/CallToAction";
 import FAQ from "@/components/FAQ";

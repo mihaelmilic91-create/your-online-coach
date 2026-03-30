@@ -23,7 +23,7 @@ const CallToAction = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="space-y-6"
+            className="space-y-8 text-center"
           >
             <p className="text-accent text-sm font-bold uppercase tracking-widest">
               Dein Zugang
@@ -33,7 +33,7 @@ const CallToAction = () => {
               Alles für die Prüfung — <span className="text-accent">in einem Zugang.</span>
             </h2>
 
-            <ul className="space-y-3">
+            <ul className="space-y-3 inline-block text-left">
               {features.map((feature, index) => (
                 <motion.li
                   key={feature}
@@ -52,16 +52,16 @@ const CallToAction = () => {
             </ul>
 
             {/* Price */}
-            <div className="bg-card shadow-card rounded-2xl p-6 space-y-4">
-              <div className="space-y-1">
-                <div className="flex items-baseline gap-3">
-                  <span className="font-display text-4xl font-bold text-foreground">CHF 79.–</span>
+            <div className="bg-card shadow-elevated rounded-2xl p-8 space-y-5 border-2 border-accent/20">
+              <div className="space-y-2">
+                <div className="flex items-baseline gap-3 justify-center">
+                  <span className="font-display text-5xl font-bold text-foreground">CHF 79.–</span>
                   <span className="text-sm text-muted-foreground">einmalig · 1 Jahr Zugang</span>
                 </div>
-                <p className="text-xl md:text-2xl font-display font-bold text-accent mt-2">= weniger als eine einzige Fahrstunde</p>
+                <p className="text-xl md:text-2xl font-display font-bold text-accent">= weniger als eine einzige Fahrstunde</p>
               </div>
 
-              <Button variant="hero" size="xl" className="gap-2 w-full" asChild>
+              <Button variant="hero" size="xl" className="gap-2 w-full text-lg" asChild>
                 <Link to="/zugang">
                   Jetzt Zugang sichern — CHF 79.–
                   <ArrowRight className="w-5 h-5" />

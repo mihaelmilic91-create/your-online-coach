@@ -13,7 +13,7 @@ const CallToAction = () => {
   ];
 
   return (
-    <section className="py-20 bg-background relative overflow-hidden">
+    <section className="py-28 bg-background relative overflow-hidden">
       <div className="absolute inset-0 gradient-hero opacity-50" />
 
       <div className="container mx-auto px-4 relative">

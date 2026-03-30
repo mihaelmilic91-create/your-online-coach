@@ -192,8 +192,12 @@ serve(async (req) => {
     );
   } catch (error: any) {
     console.error("Error creating payment intent:", error);
+    const errorMessage = error?.message || "Unknown error";
+    // Only pass through known user-facing errors
+    const userFacingPrefixes = ["Alle Pflichtfelder", "Diese E-Mail-Adresse", "Fehler bei", "STRIPE_SECRET_KEY", "Missing publishable"];
+    const isSafe = userFacingPrefixes.some(p => errorMessage.startsWith(p));
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: isSafe ? errorMessage : "Ein interner Fehler ist aufgetreten. Bitte versuche es erneut." }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

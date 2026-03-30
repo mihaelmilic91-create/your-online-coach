@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import DOMPurify from "dompurify";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -54,7 +55,10 @@ const StaticPage = () => {
           </h1>
           <div
             className="prose prose-lg max-w-none text-foreground"
-            dangerouslySetInnerHTML={{ __html: page.content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(page.content, {
+              ALLOWED_TAGS: ['p', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li', 'a', 'br', 'span', 'div', 'img', 'blockquote', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
+              ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'style']
+            }) }}
           />
         </div>
       </div>

@@ -20,10 +20,10 @@ const StatsBar = () => {
               viewport={{ once: true }}
               className="px-4"
             >
-              <p className="font-display text-4xl md:text-5xl font-bold text-accent mb-2">
+              <p className="font-display text-4xl md:text-5xl font-bold text-accent-foreground mb-2">
                 {stat.value}
               </p>
-              <p className="text-background/70 text-sm leading-relaxed">{stat.label}</p>
+              <p className="text-accent-foreground/80 text-sm leading-relaxed">{stat.label}</p>
             </motion.div>
           ))}
         </div>

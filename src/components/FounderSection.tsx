@@ -3,7 +3,7 @@ import instructorImg from "@/assets/instructor-car.jpg";
 
 const FounderSection = () => {
   return (
-    <section className="py-28 bg-foreground">
+    <section className="py-28 bg-footer">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
           {/* Image */}
@@ -38,15 +38,15 @@ const FounderSection = () => {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-background leading-tight">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-footer-foreground leading-tight">
               Ich bin Fahrlehrer. Und ich habe das System verändert.
             </h2>
 
-            <blockquote className="text-background/80 text-lg md:text-xl italic leading-relaxed border-l-4 border-accent pl-6">
+            <blockquote className="text-footer-foreground/80 text-lg md:text-xl italic leading-relaxed border-l-4 border-footer-foreground pl-6">
               "Als Fahrlehrer habe ich tausende von Fahrstunden erteilt. Und ich habe immer wieder dasselbe gedacht: Wie kann man Fahrstunden optimieren/minimieren. Das wollte ich ändern, also habe ich Online Drivecoach erstellt."
             </blockquote>
 
-            <p className="text-background/60 text-sm">
+            <p className="text-footer-foreground/60 text-sm">
               Michi · Diplomierter Fahrlehrer · Gründer Online Drivecoach
             </p>
           </motion.div>

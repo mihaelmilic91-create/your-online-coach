@@ -7,7 +7,7 @@ import HowItWorks from "@/components/HowItWorks";
 import Courses from "@/components/Courses";
 import FounderSection from "@/components/FounderSection";
 
-import UrgencyBanner from "@/components/UrgencyBanner";
+
 import CallToAction from "@/components/CallToAction";
 import FAQ from "@/components/FAQ";
 import FinalCTA from "@/components/FinalCTA";
@@ -26,7 +26,7 @@ const Index = () => {
       <FounderSection />
       <CallToAction />
       <FAQ />
-      <UrgencyBanner />
+      
       <FinalCTA />
       <Footer />
     </main>

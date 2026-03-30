@@ -3,7 +3,7 @@ import instructorImg from "@/assets/instructor-car.jpg";
 
 const FounderSection = () => {
   return (
-    <section className="py-28 bg-foreground">
+    <section className="py-28 bg-footer">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
           {/* Image */}

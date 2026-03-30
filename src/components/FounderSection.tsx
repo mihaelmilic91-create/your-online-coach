@@ -46,7 +46,7 @@ const FounderSection = () => {
               "Als Fahrlehrer habe ich tausende von Fahrstunden erteilt. Und ich habe immer wieder dasselbe gedacht: Wie kann man Fahrstunden optimieren/minimieren. Das wollte ich ändern, also habe ich Online Drivecoach erstellt."
             </blockquote>
 
-            <p className="text-background/60 text-sm">
+            <p className="text-footer-foreground/60 text-sm">
               Michi · Diplomierter Fahrlehrer · Gründer Online Drivecoach
             </p>
           </motion.div>

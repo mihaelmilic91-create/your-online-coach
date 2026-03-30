@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import instructorImg from "@/assets/instructor.jpg";
+import instructorImg from "@/assets/instructor-car.jpg";
 
 const FounderSection = () => {
   return (

@@ -30,10 +30,12 @@ const Hero = () => {
             </p>
 
             <div className="pt-1 space-y-3">
-              <Button variant="hero" size="xl" asChild>
-                <Link to="/zugang">Jetzt starten — CHF 79.–</Link>
-              </Button>
-              <p className="text-sm text-muted-foreground pl-1">= weniger als eine Fahrstunde</p>
+              <div className="flex items-center gap-4 flex-wrap">
+                <Button variant="hero" size="xl" asChild>
+                  <Link to="/zugang">Jetzt starten — CHF 79.–</Link>
+                </Button>
+                <p className="text-sm text-muted-foreground">=&nbsp;weniger als eine Fahrstunde</p>
+              </div>
               <p className="text-sm font-medium text-foreground pl-1">
                 <span className="text-amber-400">★★★★★</span>{" "}
                 <span className="text-muted-foreground">Bereits über 100 Fahrstunden eingespart</span>

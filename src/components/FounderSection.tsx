@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import instructorImg from "@/assets/instructor.jpg";
+import instructorImg from "@/assets/instructor-car.jpg";
 
 const FounderSection = () => {
   return (
@@ -18,7 +18,7 @@ const FounderSection = () => {
               <img
                 src={instructorImg}
                 alt="Michi — Diplomierter Fahrlehrer & Gründer Online Drivecoach"
-                className="w-full aspect-square object-cover object-top"
+                className="w-full aspect-square object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
 

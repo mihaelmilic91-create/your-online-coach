@@ -1,21 +1,21 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, CheckCircle, XCircle, DollarSign, HelpCircle, Zap, Lightbulb, Target } from "lucide-react";
+import { X, Check } from "lucide-react";
 
 const ProblemSolution = () => {
   const problems = [
-    { icon: AlertTriangle, text: "Fahrstunden ohne Plan und Vorbereitung" },
-    { icon: AlertTriangle, text: "Eltern bringen falsches Fahrverhalten bei" },
-    { icon: HelpCircle, text: "Begleitperson weiss nicht was zählt" },
-    { icon: DollarSign, text: "Faden verloren in der Lernphase" },
-    { icon: AlertTriangle, text: "Hoffend in die Prüfung" },
+    "Du nimmst Fahrstunden ohne zu wissen was geübt werden soll",
+    "Deine Eltern bringen dir bei wie sie fahren — nicht wie es der Experte erwartet",
+    "Du verlierst den Faden in der 1-jährigen Lernphase",
+    "Du gehst hoffend in die Prüfung — nicht vorbereitet",
+    "Bis zu CHF 5'400 für Fahrstunden",
   ];
 
   const solutions = [
-    { icon: Lightbulb, text: "Vor jeder Fahrstunde weisst du was dran ist" },
-    { icon: CheckCircle, text: "Begleitperson lernt was wirklich richtig ist" },
-    { icon: Target, text: "Roter Faden durch die gesamte Lernphase" },
-    { icon: Zap, text: "Jederzeit abrufbar — auch nach Pausen" },
-    { icon: CheckCircle, text: "Vorbereitet in die Prüfung — nicht hoffend" },
+    "Du weisst vor jeder Fahrstunde genau was heute geübt wird",
+    "Deine Begleitperson weiss was sie dir zeigen soll — und was nicht",
+    "Roter Faden durch die gesamte Lernphase — jederzeit abrufbar",
+    "Du weisst was der Experte sehen will — und zeigst es ihm",
+    "Weniger Fahrstunden, mehr Erfolg",
   ];
 
   return (
@@ -40,18 +40,20 @@ const ProblemSolution = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
-            className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-900/50 rounded-3xl p-8"
+            className="bg-card border border-border rounded-2xl p-8 relative overflow-hidden"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
-                <XCircle className="w-6 h-6 text-red-600" />
-              </div>
-              <h3 className="font-display text-2xl font-bold text-red-700 dark:text-red-400">
+            {/* Red accent line */}
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-destructive" />
+
+            <div className="flex items-center gap-2 mb-8">
+              <X className="w-5 h-5 text-destructive" strokeWidth={3} />
+              <h3 className="font-display text-sm font-bold uppercase tracking-wider text-destructive">
                 Ohne Online Drivecoach
               </h3>
             </div>
-            <ul className="space-y-4">
-              {problems.map((problem, index) => (
+
+            <ul className="space-y-6">
+              {problems.map((text, index) => (
                 <motion.li
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
@@ -60,8 +62,8 @@ const ProblemSolution = () => {
                   viewport={{ once: true }}
                   className="flex items-start gap-3"
                 >
-                  <problem.icon className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">{problem.text}</span>
+                  <X className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" strokeWidth={2.5} />
+                  <span className="text-foreground leading-relaxed">{text}</span>
                 </motion.li>
               ))}
             </ul>
@@ -73,18 +75,17 @@ const ProblemSolution = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="bg-green-50 dark:bg-green-950/20 border-2 border-green-200 dark:border-green-900/50 rounded-3xl p-8"
+            className="bg-card border border-border rounded-2xl p-8"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="font-display text-2xl font-bold text-green-700 dark:text-green-400">
+            <div className="flex items-center gap-2 mb-8">
+              <Check className="w-5 h-5 text-accent" strokeWidth={3} />
+              <h3 className="font-display text-sm font-bold uppercase tracking-wider text-accent">
                 Mit Online Drivecoach
               </h3>
             </div>
-            <ul className="space-y-4">
-              {solutions.map((solution, index) => (
+
+            <ul className="space-y-6">
+              {solutions.map((text, index) => (
                 <motion.li
                   key={index}
                   initial={{ opacity: 0, x: 20 }}
@@ -93,15 +94,13 @@ const ProblemSolution = () => {
                   viewport={{ once: true }}
                   className="flex items-start gap-3"
                 >
-                  <solution.icon className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-foreground">{solution.text}</span>
+                  <Check className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" strokeWidth={2.5} />
+                  <span className="text-foreground leading-relaxed">{text}</span>
                 </motion.li>
               ))}
             </ul>
           </motion.div>
         </div>
-
-        {/* Zusatztext */}
       </div>
     </section>
   );

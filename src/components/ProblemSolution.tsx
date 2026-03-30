@@ -3,19 +3,19 @@ import { X, Check } from "lucide-react";
 
 const ProblemSolution = () => {
   const problems = [
-    "Du nimmst Fahrstunden ohne zu wissen was geübt werden soll",
-    "Deine Eltern bringen dir bei wie sie fahren — nicht wie es der Experte erwartet",
-    "Du verlierst den Faden in der 1-jährigen Lernphase",
-    "Du gehst hoffend in die Prüfung — nicht vorbereitet",
-    "Bis zu CHF 5'400 für Fahrstunden",
+    "Fahrstunden ohne Plan und Vorbereitung",
+    "Eltern bringen falsches Fahrverhalten bei",
+    "Begleitperson weiss nicht was zählt",
+    "Faden verloren in der Lernphase",
+    "Hoffend in die Prüfung",
   ];
 
   const solutions = [
-    "Du weisst vor jeder Fahrstunde genau was heute geübt wird",
-    "Deine Begleitperson weiss was sie dir zeigen soll — und was nicht",
-    "Roter Faden durch die gesamte Lernphase — jederzeit abrufbar",
-    "Du weisst was der Experte sehen will — und zeigst es ihm",
-    "Weniger Fahrstunden, mehr Erfolg",
+    "Vor jeder Fahrstunde weisst du was dran ist",
+    "Begleitperson lernt was wirklich richtig ist",
+    "Roter Faden durch die gesamte Lernphase",
+    "Jederzeit abrufbar — auch nach Pausen",
+    "Vorbereitet in die Prüfung — nicht hoffend",
   ];
 
   return (

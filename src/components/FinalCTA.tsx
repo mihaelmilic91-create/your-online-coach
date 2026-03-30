@@ -15,7 +15,7 @@ const FinalCTA = () => {
           className="space-y-6 max-w-3xl mx-auto"
         >
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-background leading-tight">
-            Werde Teil der Schweizer Online-Fahrschule.
+            Werde Teil der grössten Online-Fahrschule der Schweiz.
           </h2>
           <p className="text-background/70 text-lg md:text-xl">
             Starte heute und bereite dich richtig vor — für weniger als eine Fahrstunde kostet.

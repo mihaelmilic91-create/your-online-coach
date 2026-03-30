@@ -27,7 +27,7 @@ const StatsBar = () => {
             </motion.div>
           ))}
         </div>
-        <p className="text-center text-background/40 text-xs mt-8">
+        <p className="text-center text-accent-foreground/60 text-xs mt-8">
           *Quelle: Strassenverkehrsamt Schweiz 2025
         </p>
       </div>

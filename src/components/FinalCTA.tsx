@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 const FinalCTA = () => {
   return (
-    <section className="py-28 bg-muted/30">
+    <section className="py-28 bg-background">
       <div className="container mx-auto px-4 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

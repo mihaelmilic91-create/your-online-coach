@@ -35,8 +35,11 @@ const Benefits = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
+          <p className="text-accent text-sm font-bold uppercase tracking-widest mb-3">
+            Was du bekommst
+          </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Was du bekommst – und was du sparst.
+            Vorbereitet in jede Fahrstunde — <span className="text-accent">weniger bezahlen.</span>
           </h2>
         </motion.div>
 

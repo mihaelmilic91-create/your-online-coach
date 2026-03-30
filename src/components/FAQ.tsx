@@ -45,8 +45,11 @@ const FAQ = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
+          <p className="text-accent text-sm font-bold uppercase tracking-widest mb-3">
+            Fragen & Antworten
+          </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Häufige Fragen
+            Häufige <span className="text-accent">Fragen</span>
           </h2>
         </motion.div>
 

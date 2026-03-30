@@ -25,13 +25,12 @@ const CallToAction = () => {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <span className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium">
-              Was du bekommst
-            </span>
+            <p className="text-accent text-sm font-bold uppercase tracking-widest">
+              Dein Zugang
+            </p>
 
             <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
-              Alles was du für die Prüfung brauchst —{" "}
-              <span className="text-gradient">in einem Zugang.</span>
+              Alles für die Prüfung — <span className="text-accent">in einem Zugang.</span>
             </h2>
 
             <ul className="space-y-3">

@@ -36,8 +36,11 @@ const HowItWorks = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
+          <p className="text-accent text-sm font-bold uppercase tracking-widest mb-3">
+            In 3 Schritten
+          </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Wie es funktioniert
+            Vom Lernen zur <span className="text-accent">bestandenen</span> Prüfung
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Drei Schritte. Vorbereitet ins Auto. Sicher durch die Prüfung.

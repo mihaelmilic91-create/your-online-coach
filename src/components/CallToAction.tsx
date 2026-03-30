@@ -91,18 +91,22 @@ const CallToAction = () => {
             </ul>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3">
-              <span className="font-display text-3xl font-bold text-foreground">CHF 79.–</span>
-              <span className="text-sm text-muted-foreground">/ Jahr</span>
+            <div className="space-y-1">
+              <div className="flex items-baseline gap-3">
+                <span className="font-display text-3xl font-bold text-foreground">CHF 79.–</span>
+                <span className="text-sm text-muted-foreground">einmalig · 1 Jahr Zugang</span>
+              </div>
+              <p className="text-sm text-accent font-medium">= weniger als eine einzige Fahrstunde</p>
             </div>
 
-            <div className="pt-2">
-              <Button variant="hero" size="xl" className="gap-2" asChild>
+            <div className="pt-2 space-y-3">
+              <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" asChild>
                 <Link to="/zugang">
-                  Jetzt Zugang kaufen – CHF 79.–
+                  Jetzt Zugang sichern — CHF 79.–
                   <ArrowRight className="w-5 h-5" />
                 </Link>
               </Button>
+              <p className="text-xs text-muted-foreground">🇨🇭 Swiss made · Sofortiger Zugang nach Kauf</p>
             </div>
           </motion.div>
         </div>

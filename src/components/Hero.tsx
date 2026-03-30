@@ -26,23 +26,18 @@ const Hero = () => {
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
-              Steig vorbereitet ins Auto. Über 30 Lernvideos vom diplomierten Fahrlehrer –
-              speziell für die Schweizer Fahrprüfung.
+              Lerne was der Experte wirklich bewertet — bevor du ins Auto steigst. So wird jede Fahrstunde effizienter und du sparst hunderte von Franken.
             </p>
 
-            <p className="text-base text-muted-foreground/80 max-w-lg leading-relaxed">
-              Jede Fahrstunde kostet CHF 85–110. Wer unvorbereitet einsteigt, zahlt drauf.
-              Mit Online Drivecoach lernst du die Theorie vorab – und nutzt jede Fahrminute für Praxis.
-            </p>
-
-            <p className="text-xl font-bold text-foreground">
-              nur CHF 79.– <span className="text-base font-normal text-muted-foreground">– 1 Jahr Zugriff. Kein Abo.</span>
-            </p>
-
-            <div className="pt-1">
+            <div className="pt-1 space-y-3">
               <Button variant="hero" size="xl" asChild>
-                <Link to="/zugang">Jetzt Zugang holen – CHF 79.–</Link>
+                <Link to="/zugang">Jetzt starten — CHF 79.–</Link>
               </Button>
+              <p className="text-sm text-muted-foreground pl-1">= weniger als eine Fahrstunde</p>
+              <p className="text-sm font-medium text-foreground pl-1">
+                <span className="text-amber-400">★★★★★</span>{" "}
+                <span className="text-muted-foreground">Bereits über 100 Fahrstunden eingespart</span>
+              </p>
             </div>
 
             <motion.div
@@ -51,9 +46,9 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.6 }}
             >
               <a href="https://www.swissmadesoftware.org" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity inline-block">
-                <img 
-                  src={swissMadeSoftware} 
-                  alt="Swiss Made Software" 
+                <img
+                  src={swissMadeSoftware}
+                  alt="Swiss Made Software"
                   className="h-10 w-auto"
                 />
               </a>

@@ -4,24 +4,24 @@ import { Layers, Eye, Car, Clock } from "lucide-react";
 const Benefits = () => {
   const benefits = [
     {
-      icon: Layers,
-      title: "Strukturiert statt zufällig",
-      description: "Alle prüfungsrelevanten Themen klar aufgebaut – so lernst du Schritt für Schritt, nicht durcheinander.",
+      icon: Eye,
+      title: "Weisst genau was der Experte sieht",
+      description: "Alle prüfungsrelevanten Themen klar erklärt — so wie sie der Experte bei der Prüfung bewertet.",
     },
     {
-      icon: Eye,
-      title: "Praxisnah erklärt",
-      description: "Jedes Thema wird so vermittelt, wie es in der Fahrausbildung wirklich vorkommt – verständlich und direkt umsetzbar.",
+      icon: Layers,
+      title: "Nur was bei der Prüfung wirklich zählt",
+      description: "Kein unnötiges Wissen. Nur das, was in der Schweizer Fahrprüfung Kat. B tatsächlich geprüft wird.",
     },
     {
       icon: Car,
-      title: "Vorbereitet ins Auto",
-      description: "Du kennst Abläufe, Blickführung und Manöver, bevor du die nächste Fahrstunde startest.",
+      title: "Jede Fahrstunde effizienter nutzen",
+      description: "Du kommst vorbereitet zum Fahrlehrer. Jede Minute zählt für Praxis — nicht für Erklärungen.",
     },
     {
       icon: Clock,
-      title: "Private Lernfahrten sinnvoll nutzen",
-      description: "Dank digitaler Vorbereitung wird jede Fahrminute effektiv genutzt – für Übung statt Erklärung.",
+      title: "Lern wann und wo du willst",
+      description: "Jederzeit abrufbar — zuhause, unterwegs oder kurz vor der Fahrstunde. 1 Jahr Zugang.",
     },
   ];
 
@@ -63,15 +63,6 @@ const Benefits = () => {
           ))}
         </div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          viewport={{ once: true }}
-          className="text-center text-sm text-muted-foreground mt-8"
-        >
-          💡 Über 30 strukturierte Themen – jederzeit abrufbar.
-        </motion.p>
       </div>
     </section>
   );

@@ -132,7 +132,7 @@ const Header = () => {
                 <a href="/login">Anmelden</a>
               </Button>
               <Button variant="hero" size="sm" asChild>
-                <a href="/zugang">Registrieren</a>
+                <a href="/zugang">Jetzt starten — CHF 79.–</a>
               </Button>
             </>
           )}
@@ -188,7 +188,7 @@ const Header = () => {
                     <a href="/login">Anmelden</a>
                   </Button>
                   <Button variant="hero" className="w-full" asChild>
-                    <a href="/zugang">Registrieren</a>
+                    <a href="/zugang">Jetzt starten — CHF 79.–</a>
                   </Button>
                 </div>
               </>

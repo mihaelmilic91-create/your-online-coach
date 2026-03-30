@@ -3,17 +3,19 @@ import { AlertTriangle, CheckCircle, XCircle, DollarSign, HelpCircle, Zap, Light
 
 const ProblemSolution = () => {
   const problems = [
-    { icon: DollarSign, text: "Jedes neue Thema wird zuerst im Auto erklärt." },
-    { icon: HelpCircle, text: "Diese Erklärzeit geht von deiner Fahrlektion ab." },
-    { icon: AlertTriangle, text: "Über 30 Themen summieren sich schnell." },
-    { icon: AlertTriangle, text: "Wertvolle Praxiszeit geht verloren." },
+    { icon: AlertTriangle, text: "Fahrstunden ohne Plan und Vorbereitung" },
+    { icon: AlertTriangle, text: "Eltern bringen falsches Fahrverhalten bei" },
+    { icon: HelpCircle, text: "Begleitperson weiss nicht was zählt" },
+    { icon: DollarSign, text: "Faden verloren in der Lernphase" },
+    { icon: AlertTriangle, text: "Hoffend in die Prüfung" },
   ];
 
   const solutions = [
-    { icon: Lightbulb, text: "Lerne alle prüfungsrelevanten Themen digital vorab." },
-    { icon: Target, text: "Steige vorbereitet ins Auto." },
-    { icon: Zap, text: "Nutze Fahrstunden gezielt für Praxis." },
-    { icon: CheckCircle, text: "Reduziere Erklärzeit – und spare mehrere Fahrstunden." },
+    { icon: Lightbulb, text: "Vor jeder Fahrstunde weisst du was dran ist" },
+    { icon: CheckCircle, text: "Begleitperson lernt was wirklich richtig ist" },
+    { icon: Target, text: "Roter Faden durch die gesamte Lernphase" },
+    { icon: Zap, text: "Jederzeit abrufbar — auch nach Pausen" },
+    { icon: CheckCircle, text: "Vorbereitet in die Prüfung — nicht hoffend" },
   ];
 
   return (
@@ -27,12 +29,8 @@ const ProblemSolution = () => {
           className="text-center mb-16"
         >
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Warum viele unnötige Fahrstunden bezahlen
+            Der Unterschied beginnt vor der ersten Fahrstunde.
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            In der Schweiz gibt es keine Pflichtfahrstunden – trotzdem erklären Fahrlehrer
-            in jeder Fahrlektion Dinge, die du vorher hättest lernen können. Das kostet dich Geld.
-          </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -49,7 +47,7 @@ const ProblemSolution = () => {
                 <XCircle className="w-6 h-6 text-red-600" />
               </div>
               <h3 className="font-display text-2xl font-bold text-red-700 dark:text-red-400">
-                Das Problem
+                Ohne Online Drivecoach
               </h3>
             </div>
             <ul className="space-y-4">
@@ -82,7 +80,7 @@ const ProblemSolution = () => {
                 <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
               <h3 className="font-display text-2xl font-bold text-green-700 dark:text-green-400">
-                Die Lösung
+                Mit Online Drivecoach
               </h3>
             </div>
             <ul className="space-y-4">
@@ -104,16 +102,6 @@ const ProblemSolution = () => {
         </div>
 
         {/* Zusatztext */}
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          viewport={{ once: true }}
-          className="text-center text-sm text-muted-foreground mt-8 max-w-2xl mx-auto"
-        >
-          💡 Allein die reine Erklärzeit entspricht rund 4 Fahrstunden.
-          Wenn du zusätzlich Manöver privat vorbereitest, kannst du noch mehr einsparen.
-        </motion.p>
       </div>
     </section>
   );

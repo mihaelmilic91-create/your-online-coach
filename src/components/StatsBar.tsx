@@ -28,7 +28,7 @@ const StatsBar = () => {
           ))}
         </div>
         <p className="text-center text-accent-foreground/60 text-xs mt-8">
-          *Quelle: Strassenverkehrsamt Schweiz 2025
+          *Quelle: Strassenverkehrsamt Schweiz / ASA 2025
         </p>
       </div>
     </section>

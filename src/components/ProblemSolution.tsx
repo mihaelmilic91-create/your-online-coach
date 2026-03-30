@@ -78,8 +78,8 @@ const ProblemSolution = () => {
             className="bg-card border border-border rounded-2xl p-8 relative overflow-hidden"
           >
             {/* Green accent line */}
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent"
-          >
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent" />
+
             <div className="flex items-center gap-2 mb-8">
               <Check className="w-5 h-5 text-accent" strokeWidth={3} />
               <h3 className="font-display text-sm font-bold uppercase tracking-wider text-accent">

@@ -26,7 +26,7 @@ const Index = () => {
       <FounderSection />
       <CallToAction />
       <FAQ />
-      <UrgencyBanner />
+      
       <FinalCTA />
       <Footer />
     </main>

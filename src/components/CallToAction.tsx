@@ -2,75 +2,37 @@ import { motion } from "framer-motion";
 import { Check, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import instructorCar from "@/assets/instructor-car.jpg";
 
 const CallToAction = () => {
   const features = [
     "Über 30 professionelle Lernvideos",
-    "Von einem eidg. dipl. Fahrlehrer erstellt",
-    "Echte Aufnahmen von Schweizer Strassen",
     "Alle prüfungsrelevanten Themen der Kat. B",
+    "Echte Aufnahmen von Schweizer Strassen",
+    "Auch für Begleitpersonen geeignet",
     "Jederzeit und überall verfügbar",
   ];
 
   return (
     <section className="py-20 bg-background relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute inset-0 gradient-hero opacity-50" />
-      
-      <div className="container mx-auto px-4 relative">
-        <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Image */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="relative"
-          >
-            <div className="relative rounded-3xl overflow-hidden shadow-elevated">
-              <img
-                src={instructorCar}
-                alt="Schweizer Fahrlehrer"
-                className="w-full aspect-square object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-            </div>
-            
-            {/* Floating badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="absolute -bottom-6 -right-6 bg-card shadow-elevated rounded-2xl p-5"
-            >
-              <p className="font-bold text-foreground text-sm">Michi</p>
-              <p className="text-xs text-muted-foreground">Eidg. dipl. Fahrlehrer</p>
-              <p className="text-xs text-accent font-medium">Gründer von Online Drivecoach</p>
-            </motion.div>
-          </motion.div>
 
-          {/* Content */}
+      <div className="container mx-auto px-4 relative">
+        <div className="max-w-2xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="space-y-6"
           >
             <span className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium">
-              Starte jetzt
+              Was du bekommst
             </span>
-            
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
-              Bereit für die Prüfung – <span className="text-gradient">ohne unnötige Fahrstunden.</span>
-            </h2>
-            
-            <p className="text-lg text-muted-foreground">
-              Wir erklären dir in unseren Videos alle Fahrlektionen, wie es dir ein Fahrlehrer erklären würde – so kannst du gezielt mit deinen Begleitpersonen üben.
-            </p>
 
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
+              Alles was du für die Prüfung brauchst —{" "}
+              <span className="text-gradient">in einem Zugang.</span>
+            </h2>
 
             <ul className="space-y-3">
               {features.map((feature, index) => (
@@ -78,7 +40,7 @@ const CallToAction = () => {
                   key={feature}
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
+                  transition={{ duration: 0.4, delay: 0.1 + index * 0.1 }}
                   viewport={{ once: true }}
                   className="flex items-center gap-3"
                 >
@@ -91,22 +53,25 @@ const CallToAction = () => {
             </ul>
 
             {/* Price */}
-            <div className="space-y-1">
-              <div className="flex items-baseline gap-3">
-                <span className="font-display text-3xl font-bold text-foreground">CHF 79.–</span>
-                <span className="text-sm text-muted-foreground">einmalig · 1 Jahr Zugang</span>
+            <div className="bg-card shadow-card rounded-2xl p-6 space-y-4">
+              <div className="space-y-1">
+                <div className="flex items-baseline gap-3">
+                  <span className="font-display text-4xl font-bold text-foreground">CHF 79.–</span>
+                  <span className="text-sm text-muted-foreground">einmalig · 1 Jahr Zugang</span>
+                </div>
+                <p className="text-sm text-accent font-medium">= weniger als eine einzige Fahrstunde</p>
               </div>
-              <p className="text-sm text-accent font-medium">= weniger als eine einzige Fahrstunde</p>
-            </div>
 
-            <div className="pt-2 space-y-3">
-              <Button variant="hero" size="xl" className="gap-2 w-full sm:w-auto" asChild>
+              <Button variant="hero" size="xl" className="gap-2 w-full" asChild>
                 <Link to="/zugang">
                   Jetzt Zugang sichern — CHF 79.–
                   <ArrowRight className="w-5 h-5" />
                 </Link>
               </Button>
-              <p className="text-xs text-muted-foreground">🇨🇭 Swiss made · Sofortiger Zugang nach Kauf</p>
+
+              <p className="text-xs text-muted-foreground text-center">
+                🇨🇭 Swiss made · Sofortiger Zugang nach Kauf
+              </p>
             </div>
           </motion.div>
         </div>

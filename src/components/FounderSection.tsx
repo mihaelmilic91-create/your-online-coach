@@ -38,7 +38,7 @@ const FounderSection = () => {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-background leading-tight">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-footer-foreground leading-tight">
               Ich bin Fahrlehrer. Und ich habe das System verändert.
             </h2>
 

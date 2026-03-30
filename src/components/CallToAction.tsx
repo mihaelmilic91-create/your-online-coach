@@ -13,7 +13,7 @@ const CallToAction = () => {
   ];
 
   return (
-    <section className="py-20 bg-background relative overflow-hidden">
+    <section className="py-28 bg-background relative overflow-hidden">
       <div className="absolute inset-0 gradient-hero opacity-50" />
 
       <div className="container mx-auto px-4 relative">
@@ -58,7 +58,7 @@ const CallToAction = () => {
                   <span className="font-display text-4xl font-bold text-foreground">CHF 79.–</span>
                   <span className="text-sm text-muted-foreground">einmalig · 1 Jahr Zugang</span>
                 </div>
-                <p className="text-sm text-accent font-medium">= weniger als eine einzige Fahrstunde</p>
+                <p className="text-xl md:text-2xl font-display font-bold text-accent mt-2">= weniger als eine einzige Fahrstunde</p>
               </div>
 
               <Button variant="hero" size="xl" className="gap-2 w-full" asChild>

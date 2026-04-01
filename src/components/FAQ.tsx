@@ -30,7 +30,7 @@ const faqs = [
   {
     question: "Gilt das für alle Kantone der Schweiz?",
     answer:
-      "Ja — Online Drivecoach ist auf die Schweizer Fahrprüfung Kat. B ausgerichtet und gilt für alle Kantone. Verfügbar auf Deutsch, Französisch und Italienisch.",
+      "Ja — Online Drivecoach ist auf die Schweizer Fahrprüfung Kat. B ausgerichtet und gilt für alle Kantone.",
   },
 ];
 

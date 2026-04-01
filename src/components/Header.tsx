@@ -164,11 +164,7 @@ const Header = () => {
               </>
             ) : (
               <>
-                <a href="#kurse" className="text-foreground font-medium py-2">
-                  Lernvideos
-                </a>
-                <a href="#vorteile" className="text-foreground font-medium py-2">
-                  Vorteile
+                <div className="flex flex-col gap-2 pt-4">
                 </a>
                 {/* <a href="#testimonials" className="text-foreground font-medium py-2">
                   Erfahrungen

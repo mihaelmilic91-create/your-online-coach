@@ -34,7 +34,7 @@ const Courses = () => {
             .order("sort_order", { ascending: true }),
           supabase
             .from("videos")
-            .select("category_id, vdocipher_video_id")
+            .select("category_id")
             .eq("is_published", true),
         ]);
 
@@ -44,22 +44,18 @@ const Courses = () => {
         }
 
         const countMap: Record<string, number> = {};
-        const firstVideoMap: Record<string, string> = {};
         videos?.forEach(v => {
           countMap[v.category_id] = (countMap[v.category_id] || 0) + 1;
-          if (!firstVideoMap[v.category_id]) {
-            firstVideoMap[v.category_id] = v.vdocipher_video_id;
-          }
         });
 
-        // Fetch poster thumbnails from VdoCipher
-        const vdoIds = Object.values(firstVideoMap);
+        // Fetch poster thumbnails via edge function (server-side lookup by category)
+        const categoryIds = cats.map(c => c.id);
         let posterMap: Record<string, string | null> = {};
 
-        if (vdoIds.length > 0) {
+        if (categoryIds.length > 0) {
           try {
             const { data: posterData } = await supabase.functions.invoke("get-video-posters", {
-              body: { videoIds: vdoIds },
+              body: { categoryIds },
             });
             posterMap = posterData?.posters || {};
           } catch (err) {
@@ -70,7 +66,7 @@ const Courses = () => {
         setCategories(cats.map(c => ({
           ...c,
           videoCount: countMap[c.id] || 0,
-          posterUrl: firstVideoMap[c.id] ? (posterMap[firstVideoMap[c.id]] || null) : null,
+          posterUrl: posterMap[c.id] || null,
         })));
       } catch (err) {
         console.error("Error fetching categories:", err);

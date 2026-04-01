@@ -77,17 +77,7 @@ const Header = () => {
           />
         </a>
 
-        {/* Desktop Navigation - only for guests */}
-        {!isLoggedIn && (
-          <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-            <a href="#kurse" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-              Lernvideos
-            </a>
-            <a href="#vorteile" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-              Vorteile
-            </a>
-          </nav>
-        )}
+        {/* Desktop Navigation - hidden for all users */}
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">

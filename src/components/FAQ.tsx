@@ -10,7 +10,7 @@ const faqs = [
   {
     question: "Ersetzt Online Drivecoach die Fahrstunden beim Fahrlehrer?",
     answer:
-      "Nein — Online Drivecoach ist die Vorbereitung auf deine Fahrstunden. Du lernst zuerst was der Experte bewertet, und gehst dann vorbereitet zum Fahrlehrer. So wird jede Stunde effizienter.",
+      "Ja und Nein — In der Schweiz gibt es keine Pflichtfahrstunden. Trotzdem empfehlen wir, mit einer geschulten Fachperson zu üben, die weiss, wie man es dir richtig beibringt. Online Drivecoach bereitet dich optimal auf diese Stunden vor — so weisst du bereits, worauf der Experte achtet, und jede Fahrstunde wird deutlich effizienter.",
   },
   {
     question: "Wann soll ich starten?",

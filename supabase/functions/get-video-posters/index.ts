@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 const VDOCIPHER_API_URL = "https://dev.vdocipher.com/api";
@@ -15,14 +16,42 @@ serve(async (req) => {
       throw new Error("VDOCIPHER_API_SECRET is not configured");
     }
 
-    const { videoIds } = await req.json();
-    
-    if (!videoIds || !Array.isArray(videoIds) || videoIds.length === 0) {
-      throw new Error("videoIds array is required");
+    const body = await req.json();
+
+    // Support both legacy videoIds mode and new categoryIds mode
+    let videoIdsToPosterUrl: { videoId: string; categoryId?: string }[] = [];
+
+    if (body.categoryIds && Array.isArray(body.categoryIds) && body.categoryIds.length > 0) {
+      // New mode: look up first video per category server-side
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      );
+
+      const { data: videos } = await supabaseAdmin
+        .from("videos")
+        .select("category_id, vdocipher_video_id")
+        .eq("is_published", true)
+        .in("category_id", body.categoryIds)
+        .order("sort_order", { ascending: true });
+
+      // Get first video per category
+      const seen = new Set<string>();
+      for (const v of videos || []) {
+        if (!seen.has(v.category_id)) {
+          seen.add(v.category_id);
+          videoIdsToPosterUrl.push({ videoId: v.vdocipher_video_id, categoryId: v.category_id });
+        }
+      }
+    } else if (body.videoIds && Array.isArray(body.videoIds) && body.videoIds.length > 0) {
+      // Legacy mode: direct video IDs
+      videoIdsToPosterUrl = body.videoIds.map((id: string) => ({ videoId: id }));
+    } else {
+      throw new Error("categoryIds or videoIds array is required");
     }
 
     // Fetch poster URLs for all videos in parallel
-    const posterPromises = videoIds.map(async (videoId: string) => {
+    const posterPromises = videoIdsToPosterUrl.map(async ({ videoId, categoryId }) => {
       try {
         const response = await fetch(`${VDOCIPHER_API_URL}/meta/${videoId}`, {
           method: "GET",
@@ -34,31 +63,40 @@ serve(async (req) => {
 
         if (!response.ok) {
           console.error(`VdoCipher meta error for ${videoId}:`, response.status);
-          return { videoId, posterUrl: null };
+          return { videoId, categoryId, posterUrl: null };
         }
 
         const data = await response.json();
-        // Get the highest quality poster
         const posters = data.posters || [];
         const bestPoster = posters.length > 0 ? posters[posters.length - 1] : null;
         
-        return { videoId, posterUrl: bestPoster?.url || null };
+        return { videoId, categoryId, posterUrl: bestPoster?.url || null };
       } catch (err) {
         console.error(`Error fetching poster for ${videoId}:`, err);
-        return { videoId, posterUrl: null };
+        return { videoId, categoryId, posterUrl: null };
       }
     });
 
     const results = await Promise.all(posterPromises);
     
-    // Convert to a map for easy lookup
-    const posterMap: Record<string, string | null> = {};
-    results.forEach(r => { posterMap[r.videoId] = r.posterUrl; });
-
-    return new Response(JSON.stringify({ posters: posterMap }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+    // Build response based on mode
+    if (body.categoryIds) {
+      // Return keyed by categoryId
+      const posterMap: Record<string, string | null> = {};
+      results.forEach(r => { if (r.categoryId) posterMap[r.categoryId] = r.posterUrl; });
+      return new Response(JSON.stringify({ posters: posterMap }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    } else {
+      // Legacy: keyed by videoId
+      const posterMap: Record<string, string | null> = {};
+      results.forEach(r => { posterMap[r.videoId] = r.posterUrl; });
+      return new Response(JSON.stringify({ posters: posterMap }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
 
   } catch (error: unknown) {
     console.error("Error fetching video posters:", error);

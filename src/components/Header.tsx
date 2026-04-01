@@ -165,11 +165,6 @@ const Header = () => {
             ) : (
               <>
                 <div className="flex flex-col gap-2 pt-4">
-                </a>
-                {/* <a href="#testimonials" className="text-foreground font-medium py-2">
-                  Erfahrungen
-                </a> – temporarily hidden, re-add with Testimonials */}
-                <div className="flex flex-col gap-2 pt-4 border-t border-border">
                   <Button variant="ghost" className="w-full" asChild>
                     <a href="/login">Anmelden</a>
                   </Button>

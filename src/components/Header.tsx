@@ -77,17 +77,7 @@ const Header = () => {
           />
         </a>
 
-        {/* Desktop Navigation - only for guests */}
-        {!isLoggedIn && (
-          <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-            <a href="#kurse" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-              Lernvideos
-            </a>
-            <a href="#vorteile" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
-              Vorteile
-            </a>
-          </nav>
-        )}
+        {/* Desktop Navigation - hidden for all users */}
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
@@ -174,16 +164,7 @@ const Header = () => {
               </>
             ) : (
               <>
-                <a href="#kurse" className="text-foreground font-medium py-2">
-                  Lernvideos
-                </a>
-                <a href="#vorteile" className="text-foreground font-medium py-2">
-                  Vorteile
-                </a>
-                {/* <a href="#testimonials" className="text-foreground font-medium py-2">
-                  Erfahrungen
-                </a> – temporarily hidden, re-add with Testimonials */}
-                <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                <div className="flex flex-col gap-2 pt-4">
                   <Button variant="ghost" className="w-full" asChild>
                     <a href="/login">Anmelden</a>
                   </Button>

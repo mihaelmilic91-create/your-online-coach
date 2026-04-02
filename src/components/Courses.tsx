@@ -26,31 +26,21 @@ const Courses = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const [{ data: cats }, { data: videos }] = await Promise.all([
-          supabase
-            .from("video_categories")
-            .select("id, title, description, thumbnail_url")
-            .eq("is_published", true)
-            .order("sort_order", { ascending: true }),
-          supabase
-            .from("videos")
-            .select("category_id")
-            .eq("is_published", true),
-        ]);
+        const { data: cats } = await supabase
+          .from("video_categories")
+          .select("id, title, description, thumbnail_url")
+          .eq("is_published", true)
+          .order("sort_order", { ascending: true });
 
         if (!cats || cats.length === 0) {
           setLoading(false);
           return;
         }
 
-        const countMap: Record<string, number> = {};
-        videos?.forEach(v => {
-          countMap[v.category_id] = (countMap[v.category_id] || 0) + 1;
-        });
-
-        // Fetch poster thumbnails via edge function (server-side lookup by category)
+        // Fetch poster thumbnails and video counts via edge function (server-side)
         const categoryIds = cats.map(c => c.id);
         let posterMap: Record<string, string | null> = {};
+        let countMap: Record<string, number> = {};
 
         if (categoryIds.length > 0) {
           try {
@@ -58,6 +48,7 @@ const Courses = () => {
               body: { categoryIds },
             });
             posterMap = posterData?.posters || {};
+            countMap = posterData?.counts || {};
           } catch (err) {
             console.error("Error fetching posters:", err);
           }

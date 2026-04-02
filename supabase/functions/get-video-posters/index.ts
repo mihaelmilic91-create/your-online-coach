@@ -81,10 +81,23 @@ serve(async (req) => {
     
     // Build response based on mode
     if (body.categoryIds) {
-      // Return keyed by categoryId
+      // Return keyed by categoryId, include video counts
       const posterMap: Record<string, string | null> = {};
       results.forEach(r => { if (r.categoryId) posterMap[r.categoryId] = r.posterUrl; });
-      return new Response(JSON.stringify({ posters: posterMap }), {
+
+      // Count videos per category
+      const { data: allVids } = await supabaseAdmin
+        .from("videos")
+        .select("category_id")
+        .eq("is_published", true)
+        .in("category_id", body.categoryIds);
+
+      const countMap: Record<string, number> = {};
+      allVids?.forEach(v => {
+        countMap[v.category_id] = (countMap[v.category_id] || 0) + 1;
+      });
+
+      return new Response(JSON.stringify({ posters: posterMap, counts: countMap }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });

@@ -9,6 +9,7 @@ import FounderSection from "@/components/FounderSection";
 
 
 import CallToAction from "@/components/CallToAction";
+import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
@@ -25,6 +26,7 @@ const Index = () => {
       <Courses />
       <FounderSection />
       <CallToAction />
+      <Testimonials />
       <FAQ />
       
       <FinalCTA />

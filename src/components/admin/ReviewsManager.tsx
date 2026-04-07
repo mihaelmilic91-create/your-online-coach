@@ -77,8 +77,7 @@ const ReviewsManager = () => {
   const importToTestimonials = async (r: UserReview) => {
     const text = r.review_text || r.helpfulness;
     if (!text) {
-      toast({ variant: "destructive", title: "Kein Text", description: "Diese Bewertung hat keinen Text zum
-  Veröffentlichen." });
+      toast({ variant: "destructive", title: "Kein Text", description: "Diese Bewertung hat keinen Text zum Veröffentlichen." });
       return;
     }
     const { error } = await supabase.from("testimonials").insert([{

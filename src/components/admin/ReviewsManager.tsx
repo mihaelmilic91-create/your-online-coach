@@ -75,24 +75,29 @@ const ReviewsManager = () => {
   };
 
   const importToTestimonials = async (r: UserReview) => {
-    const text = r.review_text || r.helpfulness;
-    if (!text) {
-      toast({ variant: "destructive", title: "Kein Text", description: "Diese Bewertung hat keinen Text zum Veröffentlichen." });
-      return;
-    }
-    const { error } = await supabase.from("testimonials").insert([{
-      name: r.first_name || "Anonym",
-      location: r.city || null,
-      image_url: null,
-      rating: r.star_rating || 5,
-      text,
-      is_published: false,
-      sort_order: 9999,
-    }]);
+    const { error } = await supabase
+      .from("user_reviews")
+      .update({ is_approved: true, publish_permission: true })
+      .eq("id", r.id);
     if (error) {
       toast({ variant: "destructive", title: "Fehler", description: error.message });
     } else {
-      toast({ title: "Übernommen ✓", description: "Bewertung wurde in Rezensionen kopiert. Dort veröffentlichen nicht vergessen." });
+      toast({ title: "Auf Website sichtbar ✓", description: "Bewertung wird jetzt auf der Homepage angezeigt."
+  });
+      fetchReviews();
+    }
+  };
+
+  const removeFromWebsite = async (r: UserReview) => {
+    const { error } = await supabase
+      .from("user_reviews")
+      .update({ publish_permission: false })
+      .eq("id", r.id);
+    if (error) {
+      toast({ variant: "destructive", title: "Fehler", description: error.message });
+    } else {
+      toast({ title: "Von Website entfernt" });
+      fetchReviews();
     }
   };
   
@@ -233,14 +238,35 @@ const ReviewsManager = () => {
 
                 <div className="flex flex-col gap-1 shrink-0">
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`h-8 w-8 ${r.is_approved ? "text-accent" : "text-muted-foreground"}`}
-                    onClick={() => toggleApproval(r)}
-                    title={r.is_approved ? "Ablehnen" : "Genehmigen"}
-                  >
-                    <Check className="w-4 h-4" />
-                  </Button>
+    variant="ghost"
+    size="icon"
+    className={`h-8 w-8 ${r.is_approved ? "text-accent" : "text-muted-foreground"}`}
+    onClick={() => toggleApproval(r)}
+    title={r.is_approved ? "Ablehnen" : "Genehmigen"}
+  >
+    <Check className="w-4 h-4" />
+  </Button>
+  {r.publish_permission ? (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 text-accent"
+      onClick={() => removeFromWebsite(r)}
+      title="Von Website entfernen"
+    >
+      <Globe className="w-4 h-4" />
+    </Button>
+  ) : (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 text-muted-foreground"
+      onClick={() => importToTestimonials(r)}
+      title="Auf Website zeigen"
+    >
+      <Globe className="w-4 h-4" />
+    </Button>
+  )}
                   <Button
                     variant="ghost"
                     size="icon"

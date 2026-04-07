@@ -18,15 +18,16 @@ serve(async (req) => {
 
     const body = await req.json();
 
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
     // Support both legacy videoIds mode and new categoryIds mode
     let videoIdsToPosterUrl: { videoId: string; categoryId?: string }[] = [];
 
     if (body.categoryIds && Array.isArray(body.categoryIds) && body.categoryIds.length > 0) {
       // New mode: look up first video per category server-side
-      const supabaseAdmin = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-      );
 
       const { data: videos } = await supabaseAdmin
         .from("videos")

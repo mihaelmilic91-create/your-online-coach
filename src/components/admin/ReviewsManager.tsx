@@ -239,17 +239,16 @@ const ReviewsManager = () => {
                     onClick={() => toggleApproval(r)}
                     title={r.is_approved ? "Ablehnen" : "Genehmigen"}
                   >
-                    <Button
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-primary"
                     onClick={() => importToTestimonials(r)}
                     title="Auf Website zeigen"
-                    >
+                  >
                     <Globe className="w-4 h-4" />
-                    </Button>
-                    
-                    <Check className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="ghost"

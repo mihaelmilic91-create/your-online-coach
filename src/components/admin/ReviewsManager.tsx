@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Star, ThumbsUp, MessageSquareText, Check, X, Trash2, Filter } from "lucide-react";
+import { Loader2, Star, ThumbsUp, MessageSquareText, Check, X, Trash2, Filter, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,6 +74,30 @@ const ReviewsManager = () => {
     }
   };
 
+  const importToTestimonials = async (r: UserReview) => {
+    const text = r.review_text || r.helpfulness;
+    if (!text) {
+      toast({ variant: "destructive", title: "Kein Text", description: "Diese Bewertung hat keinen Text zum
+  Veröffentlichen." });
+      return;
+    }
+    const { error } = await supabase.from("testimonials").insert([{
+      name: r.first_name || "Anonym",
+      location: r.city || null,
+      image_url: null,
+      rating: r.star_rating || 5,
+      text,
+      is_published: false,
+      sort_order: 9999,
+    }]);
+    if (error) {
+      toast({ variant: "destructive", title: "Fehler", description: error.message });
+    } else {
+      toast({ title: "Übernommen ✓", description: "Bewertung wurde in Rezensionen kopiert. Dort veröffentlichen
+  nicht vergessen." });
+    }
+  };
+  
   const filtered = reviews.filter((r) => {
     if (filterType === "review" && r.flow_type !== "review") return false;
     if (filterType === "feedback" && r.flow_type !== "feedback") return false;
@@ -217,6 +241,16 @@ const ReviewsManager = () => {
                     onClick={() => toggleApproval(r)}
                     title={r.is_approved ? "Ablehnen" : "Genehmigen"}
                   >
+                    <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-primary"
+                    onClick={() => importToTestimonials(r)}
+                    title="Auf Website zeigen"
+                    >
+                    <Globe className="w-4 h-4" />
+                    </Button>
+                    
                     <Check className="w-4 h-4" />
                   </Button>
                   <Button

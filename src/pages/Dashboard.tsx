@@ -57,7 +57,7 @@ const Dashboard = () => {
   }, [shouldShowReview, loading, checkingAccess, accessInfo?.hasAccess]);
 
   // Refresh session when tab becomes visible again (prevents infinite loading after tab switch)
-  useEffect(() => {
+ useEffect(() => {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === "visible" && user) {
         const { data: { session } } = await supabase.auth.getSession();

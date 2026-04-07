@@ -45,7 +45,7 @@ const Dashboard = () => {
   const [showReviewPopup, setShowReviewPopup] = useState(false);
 
   // Enforce single active session
-  useSessionEnforcement(user?.id, !isAdmin);
+  useSessionEnforcement(user?.id, !isAdmin && !loading);
 
   // Review popup logic
   const { shouldShow: shouldShowReview } = useReviewPopup(user?.id);

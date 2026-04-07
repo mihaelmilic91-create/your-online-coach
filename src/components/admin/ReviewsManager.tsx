@@ -92,8 +92,7 @@ const ReviewsManager = () => {
     if (error) {
       toast({ variant: "destructive", title: "Fehler", description: error.message });
     } else {
-      toast({ title: "Übernommen ✓", description: "Bewertung wurde in Rezensionen kopiert. Dort veröffentlichen
-  nicht vergessen." });
+      toast({ title: "Übernommen ✓", description: "Bewertung wurde in Rezensionen kopiert. Dort veröffentlichen nicht vergessen." });
     }
   };
   

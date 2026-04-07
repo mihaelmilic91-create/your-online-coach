@@ -60,9 +60,14 @@ const Dashboard = () => {
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === "visible" && user) {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (!session || error) {
-          navigate("/login");
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          // Token könnte gerade erneuert werden - kurz warten und nochmal prüfen
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const { data: { session: retrySession } } = await supabase.auth.getSession();
+          if (!retrySession) {
+            navigate("/login");
+          }
         }
       }
     };

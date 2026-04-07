@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Lock, ArrowRight, CheckCircle } from "lucide-react";
@@ -39,27 +39,28 @@ const ResetPassword = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof ResetPasswordFormData, string>>>({});
 
   const [isReady, setIsReady] = useState(false);
+  const isReadyRef = useRef(false);
 
   useEffect(() => {
-    // Listen for the PASSWORD_RECOVERY event from the reset link
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
+        isReadyRef.current = true;
         setIsReady(true);
       } else if (event === "SIGNED_IN" && session) {
-        // Also allow if user is already signed in via recovery token
+        isReadyRef.current = true;
         setIsReady(true);
       }
     });
 
-    // Check if there's already a session (e.g. page was refreshed)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        isReadyRef.current = true;
         setIsReady(true);
       } else {
-        // Give the auth state change listener time to process the hash
         setTimeout(() => {
+          if (isReadyRef.current) return;
           supabase.auth.getSession().then(({ data: { session: s } }) => {
-            if (!s) {
+            if (!s && !isReadyRef.current) {
               toast({
                 variant: "destructive",
                 title: "Ungültiger Link",
@@ -68,7 +69,7 @@ const ResetPassword = () => {
               navigate("/forgot-password");
             }
           });
-        }, 2000);
+        }, 3000);
       }
     });
 

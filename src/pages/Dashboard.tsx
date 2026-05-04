@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Play, LogOut, Video, AlertTriangle, Calendar, FolderOpen } from "lucide-react";
+import { Play, LogOut, Video, AlertTriangle, Calendar, FolderOpen, LogIn, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";

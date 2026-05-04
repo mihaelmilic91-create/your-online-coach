@@ -19,12 +19,13 @@ const Testimonials = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       // Fetch approved reviews with publish permission
-      const { data } = await supabase
-        .from("public_reviews" as any)
+      const { data: rawData } = await (supabase as any)
+        .from("public_reviews")
         .select("id, first_name, city, star_rating, review_text, saved_lessons")
         .eq("flow_type", "review")
         .not("star_rating", "is", null)
         .order("review_date", { ascending: false });
+      const data = rawData as ApprovedReview[] | null;
 
       if (data && data.length > 0) {
         setReviews(data);

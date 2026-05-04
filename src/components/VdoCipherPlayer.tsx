@@ -23,6 +23,8 @@ const VdoCipherPlayer = ({ videoId, className, onEnded, autoplay = true }: VdoCi
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const playerRef = useRef<any>(null);
+  const onEndedRef = useRef(onEnded);
+  useEffect(() => { onEndedRef.current = onEnded; }, [onEnded]);
 
   useEffect(() => {
     const loadVideo = async () => {
@@ -86,7 +88,7 @@ const VdoCipherPlayer = ({ videoId, className, onEnded, autoplay = true }: VdoCi
         const handleMessage = (event: MessageEvent) => {
           if (event.origin === "https://player.vdocipher.com") {
             if (event.data?.type === "ended" || event.data?.event === "ended") {
-              onEnded?.();
+              onEndedRef.current?.();
             }
           }
         };
@@ -106,7 +108,7 @@ const VdoCipherPlayer = ({ videoId, className, onEnded, autoplay = true }: VdoCi
     };
 
     loadVideo();
-  }, [videoId, onEnded]);
+  }, [videoId]);
 
   if (error) {
     return (

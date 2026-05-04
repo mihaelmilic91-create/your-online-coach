@@ -286,7 +286,7 @@ const Dashboard = () => {
                 const circ = 2 * Math.PI * r;
                 const offset = circ - (pct / 100) * circ;
                 return (
-                  <div className="relative w-40 h-40">
+                  <div className="relative w-40 h-40 rounded-full bg-gradient-to-br from-footer/10 via-accent/5 to-transparent">
                     <svg viewBox="0 0 140 140" className="w-full h-full -rotate-90">
                       <circle cx="70" cy="70" r={r} stroke="hsl(var(--muted))" strokeWidth="10" fill="none" />
                       <circle

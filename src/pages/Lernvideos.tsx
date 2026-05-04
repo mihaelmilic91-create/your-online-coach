@@ -155,6 +155,7 @@ const Lernvideos = () => {
     
     if (!favData || favData.length === 0) {
       setVideos([]);
+      scrollToVideos();
       return;
     }
     
@@ -168,6 +169,7 @@ const Lernvideos = () => {
     const loadedVideos = videosData || [];
     setVideos(loadedVideos);
     fetchPosters(loadedVideos);
+    scrollToVideos();
   };
 
   const markVideoAsWatched = async (videoId: string) => {
@@ -304,6 +306,15 @@ const Lernvideos = () => {
     }
   };
 
+  const scrollToVideos = () => {
+    // Only scroll on mobile/tablet where the videos grid sits below the categories
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setTimeout(() => {
+        document.getElementById("videos-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 150);
+    }
+  };
+
   const loadVideosForCategory = async (category: Category) => {
     setSelectedCategory(category);
     setIsFavoritesCategory(false);
@@ -316,6 +327,7 @@ const Lernvideos = () => {
     const loadedVideos = videosData || [];
     setVideos(loadedVideos);
     fetchPosters(loadedVideos);
+    scrollToVideos();
   };
 
   const handleLogout = async () => {
@@ -611,19 +623,21 @@ const Lernvideos = () => {
               <FolderOpen className="w-5 h-5 text-accent" />
               Kategorien
             </h2>
-            <div className="space-y-2">
+            <div className="space-y-2" id="categories-list">
               {categories.map((category) => (
                 <Card 
                   key={category.id}
                   className={`cursor-pointer transition-all ${
                     selectedCategory?.id === category.id 
-                      ? 'ring-2 ring-accent shadow-elevated bg-accent/5' 
+                      ? 'ring-2 ring-accent shadow-elevated bg-accent/15 border-accent/40' 
                       : 'hover:shadow-soft hover:bg-muted/50'
                   }`}
                   onClick={() => loadVideosForCategory(category)}
                 >
                   <CardContent className="p-4">
-                    <h3 className="font-semibold text-foreground">{category.title}</h3>
+                    <h3 className={`font-semibold ${selectedCategory?.id === category.id ? 'text-accent' : 'text-foreground'}`}>
+                      {category.title}
+                    </h3>
                     {category.description && (
                       <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                         {category.description}
@@ -637,14 +651,14 @@ const Lernvideos = () => {
               <Card 
                 className={`cursor-pointer transition-all ${
                   isFavoritesCategory 
-                    ? 'ring-2 ring-accent shadow-elevated bg-accent/5' 
+                    ? 'ring-2 ring-footer shadow-elevated bg-footer/15 border-footer/40' 
                     : 'hover:shadow-soft hover:bg-muted/50'
                 }`}
                 onClick={loadFavoriteVideos}
               >
                 <CardContent className="p-4 flex items-center gap-2">
-                  <Heart className={`w-4 h-4 ${isFavoritesCategory ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
-                  <h3 className="font-semibold text-foreground">Favoriten</h3>
+                  <Heart className={`w-4 h-4 ${isFavoritesCategory ? 'fill-footer text-footer' : 'text-muted-foreground'}`} />
+                  <h3 className={`font-semibold ${isFavoritesCategory ? 'text-footer' : 'text-foreground'}`}>Favoriten</h3>
                   <span className="text-xs text-muted-foreground ml-auto">
                     {favoriteVideoIds.size}
                   </span>
@@ -664,7 +678,8 @@ const Lernvideos = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-3"
+            className="lg:col-span-3 scroll-mt-4"
+            id="videos-grid"
           >
             {(selectedCategory || isFavoritesCategory) ? (
               <>

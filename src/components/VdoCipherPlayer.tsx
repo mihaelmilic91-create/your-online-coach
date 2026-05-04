@@ -88,7 +88,7 @@ const VdoCipherPlayer = ({ videoId, className, onEnded, autoplay = true }: VdoCi
         const handleMessage = (event: MessageEvent) => {
           if (event.origin === "https://player.vdocipher.com") {
             if (event.data?.type === "ended" || event.data?.event === "ended") {
-              onEnded?.();
+              onEndedRef.current?.();
             }
           }
         };
@@ -108,7 +108,7 @@ const VdoCipherPlayer = ({ videoId, className, onEnded, autoplay = true }: VdoCi
     };
 
     loadVideo();
-  }, [videoId, onEnded]);
+  }, [videoId]);
 
   if (error) {
     return (

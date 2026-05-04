@@ -155,6 +155,7 @@ const Lernvideos = () => {
     
     if (!favData || favData.length === 0) {
       setVideos([]);
+      scrollToVideos();
       return;
     }
     
@@ -168,6 +169,7 @@ const Lernvideos = () => {
     const loadedVideos = videosData || [];
     setVideos(loadedVideos);
     fetchPosters(loadedVideos);
+    scrollToVideos();
   };
 
   const markVideoAsWatched = async (videoId: string) => {

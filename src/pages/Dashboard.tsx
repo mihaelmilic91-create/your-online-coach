@@ -260,7 +260,7 @@ const Dashboard = () => {
           <div className="grid md:grid-cols-[1fr_auto] items-center gap-6 p-6 md:p-8">
             {/* Greeting + Ring on mobile stacked */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left order-2 md:order-1">
-              <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-footer mb-2">
                 {getGreeting()}
               </p>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -286,7 +286,7 @@ const Dashboard = () => {
                 const circ = 2 * Math.PI * r;
                 const offset = circ - (pct / 100) * circ;
                 return (
-                  <div className="relative w-40 h-40">
+                  <div className="relative w-40 h-40 rounded-full bg-gradient-to-br from-footer/10 via-accent/5 to-transparent">
                     <svg viewBox="0 0 140 140" className="w-full h-full -rotate-90">
                       <circle cx="70" cy="70" r={r} stroke="hsl(var(--muted))" strokeWidth="10" fill="none" />
                       <circle
@@ -326,7 +326,7 @@ const Dashboard = () => {
               <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">Kategorien</p>
             </Link>
             <Link to="/lernvideos" className="group p-4 text-center hover:bg-muted/50 transition-colors">
-              <div className="flex items-center justify-center gap-2 text-accent mb-1">
+              <div className="flex items-center justify-center gap-2 text-footer mb-1">
                 <Video className="w-4 h-4" />
                 <span className="text-2xl font-bold text-foreground tabular-nums">
                   {videosCount > 0 ? `${videosCount}+` : "30+"}

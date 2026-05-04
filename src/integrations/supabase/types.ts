@@ -767,7 +767,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_reviews: {
+        Row: {
+          city: string | null
+          first_name: string | null
+          flow_type: string | null
+          id: string | null
+          is_approved: boolean | null
+          publish_permission: boolean | null
+          review_date: string | null
+          review_text: string | null
+          saved_lessons: string | null
+          star_rating: number | null
+        }
+        Insert: {
+          city?: string | null
+          first_name?: string | null
+          flow_type?: string | null
+          id?: string | null
+          is_approved?: boolean | null
+          publish_permission?: boolean | null
+          review_date?: string | null
+          review_text?: string | null
+          saved_lessons?: string | null
+          star_rating?: number | null
+        }
+        Update: {
+          city?: string | null
+          first_name?: string | null
+          flow_type?: string | null
+          id?: string | null
+          is_approved?: boolean | null
+          publish_permission?: boolean | null
+          review_date?: string | null
+          review_text?: string | null
+          saved_lessons?: string | null
+          star_rating?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       delete_email: {

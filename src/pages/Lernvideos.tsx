@@ -304,6 +304,15 @@ const Lernvideos = () => {
     }
   };
 
+  const scrollToVideos = () => {
+    // Only scroll on mobile/tablet where the videos grid sits below the categories
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setTimeout(() => {
+        document.getElementById("videos-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 150);
+    }
+  };
+
   const loadVideosForCategory = async (category: Category) => {
     setSelectedCategory(category);
     setIsFavoritesCategory(false);
@@ -316,6 +325,7 @@ const Lernvideos = () => {
     const loadedVideos = videosData || [];
     setVideos(loadedVideos);
     fetchPosters(loadedVideos);
+    scrollToVideos();
   };
 
   const handleLogout = async () => {

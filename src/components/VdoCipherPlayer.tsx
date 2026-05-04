@@ -23,6 +23,8 @@ const VdoCipherPlayer = ({ videoId, className, onEnded, autoplay = true }: VdoCi
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const playerRef = useRef<any>(null);
+  const onEndedRef = useRef(onEnded);
+  useEffect(() => { onEndedRef.current = onEnded; }, [onEnded]);
 
   useEffect(() => {
     const loadVideo = async () => {

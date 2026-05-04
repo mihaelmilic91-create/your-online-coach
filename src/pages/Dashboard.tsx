@@ -249,106 +249,109 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        {/* Welcome Section with Progress Bar */}
-        <motion.div
+      <main className="container mx-auto px-4 py-6 space-y-6 max-w-6xl">
+        {/* Hero: Welcome + Circular Progress + Stats */}
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-gradient-to-br from-accent/5 via-primary/5 to-transparent rounded-2xl p-6 border border-border"
+          className="bg-card rounded-3xl shadow-soft border border-border/60 overflow-hidden"
         >
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-1">
-            {getGreeting()}, {displayName}!
-          </h1>
-          <p className="text-muted-foreground mb-4">
-            Starte deine Lernreise und bereite dich auf die Autoprüfung vor.
-          </p>
-          <AccessProgressBar daysRemaining={accessInfo?.daysRemaining || 0} />
-        </motion.div>
+          <div className="grid md:grid-cols-[1fr_auto] items-center gap-6 p-6 md:p-8">
+            {/* Greeting + Ring on mobile stacked */}
+            <div className="flex flex-col items-center md:items-start text-center md:text-left order-2 md:order-1">
+              <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2">
+                {getGreeting()}
+              </p>
+              <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2">
+                Hallo, {displayName}! 👋
+              </h1>
+              <p className="text-muted-foreground text-sm md:text-base max-w-md mb-5">
+                Bereit für die nächste Lektion? Deine Lernreise wartet auf dich.
+              </p>
+              <Button asChild size="lg" variant="hero" className="gap-2 rounded-full">
+                <Link to="/lernvideos">
+                  <Play className="w-5 h-5" />
+                  Weiter lernen
+                </Link>
+              </Button>
+            </div>
 
-        {/* Stats Cards - 3 columns */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4"
-        >
-          <Link to="/lernvideos">
-            <Card className="bg-card shadow-soft hover:shadow-elevated transition-shadow cursor-pointer">
-              <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                  <FolderOpen className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xl sm:text-2xl font-bold text-foreground">{categoriesCount}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Kategorien</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-          
-          <Link to="/lernvideos">
-            <Card className="bg-card shadow-soft hover:shadow-elevated transition-shadow cursor-pointer">
-              <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                  <Video className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xl sm:text-2xl font-bold text-foreground">{videosCount > 0 ? `${videosCount}+` : "30+"}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Lernvideos</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-          
-          <Card className="bg-card shadow-soft">
-            <CardContent className="p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+            {/* Circular Access Ring */}
+            <div className="flex justify-center order-1 md:order-2">
+              {(() => {
+                const isUnlimited = (accessInfo?.daysRemaining || 0) >= 999;
+                const pct = isUnlimited ? 100 : Math.min(((accessInfo?.daysRemaining || 0) / 365) * 100, 100);
+                const r = 56;
+                const circ = 2 * Math.PI * r;
+                const offset = circ - (pct / 100) * circ;
+                return (
+                  <div className="relative w-40 h-40">
+                    <svg viewBox="0 0 140 140" className="w-full h-full -rotate-90">
+                      <circle cx="70" cy="70" r={r} stroke="hsl(var(--muted))" strokeWidth="10" fill="none" />
+                      <circle
+                        cx="70" cy="70" r={r}
+                        stroke="hsl(var(--accent))"
+                        strokeWidth="10"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeDasharray={circ}
+                        strokeDashoffset={offset}
+                        className="transition-all duration-700"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 grid place-items-center">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-foreground leading-none">
+                          {isUnlimited ? "∞" : accessInfo?.daysRemaining || 0}
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">
+                          {isUnlimited ? "Zugang" : "Tage übrig"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Inline stat strip */}
+          <div className="grid grid-cols-3 divide-x divide-border border-t border-border bg-muted/30">
+            <Link to="/lernvideos" className="group p-4 text-center hover:bg-muted/50 transition-colors">
+              <div className="flex items-center justify-center gap-2 text-accent mb-1">
+                <FolderOpen className="w-4 h-4" />
+                <span className="text-2xl font-bold text-foreground tabular-nums">{categoriesCount}</span>
               </div>
-              <div className="min-w-0">
-                <p className="text-xl sm:text-2xl font-bold text-foreground">
+              <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">Kategorien</p>
+            </Link>
+            <Link to="/lernvideos" className="group p-4 text-center hover:bg-muted/50 transition-colors">
+              <div className="flex items-center justify-center gap-2 text-accent mb-1">
+                <Video className="w-4 h-4" />
+                <span className="text-2xl font-bold text-foreground tabular-nums">
+                  {videosCount > 0 ? `${videosCount}+` : "30+"}
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">Lernvideos</p>
+            </Link>
+            <div className="p-4 text-center">
+              <div className="flex items-center justify-center gap-2 text-primary mb-1">
+                <Calendar className="w-4 h-4" />
+                <span className="text-2xl font-bold text-foreground tabular-nums">
                   {accessInfo?.daysRemaining === 999 ? "∞" : accessInfo?.daysRemaining || 0}
-                </p>
-                <p className="text-xs sm:text-sm text-muted-foreground truncate">Tage verbleibend</p>
+                </span>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">Tage</p>
+            </div>
+          </div>
+        </motion.section>
 
-        {/* Main Action + Learning Progress Row */}
+        {/* Learning Progress Widget (full width on mobile) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          transition={{ duration: 0.5, delay: 0.15 }}
         >
-          {/* Main Action Card */}
-          <Card className="lg:col-span-2 bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20 shadow-elevated overflow-hidden">
-            <CardContent className="p-6 md:p-8">
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
-                  <Play className="w-10 h-10 md:w-12 md:h-12 text-accent ml-1" />
-                </div>
-                <div className="text-center md:text-left flex-1">
-                  <h2 className="font-display text-xl md:text-2xl font-bold text-foreground mb-2">
-                    Lernvideos ansehen
-                  </h2>
-                  <p className="text-muted-foreground mb-4 max-w-lg">
-                    Entdecke alle Lernvideos, die dir helfen, dich optimal auf die Fahrprüfung vorzubereiten.
-                  </p>
-                  <Button asChild size="lg" variant="hero" className="gap-2">
-                    <Link to="/lernvideos">
-                      <Play className="w-5 h-5" />
-                      Zu den Lernvideos
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Combined Learning Progress Widget */}
           <LearningProgressWidget userId={user?.id} totalVideos={videosCount || 30} />
         </motion.div>
 

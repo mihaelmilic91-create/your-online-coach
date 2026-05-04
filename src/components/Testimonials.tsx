@@ -20,10 +20,8 @@ const Testimonials = () => {
     const fetchReviews = async () => {
       // Fetch approved reviews with publish permission
       const { data } = await supabase
-        .from("user_reviews")
+        .from("public_reviews" as any)
         .select("id, first_name, city, star_rating, review_text, saved_lessons")
-        .eq("is_approved", true)
-        .eq("publish_permission", true)
         .eq("flow_type", "review")
         .not("star_rating", "is", null)
         .order("review_date", { ascending: false });

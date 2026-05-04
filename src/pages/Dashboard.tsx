@@ -260,7 +260,7 @@ const Dashboard = () => {
           <div className="grid md:grid-cols-[1fr_auto] items-center gap-6 p-6 md:p-8">
             {/* Greeting + Ring on mobile stacked */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left order-2 md:order-1">
-              <p className="text-xs font-semibold uppercase tracking-widest text-accent mb-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-footer mb-2">
                 {getGreeting()}
               </p>
               <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2">

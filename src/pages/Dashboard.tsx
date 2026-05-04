@@ -326,7 +326,7 @@ const Dashboard = () => {
               <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">Kategorien</p>
             </Link>
             <Link to="/lernvideos" className="group p-4 text-center hover:bg-muted/50 transition-colors">
-              <div className="flex items-center justify-center gap-2 text-accent mb-1">
+              <div className="flex items-center justify-center gap-2 text-footer mb-1">
                 <Video className="w-4 h-4" />
                 <span className="text-2xl font-bold text-foreground tabular-nums">
                   {videosCount > 0 ? `${videosCount}+` : "30+"}
